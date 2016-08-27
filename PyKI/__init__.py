@@ -3233,8 +3233,12 @@ class PyKI():
         cert.get_subject().L  = city 
         cert.get_subject().O  = org 
         cert.get_subject().OU = ou
-        if cn:
+        if cn and not ca:
             cert.get_subject().CN = cn
+        elif ca and ca != 'intermediate' :
+            cert.get_subject().CN = self.__localCN+'_CA_root'
+        elif ca and ca == 'intermediate' :
+            cert.get_subject().CN = self.__localCN+'_CA_intermediate'
         cert.get_subject().emailAddress = email
         cert.set_serial_number(SERIAL_NUMBER)
         cert.set_pubkey(opsslObjKey)
