@@ -285,7 +285,7 @@ from PyKI import PyKI
                        org = 'Maibach.fr', ou = 'IT',
                        email = 'alain@maibach.fr',
                        KeyUsage = 'serverAuth',
-                       subjectAltName = ['DNS:www.ritano.fr', 'DNS:wiki.amaibach.fr', 'IP:10.0.0.1'],
+                       subjectAltName = ['DNS:www.ritano.fr', 'DNS:wiki.maibach.fr', 'IP:10.0.0.1'],
                        cn = 'www.ritano.fr',
                        encryption = 'sha1',
                        days_valid = '180'

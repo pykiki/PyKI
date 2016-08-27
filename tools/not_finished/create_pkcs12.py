@@ -24,45 +24,30 @@
 from socket import gethostname
 from os import path as ospath, sys
 from getpass import getpass
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-PyKImodPath = curScriptDir + "/../"
-sys.path.append(PyKImodPath)
 from PyKI import PyKI
+
+def createpkcs(name, pki, pkcspass):
+    '''
+    Manage pkcs12 
+    '''
+    print("INFO: Generating pkcs12 for "+name+"...")
+
+    clientpkcs12 = pki.create_pkcs12(pkcs12pwd = pkcspass , pkcs12name = name)
+    if clientpkcs12['error']:
+        print(clientpkcs12['message'])
+        return(False)
+    else:
+        print(clientpkcs12['message'])
+
+    return(True)
 
 if __name__ == '__main__':
     mainVerbosity = True
     # passphrase of the private key requested for pki authentication
-    #privateKeyPassphrase = getpass('PKI Auth key password: ')
-    privateKeyPassphrase = 'a'
+    privateKeyPassphrase = getpass('PKI Authentication key password: ')
+    pkcspw = getpass('Please choose the PKCS12 passphrase: ')
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
-
-    # first init, creating private key
-    if not ospath.exists(pkeyPath):
-        print("\n!!!!! INFO: The auth private key will be saved in "+pkeyPath+" !!!!!\n")
-        pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
-        #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase)
-
-        # get private key for authentication after first init
-        authprivkey = pki.initPkey
-        # writing key to file
-        try:
-            wfile = open(pkeyPath, "wt")
-        except IOError:
-            print('ERROR: unable to open file '+pkeyPath)
-            exit(1)
-        else:
-            try:
-                wfile.write(authprivkey)
-            except IOError:
-                print('ERROR: Unable to write to file '+pkeyPath)
-                exit(1)
-            else:
-                if mainVerbosity:
-                    print('INFO: File ' + pkeyPath + ' written')
-        finally:
-            wfile.close()
-            authprivkey = None
 
     # Init with privkey loaded from file
     pkey = open(pkeyPath ,'rt')
@@ -73,9 +58,6 @@ if __name__ == '__main__':
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)
 
-    print("\nCertificate informations for wiki.maibach.fr")
-    cert_info = pki.get_certinfo('www.ritano.fr')
-    if cert_info['error']:
-        print(cert_info['message'])
-    else:
-        print("\n"+cert_info['message'])
+    cn = 'MBP.local'
+    # create pkcs12
+    createpkcs(name=cn, pki=pki, pkcspass=pkcspw)

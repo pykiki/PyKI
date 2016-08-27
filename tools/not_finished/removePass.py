@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+__author__ = "Alain Maibach"
+__status__ = "Beta tests"
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -24,45 +27,41 @@
 from socket import gethostname
 from os import path as ospath, sys
 from getpass import getpass
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-PyKImodPath = curScriptDir + "/../"
-sys.path.append(PyKImodPath)
 from PyKI import PyKI
+
+def getPass(name, pki):
+    passphrases = pki.loadpassDB()
+    if not passphrases['error']:
+        # we are calling pki func cleanStr() to match the correct certname in database
+        database_certname = passphrases['message'][pki.cleanStr(name)]
+    else:
+        database_certname = False
+    passphrases.clear()
+    return(database_certname)
+
+def rmPass(name, pki, passphrase):
+    '''
+    Remove passphrase from key
+    '''
+    # define type in pkicert.db /get path in crt dir
+    print("INFO: Removing passphrase from "+name)
+
+    unprotectres = pki.unprotect_key(keyname = name, privKeypass = passphrase)
+    if unprotectres['error']:
+        print(unprotectres['message'])
+        return(False)
+
+    print(unprotectres['message'])
+    return(True)
 
 if __name__ == '__main__':
     mainVerbosity = True
+
     # passphrase of the private key requested for pki authentication
-    #privateKeyPassphrase = getpass('PKI Auth key password: ')
-    privateKeyPassphrase = 'a'
+    privateKeyPassphrase = getpass('PKI Auth key password: ')
+    
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
-
-    # first init, creating private key
-    if not ospath.exists(pkeyPath):
-        print("\n!!!!! INFO: The auth private key will be saved in "+pkeyPath+" !!!!!\n")
-        pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
-        #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase)
-
-        # get private key for authentication after first init
-        authprivkey = pki.initPkey
-        # writing key to file
-        try:
-            wfile = open(pkeyPath, "wt")
-        except IOError:
-            print('ERROR: unable to open file '+pkeyPath)
-            exit(1)
-        else:
-            try:
-                wfile.write(authprivkey)
-            except IOError:
-                print('ERROR: Unable to write to file '+pkeyPath)
-                exit(1)
-            else:
-                if mainVerbosity:
-                    print('INFO: File ' + pkeyPath + ' written')
-        finally:
-            wfile.close()
-            authprivkey = None
 
     # Init with privkey loaded from file
     pkey = open(pkeyPath ,'rt')
@@ -73,9 +72,11 @@ if __name__ == '__main__':
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)
 
-    print("\nCertificate informations for wiki.maibach.fr")
-    cert_info = pki.get_certinfo('www.ritano.fr')
-    if cert_info['error']:
-        print(cert_info['message'])
-    else:
-        print("\n"+cert_info['message'])
+    cn = 'MBP.local'
+    passwd = getPass(name=cn, pki=pki)
+    if not passwd:
+        print("Unable to find certificate private key passphrase for "+cn)
+        exit(1)
+
+    # Remove passphrase from cert
+    rmPass(name = cn, pki = pki, passphrase = passwd)

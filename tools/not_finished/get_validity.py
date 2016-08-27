@@ -24,45 +24,14 @@
 from socket import gethostname
 from os import path as ospath, sys
 from getpass import getpass
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-PyKImodPath = curScriptDir + "/../"
-sys.path.append(PyKImodPath)
 from PyKI import PyKI
 
 if __name__ == '__main__':
-    mainVerbosity = True
+    mainVerbosity = False
     # passphrase of the private key requested for pki authentication
-    #privateKeyPassphrase = getpass('PKI Auth key password: ')
-    privateKeyPassphrase = 'a'
+    privateKeyPassphrase = getpass('PKI Auth key password: ')
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
-
-    # first init, creating private key
-    if not ospath.exists(pkeyPath):
-        print("\n!!!!! INFO: The auth private key will be saved in "+pkeyPath+" !!!!!\n")
-        pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
-        #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase)
-
-        # get private key for authentication after first init
-        authprivkey = pki.initPkey
-        # writing key to file
-        try:
-            wfile = open(pkeyPath, "wt")
-        except IOError:
-            print('ERROR: unable to open file '+pkeyPath)
-            exit(1)
-        else:
-            try:
-                wfile.write(authprivkey)
-            except IOError:
-                print('ERROR: Unable to write to file '+pkeyPath)
-                exit(1)
-            else:
-                if mainVerbosity:
-                    print('INFO: File ' + pkeyPath + ' written')
-        finally:
-            wfile.close()
-            authprivkey = None
 
     # Init with privkey loaded from file
     pkey = open(pkeyPath ,'rt')
@@ -74,12 +43,7 @@ if __name__ == '__main__':
     pki.set_verbosity(mainVerbosity)
 
     # Check if the certificate is still valid (not revoked and not expired)
-    name = 'www.ritano.fr'
-    if mainVerbosity:
-        print("INFO: Checking certificate status for "+name)
+    name = 'MBP.local'
+    print("INFO: Checking certificate status for "+name)
     valid = pki.chk_validity(name)
-    if valid['error']:
-        print(valid['message'])
-    elif mainVerbosity:
-        print(valid['message'])
-
+    print(valid['message'])

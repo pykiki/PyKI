@@ -73,7 +73,7 @@ if __name__ == '__main__':
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)
 
-    certpath = "/opt/PyKI_data/CERTS/clients/kiki.ritano.fr/kiki.ritano.fr.crt"
+    certpath = "/opt/PyKI_data/CERTS/clients/www.ritano.fr/www.ritano.fr.crt"
     # Check if the certificate is stored in the pki database
     if mainVerbosity:
         print("INFO: Checking pki conformity for cert "+certpath)

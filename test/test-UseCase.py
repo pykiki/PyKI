@@ -131,7 +131,7 @@ if __name__ == '__main__':
                              KeyUsage = "serverAuth",
                              cn = commoname,
                              subjectAltName = ['DNS:'+commoname], # Options are 'email', 'URI', 'IP', 'DNS'
-                                                                  # Example : subjectAltName = ['DNS:' + USERCN, 'DNS:*.local.net', 'IP:37.187.105.119']
+                                                                  # Example : subjectAltName = ['DNS:' + USERCN, 'DNS:*.local.net', 'IP:10.0.0.1']
                              encryption = "SHA1"
                             )
     if servercert['error'] :
@@ -244,8 +244,8 @@ if __name__ == '__main__':
                              email = 'serfclient@example.com',
                              KeyUsage = "clientAuth",
                              cn = commoname,
-                             subjectAltName = ['DNS:'+commoname, 'IP:37.187.105.119'], # Options are 'email', 'URI', 'IP', 'DNS'
-                                                                                        # Example : subjectAltName = ['DNS:' + USERCN, 'DNS:*.local.net', 'IP:37.187.105.119']
+                             subjectAltName = ['DNS:'+commoname, 'IP:10.0.0.1'], # Options are 'email', 'URI', 'IP', 'DNS'
+                                                                                        # Example : subjectAltName = ['DNS:' + USERCN, 'DNS:*.local.net', 'IP:10.0.0.1']
                             )
     if clientcert['error'] :
         print("ERROR: Unable to generate client certificate "+commoname+" --> "+clientcert['message']+" aborting...")
@@ -274,8 +274,8 @@ if __name__ == '__main__':
                            org = 'In Serf we trust, Inc.', ou = 'Test Suite Server',
                            email = 'serfclient@example.com',
                            cn = commoname,
-                           subjectAltName = ['DNS:'+commoname, 'IP:37.187.105.119'], # Options are 'email', 'URI', 'IP', 'DNS'
-                                                                                      # Example : subjectAltName = ['DNS:' + USERCN, 'DNS:*.local.net', 'IP:37.187.105.119']
+                           subjectAltName = ['DNS:'+commoname, 'IP:10.0.0.1'], # Options are 'email', 'URI', 'IP', 'DNS'
+                                                                                      # Example : subjectAltName = ['DNS:' + USERCN, 'DNS:*.local.net', 'IP:10.0.0.1']
                           )
     if cert['error'] :
         print("ERROR: Unable to generate client certificate: "+commoname+" --> "+cert['message']+" aborting...")
@@ -335,7 +335,7 @@ if __name__ == '__main__':
                      cn = commoname,
                      encryption = 'SHA1',
                      keysize = 1024,
-                     subjectAltName = ['DNS:'+commoname, 'IP:37.187.105.119'] # Options are 'email', 'URI', 'IP', 'DNS'
+                     subjectAltName = ['DNS:'+commoname, 'IP:10.0.0.1'] # Options are 'email', 'URI', 'IP', 'DNS'
                     )
     if csr['error']:
         print(csr['message'])

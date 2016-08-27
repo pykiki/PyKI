@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-from re import sub as resub
-from unicodedata import normalize as uninormalize
-
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -24,34 +21,31 @@ from unicodedata import normalize as uninormalize
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-def strip_accents(text):
-    """
-    Strip accents from input String.
+from socket import gethostname
+from os import path as ospath, sys
+from getpass import getpass
+from PyKI import PyKI
 
-    :param text: The input string.
-    :type text: String.
+if __name__ == '__main__':
+    mainVerbosity = False
+    
+    # passphrase of the private key requested for pki authentication
+    privateKeyPassphrase = getpass('PKI Auth key password: ')
+    
+    # pki authentication private key path
+    pkeyPath = "./pki_auth_cert.pem"
 
-    :returns: The processed String.
-    :rtype: String.
-    """
-    try:
-        text = unicode(text, 'utf-8')
-    except NameError: # unicode is a default on python 3
-        pass
-    text = uninormalize('NFD', text)
-    text = text.encode('ascii', 'ignore')
-    text = text.decode("utf-8")
-    return str(text)
+    # Init with privkey loaded from file
+    pkey = open(pkeyPath ,'rt')
+    pkeyStr = pkey.read()
+    pkey.close()
+    pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
+    
+    # Set pki verbosity after init
+    pki.set_verbosity(mainVerbosity)
 
-def rmSpecialChar(instr):
-    cleanStr = resub('\W+','_', instr )
-    return(cleanStr)
+    cn = 'MBP.local'
 
-def cleanStr(txt):
-    string = rmSpecialChar(strip_accents(txt))
-    return(string)
-
-if __name__ == "__main__":
-    string = "wiki.maibach.fr"
-    print(cleanStr(string))
-
+    print("Certificate informations for "+cn)
+    cert_info = pki.get_certinfo(cn)
+    print("\n"+cert_info['message'])

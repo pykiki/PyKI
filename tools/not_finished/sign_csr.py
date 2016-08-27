@@ -25,44 +25,18 @@ from socket import gethostname
 from os import path as ospath, sys
 from getpass import getpass
 curScriptDir = ospath.dirname(ospath.abspath(__file__))
-PyKImodPath = curScriptDir + "/../"
+PyKImodPath = curScriptDir + "/../../"
 sys.path.append(PyKImodPath)
 from PyKI import PyKI
 
 if __name__ == '__main__':
-    mainVerbosity = True
+    mainVerbosity = False
+    
     # passphrase of the private key requested for pki authentication
-    #privateKeyPassphrase = getpass('PKI Auth key password: ')
-    privateKeyPassphrase = 'a'
+    privateKeyPassphrase = getpass('PKI Auth key password: ')
+    
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
-
-    # first init, creating private key
-    if not ospath.exists(pkeyPath):
-        print("\n!!!!! INFO: The auth private key will be saved in "+pkeyPath+" !!!!!\n")
-        pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
-        #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase)
-
-        # get private key for authentication after first init
-        authprivkey = pki.initPkey
-        # writing key to file
-        try:
-            wfile = open(pkeyPath, "wt")
-        except IOError:
-            print('ERROR: unable to open file '+pkeyPath)
-            exit(1)
-        else:
-            try:
-                wfile.write(authprivkey)
-            except IOError:
-                print('ERROR: Unable to write to file '+pkeyPath)
-                exit(1)
-            else:
-                if mainVerbosity:
-                    print('INFO: File ' + pkeyPath + ' written')
-        finally:
-            wfile.close()
-            authprivkey = None
 
     # Init with privkey loaded from file
     pkey = open(pkeyPath ,'rt')
@@ -73,9 +47,13 @@ if __name__ == '__main__':
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)
 
-    print("\nCertificate informations for wiki.maibach.fr")
-    cert_info = pki.get_certinfo('www.ritano.fr')
-    if cert_info['error']:
-        print(cert_info['message'])
+    csrpath = "/opt/PyKI_data/CERTS/requests/test_gencsr/test_gencsr.csr"
+    print("INFO: Signing Certificate Request "+csrpath+" for 90 days of validity...")
+
+    signRes = pki.sign_csr(csr = csrpath, KeyUsage = "clientAuth", days_valid = 90, encryption = "SHA1")
+    if signRes['error'] :
+        print("ERROR: Unable to generate certificate for csr "+csrpath+" properly --> "+signRes['message']+", aborting...")
+        exit(1)
     else:
-        print("\n"+cert_info['message'])
+        print(signRes['message'])
+        print('INFO: The certificate is available in: /opt/PyKI_data/CERTS/signed/')

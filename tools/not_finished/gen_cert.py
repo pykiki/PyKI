@@ -24,10 +24,23 @@
 from socket import gethostname
 from os import path as ospath, sys
 from getpass import getpass
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-PyKImodPath = curScriptDir + "/../"
-sys.path.append(PyKImodPath)
 from PyKI import PyKI
+import random, string
+
+curScriptDir = ospath.dirname(ospath.abspath(__file__))
+
+def codegenerator(pwlen = 25, alphabet = False):
+    if not alphabet:
+        #alphabet = string.printable
+        alphabet = string.digits + string.ascii_letters + string.punctuation
+
+    pw_length = pwlen
+    mypw = ""
+
+    for i in range(pw_length):
+        next_index = random.randrange(len(alphabet))
+        mypw = mypw + alphabet[next_index]
+    return mypw
 
 def genCert(name, pki, passphrase, usage, altnames = False, size = False, certenc = False, days = False):
     '''
@@ -66,52 +79,38 @@ def genCert(name, pki, passphrase, usage, altnames = False, size = False, certen
 
 if __name__ == '__main__':
     mainVerbosity = True
+    passwd = None
+
     # passphrase of the private key requested for pki authentication
-    #privateKeyPassphrase = getpass('PKI Auth key password: ')
-    privateKeyPassphrase = 'a'
+    privateKeyPassphrase = getpass('PKI Auth key password: ')
+
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
-
-    # first init, creating private key
-    if not ospath.exists(pkeyPath):
-        print("\n!!!!! INFO: The auth private key will be saved in "+pkeyPath+" !!!!!\n")
-        pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
-        #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase)
-
-        # get private key for authentication after first init
-        authprivkey = pki.initPkey
-        # writing key to file
-        try:
-            wfile = open(pkeyPath, "wt")
-        except IOError:
-            print('ERROR: unable to open file '+pkeyPath)
-            exit(1)
-        else:
-            try:
-                wfile.write(authprivkey)
-            except IOError:
-                print('ERROR: Unable to write to file '+pkeyPath)
-                exit(1)
-            else:
-                if mainVerbosity:
-                    print('INFO: File ' + pkeyPath + ' written')
-        finally:
-            wfile.close()
-            authprivkey = None
-
-    # Init with privkey loaded from file
     pkey = open(pkeyPath ,'rt')
     pkeyStr = pkey.read()
     pkey.close()
+
+    # Init with privkey loaded from file
     pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
-    
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)
 
-    # gen server cert for 180 days
-    subjectAltName = ['DNS:www.ritano.fr', 'DNS:wiki.maibach.fr', 'IP:10.0.0.1'] # Options are 'email', 'URI', 'IP', 'DNS'
-    genCert(name = "wiki.maibach.fr", pki = pki, passphrase = 'azerty', altnames = subjectAltName, size = 1024, usage = 'serverAuth' , days = 180, certenc = 'sha1')
+    purpose = 'server'
+    cn = "MBP.local"
+    # Options are 'email', 'URI', 'IP', 'DNS'
+    subjectAltName = ['DNS:MBP.local', 'DNS:mbp.local.net', 'IP:172.17.22.35', 'IP:127.0.0.1', 'DNS:localhost']
 
-    # gen client cert for 180 days
-    subjectAltName = ['DNS:www.ritano.fr', 'DNS:wiki.maibach.fr', 'IP:10.0.0.1'] # Options are 'email', 'URI', 'IP', 'DNS'
-    genCert(name = "www.ritano.fr", pki = pki, passphrase = 'azerty', altnames = subjectAltName, size = 4096, usage = 'clientAuth' , days = 180)
+    #purpose = 'client'
+    #cn = 'www.ritano.fr'
+    #subjectAltName = None
+    #passwd = 'azerty'
+
+    if not passwd:
+        passwd = codegenerator(pwlen = 26)
+
+    if purpose == "server":
+        duration = 730
+        genCert(name = cn, pki = pki, passphrase = passwd, altnames = subjectAltName, size = 8192, usage = 'serverAuth' , days = duration)
+    else:
+        duration = 365
+        genCert(name=cn, pki=pki, passphrase=passwd, size=4096, usage='clientAuth', days=duration)

@@ -24,24 +24,23 @@
 from socket import gethostname
 from os import path as ospath, sys
 from getpass import getpass
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-PyKImodPath = curScriptDir + "/../"
-sys.path.append(PyKImodPath)
 from PyKI import PyKI
+import random, string
 
 if __name__ == '__main__':
+
     mainVerbosity = True
     # passphrase of the private key requested for pki authentication
-    #privateKeyPassphrase = getpass('PKI Auth key password: ')
-    privateKeyPassphrase = 'a'
+    privateKeyPassphrase = getpass('PKI Auth key password: ')
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
 
     # first init, creating private key
     if not ospath.exists(pkeyPath):
         print("\n!!!!! INFO: The auth private key will be saved in "+pkeyPath+" !!!!!\n")
-        pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
-        #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase)
+
+        #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+        pki = PyKI(verbose = True, authKeypass=privateKeyPassphrase, issuerName='PyKI_amaibach')
 
         # get private key for authentication after first init
         authprivkey = pki.initPkey
@@ -68,14 +67,6 @@ if __name__ == '__main__':
     pkey = open(pkeyPath ,'rt')
     pkeyStr = pkey.read()
     pkey.close()
-    pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
+    pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr, issuerName='PyKI_amaibach')
     
-    # Set pki verbosity after init
-    pki.set_verbosity(mainVerbosity)
-
-    print("\nCertificate informations for wiki.maibach.fr")
-    cert_info = pki.get_certinfo('www.ritano.fr')
-    if cert_info['error']:
-        print(cert_info['message'])
-    else:
-        print("\n"+cert_info['message'])
+    exit(0)

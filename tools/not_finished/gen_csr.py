@@ -24,45 +24,16 @@
 from socket import gethostname
 from os import path as ospath, sys
 from getpass import getpass
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-PyKImodPath = curScriptDir + "/../"
-sys.path.append(PyKImodPath)
 from PyKI import PyKI
 
 if __name__ == '__main__':
-    mainVerbosity = True
+    mainVerbosity = False
+    
     # passphrase of the private key requested for pki authentication
-    #privateKeyPassphrase = getpass('PKI Auth key password: ')
-    privateKeyPassphrase = 'a'
+    privateKeyPassphrase = getpass('PKI Auth key password: ')
+    
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
-
-    # first init, creating private key
-    if not ospath.exists(pkeyPath):
-        print("\n!!!!! INFO: The auth private key will be saved in "+pkeyPath+" !!!!!\n")
-        pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
-        #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase)
-
-        # get private key for authentication after first init
-        authprivkey = pki.initPkey
-        # writing key to file
-        try:
-            wfile = open(pkeyPath, "wt")
-        except IOError:
-            print('ERROR: unable to open file '+pkeyPath)
-            exit(1)
-        else:
-            try:
-                wfile.write(authprivkey)
-            except IOError:
-                print('ERROR: Unable to write to file '+pkeyPath)
-                exit(1)
-            else:
-                if mainVerbosity:
-                    print('INFO: File ' + pkeyPath + ' written')
-        finally:
-            wfile.close()
-            authprivkey = None
 
     # Init with privkey loaded from file
     pkey = open(pkeyPath ,'rt')
@@ -74,8 +45,7 @@ if __name__ == '__main__':
     pki.set_verbosity(mainVerbosity)
 
     commoname = 'test_gencsr'
-    if mainVerbosity:
-        print("INFO: Generate a client csr with it's private key")
+    print("INFO: Generate a client csr with it's private key")
     # create csr with a private key size of 1024
     csr = pki.create_csr(
                      passphrase = 'azerty',
@@ -87,7 +57,4 @@ if __name__ == '__main__':
                      keysize = 1024,
                      subjectAltName = ['DNS:'+commoname, 'IP:10.0.0.1'] # Options are 'email', 'URI', 'IP', 'DNS'
                     )
-    if csr['error']:
-        print(csr['message'])
-    elif mainVerbosity:
-        print(csr['message'])
+    print(csr['message'])
