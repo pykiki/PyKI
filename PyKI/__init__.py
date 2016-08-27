@@ -3504,7 +3504,8 @@ class PyKI():
         names = []
         if not result['error']:
             for key, value in result['message'].items():
-                names.append(value['cn'])
+                if value['state'] != 'revoked':
+                    names.append(value['cn'])
             return(names)
         else:
             return(result['error'])

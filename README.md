@@ -623,7 +623,7 @@ Must be in [ ***unspecified, keyCompromise, CACompromise, affiliationChanged,sup
 ```
 
 ### 19. List certificates name
-> List all certificates names present in the PKI database.
+> List all certificates names, except for revoked, present in the PKI database.
 >
 **Parameters**:
 >>None
