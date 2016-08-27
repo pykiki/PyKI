@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-# -*- encoding: UTF-8 -*-
-'''# encoding: utf-8'''
+# -*- coding: UTF-8 -*-
 
 '''
     PyKI - PKI openssl for managing TLS certificates

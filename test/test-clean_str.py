@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- encoding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 
 from re import sub as resub
 from unicodedata import normalize as uninormalize
