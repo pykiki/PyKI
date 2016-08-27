@@ -25,7 +25,7 @@
 from os import path as ospath, sys
 from getpass import getpass
 curScriptDir = ospath.dirname(ospath.abspath(__file__))
-PyKImodPath = curScriptDir + "/../../"
+PyKImodPath = curScriptDir + "/../"
 sys.path.append(PyKImodPath)
 from PyKI import PyKI
 
