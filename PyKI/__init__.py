@@ -1365,10 +1365,11 @@ class PyKI():
         :rtype: Dict.
         '''
 
-        certInfos = { 'serial':serial, 'shasum':sha, 'shaenc':self.__HASH_ENC, 'created':date, 'duration':duration, 'type':typeCert, 'state':state}
         certfilename = ospath.basename(certpath)
-        certname = ospath.splitext(certfilename)[0]
-        certname = self.cleanStr(certname)
+        cn = ospath.splitext(certfilename)[0]
+        certname = self.cleanStr(cn)
+
+        certInfos = { 'cn':cn, 'serial':serial, 'shasum':sha, 'shaenc':self.__HASH_ENC, 'created':date, 'duration':duration, 'type':typeCert, 'state':state}
 
         if not createMode:
             jsondict = self.json2dict(self.__DBfile)
@@ -3503,7 +3504,7 @@ class PyKI():
         names = []
         if not result['error']:
             for key, value in result['message'].items():
-                names.append(key)
+                names.append(value['cn'])
             return(names)
         else:
             return(result['error'])
