@@ -1,0 +1,4 @@
+# integrer un logger vers syslog et vers un fichier de log
+# creer les unittest + assert a partir de la testing_suite tools
+# eprouver les faiblesse en testant diverse installation et utilisation en environnement versatile
+# combiner avec flask pour le mode API

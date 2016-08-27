@@ -1,0 +1,10 @@
+cffi
+cryptography
+idna
+pyasn1
+pycparser
+pycrypto
+pyOpenSSL
+pytz
+six
+xkcdpass

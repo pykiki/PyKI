@@ -1,0 +1,11 @@
+cffi>=1.7.0
+cryptography>=1.4
+idna>=2.1
+pyasn1>=0.1.9
+pyasn1-modules>=0.0.8
+pycparser>=2.14
+pyOpenSSL>=16.0.0
+pytz>=2016.6.1
+six>=1.10.0
+xkcdpass>=1.8.0
+pycrypto>=2.6.1

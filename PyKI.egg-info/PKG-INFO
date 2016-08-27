@@ -1,0 +1,20 @@
+Metadata-Version: 1.1
+Name: PyKI
+Version: 1.0
+Summary: TLS PKI manager
+Home-page: https://github.com/pykiki
+Author: Maibach Alain
+Author-email: alain.maibach@gmail.com
+License: GNU GPLv3
+Download-URL: https://github.com/pykiki/PyKI
+Description: UNKNOWN
+Platform: Linux
+Platform: OSX
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Topic :: Utilities
