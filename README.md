@@ -115,6 +115,7 @@ from PyKI import PyKI
 > 
 >**Parameters**:
 >>* **verbose (boolean)**: Set verbosity.
+* **issuerName (string)**: Set the ROOT certificates issuer names. You should use your organization name.
 * **authKeypass (string)**: Set the pki private key passphrase in order to protect the pki calling.
 * **privkeyStr (string)**: Must contain the pki private key file content.
 * **authKeylen (int)**: Set default private key size, must be in [1024, 2048, 4096, 8192].
@@ -153,7 +154,7 @@ from PyKI import PyKI
 >>- Init the pki with verbosity and some security custom params.
 >>
 >>>```
-	pki = PyKI(verbose = True, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+	pki = PyKI(issuerName='PyKI_example', verbose = True, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
 ```
 >>
 >>- Save the pki authentication key.
@@ -202,7 +203,7 @@ from PyKI import PyKI
 		pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
 >>>
 	# Or with custom params
-		pki = PyKI(authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+		pki = PyKI(issuerName='PyKI_example', authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
 ```
 
 ### 2. Verbosity

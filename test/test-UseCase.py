@@ -56,7 +56,7 @@ if __name__ == '__main__':
     # first init, creating private key
     if not ospath.exists(pkeyPath):
         print("\n!!!!! INFO: The private key will be saved in "+pkeyPath+" !!!!!\n")
-        pki = PyKI(verbose = True, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1', authKeypass=privateKeyPassphrase, authKeylen=1024)
+        pki = PyKI(issuerName='PyKI_auto-tester', verbose = True, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1', authKeypass=privateKeyPassphrase, authKeylen=1024, )
         # get private key for authentication after first init
         authprivkey = pki.initPkey
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     pkeyStr = pkey.read()
     pkey.close()
     # With predefined security params for certificate ca and intermediate gen'
-    pki = PyKI(verbose = mainVerbosity, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1', authKeypass=privateKeyPassphrase, privkeyStr= pkeyStr)
+    pki = PyKI(issuerName='PyKI_auto-tester', verbose = mainVerbosity, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1', authKeypass=privateKeyPassphrase, privkeyStr= pkeyStr)
     
     #sleep(1)
 

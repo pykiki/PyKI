@@ -52,7 +52,7 @@ class PyKI():
     All certificates and private keys including crl will be encoded into PEM format and will be encrypted in RSA
     '''
 
-    def __init__(self, authKeypass=False, privkeyStr=False, C = 'FR', ST = 'ALPES MARITIMES', L = 'Antibes', O = 'MAIBACH Corp.', OU = 'IT Department', adminEmail = 'alain.maibach@gmail.com', verbose = False, KEY_SIZE = 8192, SIGN_ALGO = 'SHA512', KEY_CIPHER = 'DES3', CRL_ALGO = 'sha256', authKeylen = 8192):
+    def __init__(self, issuerName=None, authKeypass=False, privkeyStr=False, C = 'FR', ST = 'ALPES MARITIMES', L = 'Antibes', O = 'MAIBACH Corp.', OU = 'IT Department', adminEmail = 'alain.maibach@gmail.com', verbose = False, KEY_SIZE = 8192, SIGN_ALGO = 'SHA512', KEY_CIPHER = 'DES3', CRL_ALGO = 'sha256', authKeylen = 8192):
         '''
         Init the pki:
             - Initiating global default pki values
@@ -65,6 +65,9 @@ class PyKI():
 
         :param verbose: Define verbosity.
         :type verbose: Boolean.
+
+        :param issuerName: Set the ROOT certificates issuer names. You should use your organization name.
+        :type issuerName: String.
 
         :param authKeypass: Define the pki private key passphrase in order to protect the pki calling.
         :type authKeypass: String.
@@ -342,7 +345,10 @@ class PyKI():
         self.__adminEmail = adminEmail
         # too big dependencie with local resolv which may change over time
         #self.__localCN = gethostname()
-        self.__localCN = 'PKI'
+        if issuerName:
+            self.__localCN = issuerName
+        else:
+            self.__localCN = "PyKI"
 
         # after authentication ready, init pki required files
         self.__DBfile = self.__pkiPath + '/pkicert.db'
@@ -353,8 +359,8 @@ class PyKI():
         self.__crlpath = self.__intermediateCAdir + "/crl.pem"
         self.__intermediateCAkeyfile = self.__intermediateCAdir + "/intermediate_cakey.pem"
         self.__intermediateCAcrtfile = self.__intermediateCAdir + "/intermediate_cacert.pem"
-        self.__cacertname = self.__localCN+'_CA_root'
-        self.__intermediateCertname = self.__localCN+'_CA_intermediate'
+        self.__cacertname = 'PyKI_CA_root'
+        self.__intermediateCertname = 'PyKI_CA_intermediate'
 
         # loading passDB to get passphrases
         passphrases = self.loadpassDB()

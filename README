@@ -50,7 +50,9 @@
               
               <article class="markdown-body entry-content" itemprop="text" id="grip-content">
                 <h1>
-<a id="user-content-pyki-overview" class="anchor" href="#pyki-overview" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>PyKI overview</h1>
+<a id="user-content-pyki" class="anchor" href="#pyki" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>PyKI</h1>
+
+<p>TLS Public Key Infrastructure manager  </p>
 
 <p><em>This is my first project, the goal was to have an easy to deploy and manage <strong>Public Key Infrastructure</strong> .</em></p>
 
@@ -211,6 +213,8 @@ from PyKI import PyKI
 <li>
 <strong>verbose (boolean)</strong>: Set verbosity.</li>
 <li>
+<strong>issuerName (string)</strong>: Set the ROOT certificates issuer names. You should use your organization name.</li>
+<li>
 <strong>authKeypass (string)</strong>: Set the pki private key passphrase in order to protect the pki calling.</li>
 <li>
 <strong>privkeyStr (string)</strong>: Must contain the pki private key file content.</li>
@@ -281,7 +285,7 @@ from PyKI import PyKI
 </ul>
 
 <blockquote>
-<pre><code>    pki = PyKI(verbose = True, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+<pre><code>    pki = PyKI(issuerName='PyKI_example', verbose = True, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
 </code></pre>
 </blockquote>
 
@@ -346,7 +350,7 @@ from PyKI import PyKI
         pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
 
     # Or with custom params
-        pki = PyKI(authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+        pki = PyKI(issuerName='PyKI_example', authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
 </code></pre>
 </blockquote>
 </blockquote>
@@ -1068,7 +1072,7 @@ Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationCh
 <a id="user-content-19-list-certificates-name" class="anchor" href="#19-list-certificates-name" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>19. List certificates name</h3>
 
 <blockquote>
-<p>List all certificates names present in the PKI database.</p>
+<p>List all certificates names, except for revoked, present in the PKI database.</p>
 
 <p><strong>Parameters</strong>:</p>
 
