@@ -2591,7 +2591,7 @@ class PyKI():
                               ])
         if KeyUsage == "serverAuth, clientAuth":
             certObj.add_extensions([
-                                    crypto.X509Extension(b"keyUsage", True, b"keyEncipherment, dataEncipherment"),
+                                    crypto.X509Extension(b"keyUsage", True, b"dataEncipherment, digitalSignature, nonRepudiation"),
                                     crypto.X509Extension(b"extendedKeyUsage", True, b"serverAuth, clientAuth")
                                   ])
         else:
@@ -3313,17 +3313,22 @@ class PyKI():
                 typecrt = "SRV"
                 # define key usage
                 cert.add_extensions([
-                                    crypto.X509Extension(b"keyUsage", True, b"keyEncipherment, dataEncipherment"),
+                                    crypto.X509Extension(b"keyUsage", True, b"dataEncipherment, digitalSignature, nonRepudiation"),
                                     crypto.X509Extension(b"extendedKeyUsage", True, b"serverAuth, clientAuth")
                                    ])
             else:
                 if KeyUsage == "clientAuth":
                     typecrt = "CLT"
+                    cert.add_extensions([
+                                        crypto.X509Extension(b"keyUsage", True, b"dataEncipherment, digitalSignature, nonRepudiation"),
+                                        crypto.X509Extension(b"extendedKeyUsage", True, KeyUsage.encode('utf-8') )
+                                       ])
                 else:
                     typecrt = "SRV"
-                cert.add_extensions([
-                                    crypto.X509Extension(b"extendedKeyUsage", True, KeyUsage.encode('utf-8') )
-                                   ])
+                    cert.add_extensions([
+                                        crypto.X509Extension(b"keyUsage", True, b"dataEncipherment, digitalSignature, nonRepudiation"),
+                                        crypto.X509Extension(b"extendedKeyUsage", True, KeyUsage.encode('utf-8') )
+                                       ])
 
         if subjectAltName:
             critical = True if not cn else False
