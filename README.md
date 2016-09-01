@@ -734,3 +734,11 @@ _During the init, the CA certificates are checked and generated._
 ./test/test-read_pki_db.py
 >
 rm -r /opt/PyKI_data/
+
+### Usefull links
+>
+* [OpenSSL x509 extensions config](https://www.openssl.org/docs/manmaster/apps/x509v3_config.html)
+>
+* [PKI RFC5280](https://tools.ietf.org/html/rfc5280)
+>
+* [Key Usage x509 extension infos](https://www.ibm.com/support/knowledgecenter/en/SSKTMJ_8.0.1/com.ibm.help.domino.admin.doc/DOC/H_KEY_USAGE_EXTENSIONS_FOR_INTERNET_CERTIFICATES_1521_OVER.html?cp=SSQ2R2_9.5.0)

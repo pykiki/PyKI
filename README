@@ -1246,6 +1246,17 @@ rm -r /opt/PyKI_data/
 </code></pre>
 </blockquote>
 
+<h3>
+<a id="user-content-usefull-links" class="anchor" href="#usefull-links" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usefull links</h3>
+
+<blockquote>
+<ul>
+<li><p><a href="https://www.openssl.org/docs/manmaster/apps/x509v3_config.html">OpenSSL x509 extensions config</a></p></li>
+<li><p><a href="https://tools.ietf.org/html/rfc5280">PKI RFC5280</a></p></li>
+<li><p><a href="https://www.ibm.com/support/knowledgecenter/en/SSKTMJ_8.0.1/com.ibm.help.domino.admin.doc/DOC/H_KEY_USAGE_EXTENSIONS_FOR_INTERNET_CERTIFICATES_1521_OVER.html?cp=SSQ2R2_9.5.0">Key Usage x509 extension infos</a></p></li>
+</ul>
+</blockquote>
+
               </article>
             </div>
           </div>
