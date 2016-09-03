@@ -75,7 +75,7 @@ class PyKI():
         :param privkeyStr: Must contain the pki private key file content.
         :type privkeyStr: String.
 
-        :param authKeylen: Define default private key size, must be in [1024, 2048, 4096, 8192].
+        :param authKeylen: Define PKI authentication private  key size, must be in [1024, 2048, 4096, 8192].
         :type authKeylen: Int.
 
         :param C: Define default certificate Country name.
@@ -113,7 +113,7 @@ class PyKI():
                                                                              ]
         :type KEY_CIPHER: String.
 
-        :param CRL_ALGO: Define CRL message digest, must be in [MD2, MD5, MDC2, RMD-160, SHA, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512].
+        :param CRL_ALGO: Define CRL message digest, must be in ['MD2','MD5','MDC2','RMD160','SHA','SHA1','SHA224','SHA256','SHA384','SHA512'].
         :type CRL_ALGO: String.
         '''
 
@@ -813,7 +813,7 @@ class PyKI():
             res = {"error":False, "message":"INFO: Missing directory "+ pathDir + " created"}
             return(res)
         else:
-            res = {"error":False, "message":"WARN: Directory "+pathDir+" already exists"}
+            res = {"error":False, "message":"INFO: Directory "+pathDir+" already exists"}
             return(res)
 
     def get_csrinfo(self, csrname):

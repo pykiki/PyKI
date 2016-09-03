@@ -47,17 +47,15 @@ def genCert(name, pki, passphrase, usage, altnames = False, size = False, certen
     tools Generatin key and certificate
     '''
 
-    if mainVerbosity:
-        print("INFO: Generating server private key for "+name+"...")
+    print("INFO: Generating server private key for "+name+"...")
     key = pki.create_key(passphrase=passphrase, keysize = size, name = name, usage = usage)
     if key['error'] :
-        print("ERROR: Unable to generate key "+name+" properly, aborting...")
+        print("ERROR: Unable to generate key "+name+" properly: "+key['message']+", aborting...")
         return(False)
-    elif mainVerbosity:
+    else:
         print("INFO: Key "+name+" done.")
 
-    if mainVerbosity:
-        print("INFO: Generating certificate whith alt-names...")
+    print("INFO: Generating certificate whith alt-names...")
     cert = pki.create_cert(
                             country = 'FR', state = 'PACA', city = 'Antibes',
                             org = 'Maibach.fr', ou = 'IT',
@@ -69,20 +67,21 @@ def genCert(name, pki, passphrase, usage, altnames = False, size = False, certen
                             days_valid = days
                           )
     if cert['error'] :
-        print("ERROR: Unable to generate certificate "+name+" properly --> "+cert['message']+", aborting...")
-        return(False)
+        print(cert['message']+", aborting...")
+        res=False
     else:
-        if mainVerbosity:
-            print(cert['message'])
+        print(cert['message'])
+        res=True
 
-    return(True)
+    return(res)
 
 if __name__ == '__main__':
-    mainVerbosity = True
+    mainVerbosity = False
     passwd = None
+    subjectAltName = None
 
     # passphrase of the private key requested for pki authentication
-    privateKeyPassphrase = getpass('PKI Auth key password: ')
+    privateKeyPassphrase = getpass('PKI Authentication private key password: ')
 
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
@@ -95,14 +94,14 @@ if __name__ == '__main__':
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)
 
-    purpose = 'server'
-    cn = "MBP.local"
+    #purpose = 'server'
+    #cn = "PyKIflask"
     # Options are 'email', 'URI', 'IP', 'DNS'
-    subjectAltName = ['DNS:MBP.local', 'DNS:mbp.local.net', 'IP:172.17.22.35', 'IP:127.0.0.1', 'DNS:localhost']
+    #subjectAltName = ['DNS:MBP.local', 'DNS:mbp.local.net', 'IP:172.17.22.35', 'IP:127.0.0.1', 'DNS:localhost']
+    #subjectAltName = ['DNS:'+cn, 'DNS:localhost', 'URI:172.17.22.35']
 
-    #purpose = 'client'
-    #cn = 'www.ritano.fr'
-    #subjectAltName = None
+    purpose = 'client'
+    cn = 'client_vpnKimsufi'
     #passwd = 'azerty'
 
     if not passwd:

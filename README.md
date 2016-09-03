@@ -118,7 +118,7 @@ from PyKI import PyKI
 * **issuerName (string)**: Set the ROOT certificates issuer names. You should use your organization name.
 * **authKeypass (string)**: Set the pki private key passphrase in order to protect the pki calling.
 * **privkeyStr (string)**: Must contain the pki private key file content.
-* **authKeylen (int)**: Set default private key size, must be in [1024, 2048, 4096, 8192].
+* **authKeylen (int)**: Set PKI authentication private key size, must be in [1024, 2048, 4096, 8192].
 * **C (string)**: Set default certificate Country name.
 * **ST (string)**: Set default certificate State name.
 * **L (string)**: Set default certificate Locality name.
@@ -136,7 +136,7 @@ from PyKI import PyKI
 - aes128, aes192, aes256 (encrypt PEM output with cbc aes)
 - camellia128, camellia192, camellia256 (encrypt PEM output with cbc camellia)
 >>
-* **CRL_ALGO (string)**: Set CRL message digest, must be in [MD2, MD5, MDC2, RMD-160, SHA, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512].
+* **CRL_ALGO (string)**: Set CRL message digest, must be in ['MD2','MD5','MDC2','RMD160','SHA','SHA1','SHA224','SHA256','SHA384','SHA512'].
 > 
 >#### First PKI init' (_To do only once._)
 >>- Define a passphrase for the private key which will be use to authenticate and will allow you to request the pki later.

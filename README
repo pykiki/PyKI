@@ -219,7 +219,7 @@ from PyKI import PyKI
 <li>
 <strong>privkeyStr (string)</strong>: Must contain the pki private key file content.</li>
 <li>
-<strong>authKeylen (int)</strong>: Set default private key size, must be in [1024, 2048, 4096, 8192].</li>
+<strong>authKeylen (int)</strong>: Set PKI authentication private key size, must be in [1024, 2048, 4096, 8192].</li>
 <li>
 <strong>C (string)</strong>: Set default certificate Country name.</li>
 <li>
@@ -254,7 +254,7 @@ from PyKI import PyKI
 
 <ul>
 <li>
-<strong>CRL_ALGO (string)</strong>: Set CRL message digest, must be in [MD2, MD5, MDC2, RMD-160, SHA, SHA-1, SHA-224, SHA-256, SHA-384, SHA-512].</li>
+<strong>CRL_ALGO (string)</strong>: Set CRL message digest, must be in ['MD2','MD5','MDC2','RMD160','SHA','SHA1','SHA224','SHA256','SHA384','SHA512'].</li>
 </ul>
 </blockquote>
 

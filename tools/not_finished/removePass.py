@@ -58,7 +58,7 @@ if __name__ == '__main__':
     mainVerbosity = True
 
     # passphrase of the private key requested for pki authentication
-    privateKeyPassphrase = getpass('PKI Auth key password: ')
+    privateKeyPassphrase = getpass('PKI Authentication private key password: ')
     
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)
 
-    cn = 'MBP.local'
+    cn = 'PyKIflask'
     passwd = getPass(name=cn, pki=pki)
     if not passwd:
         print("Unable to find certificate private key passphrase for "+cn)

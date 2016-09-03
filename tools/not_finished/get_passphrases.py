@@ -31,7 +31,7 @@ if __name__ == '__main__':
     certname = None
     
     # passphrase of the private key requested for pki authentication
-    privateKeyPassphrase = getpass('PKI Auth key password: ')
+    privateKeyPassphrase = getpass('PKI Authentication private key password: ')
 
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
