@@ -1190,14 +1190,26 @@ class PyKI():
         # print info of extensions which you are looking for
         if 'extendedKeyUsage' in extensions:
             formatted_res += '\tExtended key usage: '+extensions['extendedKeyUsage']['data']+'\n'
+            extensions.pop('extendedKeyUsage', None)
 
         if 'basicConstraints' in extensions:
             formatted_res += '\tBasic constraints: '+extensions['basicConstraints']['data']+'\n'
+            extensions.pop('basicConstraints', None)
 
         if 'subjectAltName' in extensions:
             formatted_res += '\tSubject alt-names:\n'
             for altname in extensions['subjectAltName']['data'].split(', '):
                 formatted_res += "\t\t"+altname.split(':')[1]+'\n'
+            extensions.pop('subjectAltName', None)
+
+        if 'keyUsage' in extensions:
+            formatted_res += '\tKey Usage: '+extensions['keyUsage']['data']+'\n'
+            extensions.pop('keyUsage', None)
+
+        # for all unhandled extensions 
+        for key, value in extensions.items():
+            formatted_res += '\t'+key+': '+value+'\n'
+
         formatted_res += "\n"
 
         res = {'error':False, 'message':formatted_res}

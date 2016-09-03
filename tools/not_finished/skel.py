@@ -21,11 +21,9 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-import random, string
 import argparse
 from PyKI import PyKI
 
-# Part for integrating init directory as a library
 from sys import path as syspath, argv
 from os import path as ospath
 curScriptDir = ospath.dirname(ospath.abspath(__file__))
@@ -62,88 +60,19 @@ def argCommandline(argv):
         exit(1)
 
     result=vars(args)
-
     return(result)
 
-def codegenerator(pwlen = 25, alphabet = False):
-    if not alphabet:
-        #alphabet = string.printable
-        alphabet = string.digits + string.ascii_letters + string.punctuation
-
-    pw_length = pwlen
-    mypw = ""
-
-    for i in range(pw_length):
-        next_index = random.randrange(len(alphabet))
-        mypw = mypw + alphabet[next_index]
-    return mypw
-
-def genCert(name, pki, passphrase, usage, altnames = False,
-            size = False, certenc = False, days = False, renew=False,
-            country=False, state=False, city=False, org=False,
-            ou=False, email=False
-           ):
-    '''
-    tools Generatin key and certificate
-    '''
-
-    print("INFO: Generating server private key for "+name+"...")
-    key = pki.create_key(passphrase=passphrase, keysize = size, name = name, usage = usage)
-    if key['error'] :
-        print(key['message']+", aborting...")
-        return(False)
-    else:
-        print("INFO: Key "+name+" done.")
-
-    print("INFO: Generating certificate whith alt-names...")
-    cert = pki.create_cert(
-                            country=country, state=state, city=city,
-                            org=org, ou=ou,
-                            email=email,
-                            KeyUsage=usage,
-                            subjectAltName=altnames,
-                            cn=name,
-                            encryption=certenc,
-                            days_valid=days,
-                            toRenew=renew
-                          )
-    if cert['error'] :
-        print(cert['message']+", aborting...")
-        res=False
-    else:
-        print(cert['message'])
-        res=True
-
-    return(res)
-
 if __name__ == '__main__':
-    # get cli args
     args=argCommandline(argv)
 
-    # init pki
     pki=pkinit()
     if not pki:
         print("ERROR: Errors found during init")
         exit(1)
-
-    # Set pki verbosity after init
     pki.set_verbosity(args['mainVerbosity'])
 
-    if args['subjectAltName'] and not 'DNS:'+args['cn'] in args['subjectAltName']:
-        args['subjectAltName'].insert(0,['DNS:'+args['cn']])
-
     if args['cn'] not in pki.nameList:
-        args['renewing']=False
+        print('ERROR: Certificate '+args['cn']+" doesn't exist.")
+        exit(1)
 
-    if not args['passwd'] and not args['renewing']:
-        args['passwd']=codegenerator(pwlen = 26)
-
-    if args['purpose'] == "server":
-        args['purpose']='serverAuth'
-    else:
-        args['purpose']='clientAuth'
-
-    genCert(name=args['cn'], pki=pki, passphrase=args['passwd'], altnames=args['subjectAltName'], size=args['size'], usage=args['purpose'], days=args['duration'],
-            renew=args['renewing'], country=args['c'] , state=args['st'] , city=args['l'] , org=args['o'] , ou=args['ou'] , email=args['email']
-           )
     exit(0)
