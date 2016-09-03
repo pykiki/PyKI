@@ -42,16 +42,18 @@ def argCommandline(argv):
     parser = argparse.ArgumentParser(description='Generate PKI certificates')
     parser.add_argument("-n", "--cn", action="store", dest="cn", type=str, help=u"Certificate common name", metavar='Common Name', required=True)
     parser.add_argument("-r", "--renew", action='store_true', dest="renewing", help=u"Indicates that we want to renew the certificate and not create a new one with a new private key", required=False)
-    parser.add_argument("-c", "--country", action='store', dest="c", type=str, default=None, help=u"Country Name (2 letter code) eg. US", metavar='XX', required=False)
-    parser.add_argument("-st", "--state", action='store', dest="st", type=str, default=None, help=u"State or Province Name (full name)", metavar='state', required=False)
-    parser.add_argument("-l", "--city", action='store', dest="l", type=str, default=None, help=u"Locality Name (eg, city)", metavar='city', required=False)
-    parser.add_argument("-o", "--organization", action='store', type=str, dest="o", default=None, help=u"Organization Name (eg, company)", metavar='Organization', required=False)
-    parser.add_argument("-ou", "--org-unit", action='store', dest="ou", type=str, default=None, help=u"Organizational Unit Name (eg, section)", metavar='org unit', required=False)
-    parser.add_argument("-e", "--email", action='store', dest="email", type=str, default=None, help=u"Email Address", metavar='nobody@domain.com', required=False)
-    parser.add_argument("-a", "--altnames", action='store', dest="subjectAltName", nargs='*', type=str, metavar='type:value', default=None, help=u"X509 extension Subject Alternative-names (eg, IP:1.2.3.4 DNS:www.toto.net URI: www.toto.net)", required=False)
+    parser.add_argument("-c", "--country", action='store', dest="c", type=str, default='', help=u"Country Name (2 letter code) eg. US", metavar='XX', required=False)
+    parser.add_argument("-st", "--state", action='store', dest="st", type=str, default='', help=u"State or Province Name (full name)", metavar='state', required=False)
+    parser.add_argument("-l", "--city", action='store', dest="l", type=str, default='', help=u"Locality Name (eg, city)", metavar='city', required=False)
+    parser.add_argument("-o", "--organization", action='store', type=str, dest="o", default='', help=u"Organization Name (eg, company)", metavar='Organization', required=False)
+    parser.add_argument("-ou", "--org-unit", action='store', dest="ou", type=str, default='', help=u"Organizational Unit Name (eg, section)", metavar='org unit', required=False)
+    parser.add_argument("-e", "--email", action='store', dest="email", type=str, default='', help=u"Email Address", metavar='nobody@domain.com', required=False)
+    parser.add_argument("-a", "--altnames", action='store', dest="subjectAltName", nargs='*', type=str, metavar='type:value', default=False, help=u"X509 extension Subject Alternative-names (eg, IP:1.2.3.4 DNS:www.toto.net URI: www.toto.net)", required=False)
     parser.add_argument("-p", "--purpose", action='store', dest="purpose", type=str, default='server', metavar='client|server', choices=['server','client'], help=u"Select which type of use is required for the certificate", required=True)
-    parser.add_argument("-s", "--passphrase", action='store', dest="passwd", type=str, default=None, help=u"Private key passphrase", metavar='mypassphrase', required=False)
+    parser.add_argument("-s", "--passphrase", action='store', dest="passwd", type=str, default=False, help=u"Private key passphrase", metavar='mypassphrase', required=False)
     parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
+    parser.add_argument("-t", "--key-size", action='store', dest="size", type=int, default=False, help=u"Private key size int value", metavar='XXXX', choices=[1024,2048,4096,8192], required=False)
+    parser.add_argument("-d", "--duration", action='store', dest="duration", type=int, default=360, help=u"Number of days for certificate validity period", metavar='X', required=False)
 
     args = parser.parse_args()
 
@@ -138,13 +140,11 @@ if __name__ == '__main__':
         args['passwd']=codegenerator(pwlen = 26)
 
     if args['purpose'] == "server":
-        duration=730
-        genCert(name=args['cn'], pki=pki, passphrase=args['passwd'], altnames=args['subjectAltName'], size=8192, usage='serverAuth', days=duration, renew=args['renewing'],
-                country=args['c'] , state=args['st'] , city=args['l'] , org=args['o'] , ou=args['ou'] , email=args['email']
-               )
+        args['purpose']='serverAuth'
     else:
-        duration=365
-        genCert(name=args['cn'], pki=pki, passphrase=args['passwd'], size=4096, usage='clientAuth', days=duration, renew=args['renewing'],
-                country=args['c'] , state=args['st'] , city=args['l'] , org=args['o'] , ou=args['ou'] , email=args['email']
-               )
+        args['purpose']='clientAuth'
+
+    genCert(name=args['cn'], pki=pki, passphrase=args['passwd'], altnames=args['subjectAltName'], size=args['size'], usage=args['purpose'], days=args['duration'],
+            renew=args['renewing'], country=args['c'] , state=args['st'] , city=args['l'] , org=args['o'] , ou=args['ou'] , email=args['email']
+           )
     exit(0)

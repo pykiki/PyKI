@@ -41,7 +41,15 @@ pki=pkinit('path/to/file/config.ini')
 You will be returning True if all goes well.
 
 
-## generate a certificate:
+## generate a certificate with specific information:
 ```
 ./gen_cert.py -n www.ritano.fr -p server -c AU -st california -l "los angeles" -o "test corpo" -ou IT -e dodoo@gg.fr --altnames IP:192.168.10.1 DNS:ldap.ritano.fr -v
+```
+* renew a certificate specifying key size and duration but using globales information for C, ST... (set in config.ini)
+```
+./gen_cert.py -n vpn3-mp.ritano.fr -p client -r -d 180 --key-size 2048
+```
+* renew to modify locality ('l' field in certificate)
+```
+./gen_cert.py -n vpn3-mp.ritano.fr -p client -r -d 180 --key-size 2048 --city Paris
 ```
