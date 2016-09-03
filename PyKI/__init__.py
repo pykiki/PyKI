@@ -1974,14 +1974,14 @@ class PyKI():
                 print(message)
 
             if not passphrase or passphrase == 'None':
-                if not cn or cn == '':
+                if not name or name == '':
                     if subjectAltName:
                         passname = subjectAltName[0]
                         if not passname or passname == '':
                             res = {"error":True, "message":'ERROR: Unable to define owner name'}
                             return(res)
                 else:
-                    passname = cn
+                    passname = name
 
                 # loading passDB to get passphrase
                 passphrase = self.reqPass(passname)
@@ -3045,8 +3045,8 @@ class PyKI():
                 return(res)
 
     def create_cert(self, country='', state='', city='', org='', ou='', cn='', email='',
-                    ca=False, valid_before=0, days_valid = False, subjectAltName=None,
-                    KeyUsage=False, encryption=False):
+                    ca=False, valid_before=0, days_valid=False, subjectAltName=None,
+                    KeyUsage=False, encryption=False, toRenew=False):
         '''
         Create a X509 signed certificate.
         
@@ -3090,6 +3090,9 @@ class PyKI():
         :param KeyUsage: Define the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
         :type KeyUsage: String.
 
+        :param toRenew: Allow to specify that we want to renew the certificate without revoking but replacing the current one.
+        :type toRenew: Boolean.
+
         :returns: Informational result dict {'error': Boolean, 'message': String}
         :rtype: Dict.
         '''
@@ -3113,7 +3116,7 @@ class PyKI():
         if ca and ca != 'intermediate' :
             keypath = self.__rootCAkeyfile
             certfile = self.__rootCAcrtfile
-            if ospath.isfile(certfile) :
+            if ospath.isfile(certfile) and not toRenew:
                 res = {"error":False, "message":"WARN: Certificate "+certfile+" has already been generated. Doing nothing !"}
                 return(res)
 
@@ -3126,7 +3129,7 @@ class PyKI():
         elif ca == 'intermediate' :
             keypath = self.__intermediateCAkeyfile
             certfile = self.__intermediateCAcrtfile
-            if ospath.isfile(certfile) :
+            if ospath.isfile(certfile) and not toRenew:
                 res = {"error":False, "message":"WARN: Certificate "+certfile+" has already been generated. Doing nothing !"}
                 return(res)
             opsslObjKey = self.load_pkey(keypath, self.__intermediatePass)
@@ -3163,7 +3166,7 @@ class PyKI():
             keypath = keydir+'/'+filename+'.key'
             certfile = keydir+'/'+filename+'.crt'
 
-            if ospath.isfile(certfile) :
+            if ospath.isfile(certfile) and not toRenew:
                 res = {"error":False, "message":"WARN: Certificate "+certfile+" has already been generated. Doing nothing !"}
                 return(res)
 

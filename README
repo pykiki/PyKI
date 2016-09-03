@@ -495,6 +495,8 @@ from PyKI import PyKI
 <strong>days_valid (<em>int</em>)</strong>: Set the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .</li>
 <li>
 <strong>KeyUsage (<em>string</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
+<li>
+<strong>toRenew (<em>Boolean.</em>)</strong>: Allow to specify that we want to renew the certificate without revoking but replacing the current one.</li>
 </ul>
 </blockquote>
 

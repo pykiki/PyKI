@@ -21,13 +21,17 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from socket import gethostname
-from os import path as ospath, sys
+import random, string
 from getpass import getpass
 from PyKI import PyKI
-import random, string
 
+# Part for integrating init directory as a library
+from sys import path as syspath
+from os import path as ospath
 curScriptDir = ospath.dirname(ospath.abspath(__file__))
+initPath = curScriptDir + "/PyKInit/"
+syspath.append(initPath)
+from PyKInit import pkinit
 
 def codegenerator(pwlen = 25, alphabet = False):
     if not alphabet:
@@ -42,7 +46,7 @@ def codegenerator(pwlen = 25, alphabet = False):
         mypw = mypw + alphabet[next_index]
     return mypw
 
-def genCert(name, pki, passphrase, usage, altnames = False, size = False, certenc = False, days = False):
+def genCert(name, pki, passphrase, usage, altnames = False, size = False, certenc = False, days = False, renew=False):
     '''
     tools Generatin key and certificate
     '''
@@ -50,7 +54,7 @@ def genCert(name, pki, passphrase, usage, altnames = False, size = False, certen
     print("INFO: Generating server private key for "+name+"...")
     key = pki.create_key(passphrase=passphrase, keysize = size, name = name, usage = usage)
     if key['error'] :
-        print("ERROR: Unable to generate key "+name+" properly: "+key['message']+", aborting...")
+        print(key['message']+", aborting...")
         return(False)
     else:
         print("INFO: Key "+name+" done.")
@@ -64,7 +68,8 @@ def genCert(name, pki, passphrase, usage, altnames = False, size = False, certen
                             subjectAltName = altnames,
                             cn = name,
                             encryption = certenc,
-                            days_valid = days
+                            days_valid = days,
+                            toRenew = renew
                           )
     if cert['error'] :
         print(cert['message']+", aborting...")
@@ -79,37 +84,41 @@ if __name__ == '__main__':
     mainVerbosity = False
     passwd = None
     subjectAltName = None
+    renewing=False
 
-    # passphrase of the private key requested for pki authentication
-    privateKeyPassphrase = getpass('PKI Authentication private key password: ')
+    pki=pkinit()
+    if not pki:
+        print("ERROR: Errors found during init")
+        exit(1)
 
-    # pki authentication private key path
-    pkeyPath = "./pki_auth_cert.pem"
-    pkey = open(pkeyPath ,'rt')
-    pkeyStr = pkey.read()
-    pkey.close()
-
-    # Init with privkey loaded from file
-    pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)
 
+    # ---- section a passer par param ---- #
     #purpose = 'server'
     #cn = "PyKIflask"
     # Options are 'email', 'URI', 'IP', 'DNS'
     #subjectAltName = ['DNS:MBP.local', 'DNS:mbp.local.net', 'IP:172.17.22.35', 'IP:127.0.0.1', 'DNS:localhost']
     #subjectAltName = ['DNS:'+cn, 'DNS:localhost', 'URI:172.17.22.35']
 
+    # to specify that we want to renew the certificate
+    renewing=True
     purpose = 'client'
     cn = 'client_vpnKimsufi'
     #passwd = 'azerty'
+    # ---- fin section a passer par param ---- #
 
-    if not passwd:
+    if cn not in pki.nameList:
+        renewing=False
+
+    if not passwd and not renewing:
         passwd = codegenerator(pwlen = 26)
 
     if purpose == "server":
         duration = 730
-        genCert(name = cn, pki = pki, passphrase = passwd, altnames = subjectAltName, size = 8192, usage = 'serverAuth' , days = duration)
+        genCert(name = cn, pki = pki, passphrase = passwd, altnames = subjectAltName, size = 8192, usage = 'serverAuth' , days = duration, renew=renewing)
     else:
         duration = 365
-        genCert(name=cn, pki=pki, passphrase=passwd, size=4096, usage='clientAuth', days=duration)
+        genCert(name=cn, pki=pki, passphrase=passwd, size=4096, usage='clientAuth', days=duration, renew=renewing)
+
+    exit(0)

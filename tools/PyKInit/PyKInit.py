@@ -32,7 +32,8 @@ curScriptDir = ospath.dirname(ospath.abspath(__file__))
 
 def createConf(configFile):
     '''
-    Creates default ini config file.
+    Creates default ini config file for PyKI init. This implementation is used to
+    make it more easier to load the pki throught the tool set.
 
     :param configFile: Ini config file containing pki parameters.
     :type configFile: String.

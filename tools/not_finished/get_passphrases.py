@@ -51,7 +51,7 @@ if __name__ == '__main__':
         if not certname:
             print("\nList of passphrases stored:")
             for passphrase in passphrases['message']:
-                print( 'Certificate Name: '+passphrase+' / passphrase: '+ passphrases['message'][passphrase] )
+                print( 'Certificate Name: '+str(passphrase)+' / passphrase: '+str(passphrases['message'][passphrase]) )
         else:
             # we are calling pki func cleanStr() to match the correct certname in database
             database_certname = passphrases['message'][pki.cleanStr(certname)]

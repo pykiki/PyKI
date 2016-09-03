@@ -273,6 +273,7 @@ from PyKI import PyKI
 * **valid\_before (_int_)**: Allow to generate a certificate which will be valid (from now) in number of days in the futur.
 * **days\_valid (_int_)**: Set the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .
 * **KeyUsage (_string_)**: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
+* **toRenew (_Boolean._)**: Allow to specify that we want to renew the certificate without revoking but replacing the current one.
 >
 **Return**:
 >>Informational result dict: _{'error': Boolean, 'message': String}_

@@ -1,0 +1,36 @@
+This tool set will make your life easier.
+The goal is to simplify and automate the pki usage.
+
+The first important part of this set is the init module named
+'PyKInit'.
+This module is ruled by an ini configuraiton file, which will 
+contains the pki init related informations.
+
+At first use, it will do anything you need to create your pki and
+will help you to store these informations in order to reuse them quickly.
+
+Take a look, in the PyKInit/ directory, at config_example.ini. A similar default config.ini
+will be generated at first use and you will be asked to fill it correctly before go on.
+The [pki auth] section set all parameters related to pki authentication in order to load it.
+the [pki params] section set all parameters related to certificates and private key security default behaviors.
+
+Remember that all parameters generated at PKI init can be overriden during specific operations like generating certificate, creating a pkcs and more..
+
+Now that the init is correctly set up, you will be able to use every tools built in the tools directory.
+
+To use the PyKInit, you will have to add it to your syspath like that:
+```
+from sys import path as syspath
+from os import path as ospath
+curScriptDir = ospath.dirname(ospath.abspath(__file__))
+initPath = curScriptDir + "/PyKInit/"
+syspath.append(initPath)
+from PyKInit import pkinit
+```
+
+Now init the pki like this:
+```
+pki=pkinit()
+```
+
+You will be returning True if all goes well.
