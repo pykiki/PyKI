@@ -337,16 +337,16 @@ class PyKI():
         self.__python3 = sys.version_info.major == 3
         self.__python2 = sys.version_info.major == 2
 
-        self.__C = C
-        self.__ST = ST
-        self.__L = L
-        self.__O = O
-        self.__OU = OU
+        self.__C = self.rmSpecialChar(C)
+        self.__ST = self.rmSpecialChar(ST)
+        self.__L = self.rmSpecialChar(L)
+        self.__O = self.rmSpecialChar(O)
+        self.__OU = self.rmSpecialChar(OU)
         self.__adminEmail = adminEmail
         # too big dependencie with local resolv which may change over time
         #self.__localCN = gethostname()
         if issuerName:
-            self.__localCN = issuerName
+            self.__localCN = self.rmSpecialChar(issuerName)
         else:
             self.__localCN = "PyKI"
 

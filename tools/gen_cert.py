@@ -23,15 +23,42 @@
 
 import random, string
 from getpass import getpass
+import argparse
 from PyKI import PyKI
 
 # Part for integrating init directory as a library
-from sys import path as syspath
+from sys import path as syspath, argv
 from os import path as ospath
 curScriptDir = ospath.dirname(ospath.abspath(__file__))
 initPath = curScriptDir + "/PyKInit/"
 syspath.append(initPath)
 from PyKInit import pkinit
+
+def argCommandline(argv):
+    """ gestion des arguments ligne de commande """
+
+    result={}
+
+    parser = argparse.ArgumentParser(description='Script to show how to use argparse module')
+    parser.add_argument("-n", "--cn", action="store", dest="cn", help=u"Certificate common name", required=True)
+    parser.add_argument("-l", "--list-user-hno", action='store_true', dest="listuserhno", default=False, help=u"Show pubkey's HNO user", required=False)
+    parser.add_argument("-v", "--verbose", action='store_true', dest='verboseMode', default=False, help=u"Add verbosity")
+
+    args = parser.parse_args()
+
+    if args.listuserhno is True:
+        result['list-user-hno'] = True
+    if args.verboseMode:
+        result['verbose'] = args.verboseMode
+    if args.cn:
+        result['cn'] = args.cn
+
+    nbargs = len(result)
+    if nbargs < 1:
+        parser.print_help()
+        exit(1)
+
+    return(result)
 
 def codegenerator(pwlen = 25, alphabet = False):
     if not alphabet:
@@ -46,7 +73,11 @@ def codegenerator(pwlen = 25, alphabet = False):
         mypw = mypw + alphabet[next_index]
     return mypw
 
-def genCert(name, pki, passphrase, usage, altnames = False, size = False, certenc = False, days = False, renew=False):
+def genCert(name, pki, passphrase, usage, altnames = False,
+            size = False, certenc = False, days = False, renew=False,
+            country=False, state=False, city=False, org=False,
+            ou=False, email=False
+           ):
     '''
     tools Generatin key and certificate
     '''
@@ -61,15 +92,15 @@ def genCert(name, pki, passphrase, usage, altnames = False, size = False, certen
 
     print("INFO: Generating certificate whith alt-names...")
     cert = pki.create_cert(
-                            country = 'FR', state = 'PACA', city = 'Antibes',
-                            org = 'Maibach.fr', ou = 'IT',
-                            email = 'alain@maibach.fr',
-                            KeyUsage = usage,
-                            subjectAltName = altnames,
-                            cn = name,
-                            encryption = certenc,
-                            days_valid = days,
-                            toRenew = renew
+                            country=country, state=state, city=city,
+                            org=org, ou=ou,
+                            email=email,
+                            KeyUsage=usage,
+                            subjectAltName=altnames,
+                            cn=name,
+                            encryption=certenc,
+                            days_valid=days,
+                            toRenew=renew
                           )
     if cert['error'] :
         print(cert['message']+", aborting...")
@@ -86,6 +117,10 @@ if __name__ == '__main__':
     subjectAltName = None
     renewing=False
 
+    args = argCommandline(argv)
+    print(args)
+    exit(1)
+
     pki=pkinit()
     if not pki:
         print("ERROR: Errors found during init")
@@ -95,6 +130,13 @@ if __name__ == '__main__':
     pki.set_verbosity(mainVerbosity)
 
     # ---- section a passer par param ---- #
+    c= 'US'
+    st= 'District Of Columbia'
+    l= 'Washington'
+    o= 'Ritano Corp'
+    ou= 'IT ritano'
+    email = 'alain@ritano.fr'
+
     #purpose = 'server'
     #cn = "PyKIflask"
     # Options are 'email', 'URI', 'IP', 'DNS'
@@ -116,9 +158,12 @@ if __name__ == '__main__':
 
     if purpose == "server":
         duration = 730
-        genCert(name = cn, pki = pki, passphrase = passwd, altnames = subjectAltName, size = 8192, usage = 'serverAuth' , days = duration, renew=renewing)
+        genCert(name = cn, pki = pki, passphrase = passwd, altnames = subjectAltName, size = 8192, usage = 'serverAuth' , days = duration, renew=renewing,
+                country=c , state=st , city=l , org=o , ou=ou , email=email
+               )
     else:
         duration = 365
-        genCert(name=cn, pki=pki, passphrase=passwd, size=4096, usage='clientAuth', days=duration, renew=renewing)
-
+        genCert(name=cn, pki=pki, passphrase=passwd, size=4096, usage='clientAuth', days=duration, renew=renewing,
+                country=c , state=st , city=l , org=o , ou=ou , email=email
+               )
     exit(0)
