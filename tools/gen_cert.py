@@ -35,28 +35,32 @@ syspath.append(initPath)
 from PyKInit import pkinit
 
 def argCommandline(argv):
-    """ gestion des arguments ligne de commande """
+    """
+    Manage cli script args
+    """
 
-    result={}
-
-    parser = argparse.ArgumentParser(description='Script to show how to use argparse module')
-    parser.add_argument("-n", "--cn", action="store", dest="cn", help=u"Certificate common name", required=True)
-    parser.add_argument("-l", "--list-user-hno", action='store_true', dest="listuserhno", default=False, help=u"Show pubkey's HNO user", required=False)
-    parser.add_argument("-v", "--verbose", action='store_true', dest='verboseMode', default=False, help=u"Add verbosity")
+    parser = argparse.ArgumentParser(description='Generate PKI certificates')
+    parser.add_argument("-n", "--cn", action="store", dest="cn", type=str, help=u"Certificate common name", metavar='Common Name', required=True)
+    parser.add_argument("-r", "--renew", action='store_true', dest="renewing", help=u"Indicates that we want to renew the certificate and not create a new one with a new private key", required=False)
+    parser.add_argument("-c", "--country", action='store', dest="c", type=str, default=None, help=u"Country Name (2 letter code) eg. US", metavar='XX', required=False)
+    parser.add_argument("-st", "--state", action='store', dest="st", type=str, default=None, help=u"State or Province Name (full name)", metavar='state', required=False)
+    parser.add_argument("-l", "--city", action='store', dest="l", type=str, default=None, help=u"Locality Name (eg, city)", metavar='city', required=False)
+    parser.add_argument("-o", "--organization", action='store', type=str, dest="o", default=None, help=u"Organization Name (eg, company)", metavar='Organization', required=False)
+    parser.add_argument("-ou", "--org-unit", action='store', dest="ou", type=str, default=None, help=u"Organizational Unit Name (eg, section)", metavar='org unit', required=False)
+    parser.add_argument("-e", "--email", action='store', dest="email", type=str, default=None, help=u"Email Address", metavar='nobody@domain.com', required=False)
+    parser.add_argument("-a", "--altnames", action='store', dest="subjectAltName", nargs='*', type=str, metavar='type:value', default=None, help=u"X509 extension Subject Alternative-names (eg, IP:1.2.3.4 DNS:www.toto.net URI: www.toto.net)", required=False)
+    parser.add_argument("-p", "--purpose", action='store', dest="purpose", type=str, default='server', metavar='client|server', choices=['server','client'], help=u"Select which type of use is required for the certificate", required=True)
+    parser.add_argument("-s", "--passphrase", action='store', dest="passwd", type=str, default=None, help=u"Private key passphrase", metavar='mypassphrase', required=False)
+    parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
 
     args = parser.parse_args()
 
-    if args.listuserhno is True:
-        result['list-user-hno'] = True
-    if args.verboseMode:
-        result['verbose'] = args.verboseMode
-    if args.cn:
-        result['cn'] = args.cn
-
-    nbargs = len(result)
-    if nbargs < 1:
+    # print help if no arguments given
+    if len(argv) < 1:
         parser.print_help()
         exit(1)
+
+    result=vars(args)
 
     return(result)
 
@@ -112,58 +116,35 @@ def genCert(name, pki, passphrase, usage, altnames = False,
     return(res)
 
 if __name__ == '__main__':
-    mainVerbosity = False
-    passwd = None
-    subjectAltName = None
-    renewing=False
+    # get cli args
+    args=argCommandline(argv)
 
-    args = argCommandline(argv)
-    print(args)
-    exit(1)
-
+    # init pki
     pki=pkinit()
     if not pki:
         print("ERROR: Errors found during init")
         exit(1)
 
     # Set pki verbosity after init
-    pki.set_verbosity(mainVerbosity)
+    pki.set_verbosity(args['mainVerbosity'])
 
-    # ---- section a passer par param ---- #
-    c= 'US'
-    st= 'District Of Columbia'
-    l= 'Washington'
-    o= 'Ritano Corp'
-    ou= 'IT ritano'
-    email = 'alain@ritano.fr'
+    if args['subjectAltName'] and not 'DNS:'+args['cn'] in args['subjectAltName']:
+        args['subjectAltName'].insert(0,['DNS:'+args['cn']])
 
-    #purpose = 'server'
-    #cn = "PyKIflask"
-    # Options are 'email', 'URI', 'IP', 'DNS'
-    #subjectAltName = ['DNS:MBP.local', 'DNS:mbp.local.net', 'IP:172.17.22.35', 'IP:127.0.0.1', 'DNS:localhost']
-    #subjectAltName = ['DNS:'+cn, 'DNS:localhost', 'URI:172.17.22.35']
+    if args['cn'] not in pki.nameList:
+        args['renewing']=False
 
-    # to specify that we want to renew the certificate
-    renewing=True
-    purpose = 'client'
-    cn = 'client_vpnKimsufi'
-    #passwd = 'azerty'
-    # ---- fin section a passer par param ---- #
+    if not args['passwd'] and not args['renewing']:
+        args['passwd']=codegenerator(pwlen = 26)
 
-    if cn not in pki.nameList:
-        renewing=False
-
-    if not passwd and not renewing:
-        passwd = codegenerator(pwlen = 26)
-
-    if purpose == "server":
-        duration = 730
-        genCert(name = cn, pki = pki, passphrase = passwd, altnames = subjectAltName, size = 8192, usage = 'serverAuth' , days = duration, renew=renewing,
-                country=c , state=st , city=l , org=o , ou=ou , email=email
+    if args['purpose'] == "server":
+        duration=730
+        genCert(name=args['cn'], pki=pki, passphrase=args['passwd'], altnames=args['subjectAltName'], size=8192, usage='serverAuth', days=duration, renew=args['renewing'],
+                country=args['c'] , state=args['st'] , city=args['l'] , org=args['o'] , ou=args['ou'] , email=args['email']
                )
     else:
-        duration = 365
-        genCert(name=cn, pki=pki, passphrase=passwd, size=4096, usage='clientAuth', days=duration, renew=renewing,
-                country=c , state=st , city=l , org=o , ou=ou , email=email
+        duration=365
+        genCert(name=args['cn'], pki=pki, passphrase=args['passwd'], size=4096, usage='clientAuth', days=duration, renew=args['renewing'],
+                country=args['c'] , state=args['st'] , city=args['l'] , org=args['o'] , ou=args['ou'] , email=args['email']
                )
     exit(0)

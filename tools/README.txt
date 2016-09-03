@@ -33,4 +33,15 @@ Now init the pki like this:
 pki=pkinit()
 ```
 
+If you want to specify a file path for config.ini, do it as:
+```
+pki=pkinit('path/to/file/config.ini')
+```
+
 You will be returning True if all goes well.
+
+
+## generate a certificate:
+```
+./gen_cert.py -n www.ritano.fr -p server -c AU -st california -l "los angeles" -o "test corpo" -ou IT -e dodoo@gg.fr --altnames IP:192.168.10.1 DNS:ldap.ritano.fr -v
+```
