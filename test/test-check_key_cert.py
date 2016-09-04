@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from OpenSSL import crypto, SSL
+from os import path
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,24 +24,23 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from OpenSSL import crypto, SSL
-from os import path
-
 certPath = "/Users/albookpro/Downloads/pyTLSpki/building/pki/CERTS/clients/newcsr/newcsr.crt"
 keyPath = "/Users/albookpro/Downloads/pyTLSpki/building/pki/CERTS/clients/newcsr/newcsr.key"
 
-def check_cer_vs_key(cert, key, keypass = False):
-    if not path.exists(cert): 
-        print("Error, unable to find "+cert+"\n")
+
+def check_cer_vs_key(cert, key, keypass=False):
+    if not path.exists(cert):
+        print("Error, unable to find " + cert + "\n")
         exit(1)
     elif not path.exists(key):
-        print("Error, unable to find "+key+"\n")
+        print("Error, unable to find " + key + "\n")
         exit(1)
 
     if not keypass:
         keyObj = crypto.load_privatekey(crypto.FILETYPE_PEM, open(key).read())
     else:
-        keyObj = crypto.load_privatekey(crypto.FILETYPE_PEM, open(key).read(), keypass)
+        keyObj = crypto.load_privatekey(
+            crypto.FILETYPE_PEM, open(key).read(), keypass)
 
     certObj = crypto.load_certificate(crypto.FILETYPE_PEM, open(cert).read())
 
@@ -47,11 +49,11 @@ def check_cer_vs_key(cert, key, keypass = False):
     ctx.use_certificate(certObj)
 
     try:
-      ctx.check_privatekey()
+        ctx.check_privatekey()
     except SSL.Error:
-      print("Incorrect key.\n")
+        print("Incorrect key.\n")
     else:
-      print("Key matches certificate.\n")
+        print("Key matches certificate.\n")
 
 # interactive mode
 #check_cer_vs_key(certPath, keyPath)

@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from os import path as ospath, sys
+curScriptDir = ospath.dirname(ospath.abspath(__file__))
+PyKImodPath = curScriptDir + "/../"
+sys.path.append(PyKImodPath)
+from PyKI import PyKI
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,14 +27,6 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from socket import gethostname
-from os import path as ospath, sys
-from getpass import getpass
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-PyKImodPath = curScriptDir + "/../"
-sys.path.append(PyKImodPath)
-from PyKI import PyKI
-
 if __name__ == '__main__':
     mainVerbosity = True
     # passphrase of the private key requested for pki authentication
@@ -39,8 +37,16 @@ if __name__ == '__main__':
 
     # first init, creating private key
     if not ospath.exists(pkeyPath):
-        print("\n!!!!! INFO: The auth private key will be saved in "+pkeyPath+" !!!!!\n")
-        pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+        print(
+            "\n!!!!! INFO: The auth private key will be saved in " +
+            pkeyPath +
+            " !!!!!\n")
+        pki = PyKI(
+            verbose=False,
+            authKeypass=privateKeyPassphrase,
+            authKeylen=1024,
+            KEY_SIZE=1024,
+            SIGN_ALGO='SHA1')
         #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase)
 
         # get private key for authentication after first init
@@ -49,13 +55,13 @@ if __name__ == '__main__':
         try:
             wfile = open(pkeyPath, "wt")
         except IOError:
-            print('ERROR: unable to open file '+pkeyPath)
+            print('ERROR: unable to open file ' + pkeyPath)
             exit(1)
         else:
             try:
                 wfile.write(authprivkey)
             except IOError:
-                print('ERROR: Unable to write to file '+pkeyPath)
+                print('ERROR: Unable to write to file ' + pkeyPath)
                 exit(1)
             else:
                 if mainVerbosity:
@@ -65,13 +71,13 @@ if __name__ == '__main__':
             authprivkey = None
 
     # Init with privkey loaded from file
-    pkey = open(pkeyPath ,'rt')
+    pkey = open(pkeyPath, 'rt')
     pkeyStr = pkey.read()
     pkey.close()
     pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
-    
+
     # Set pki verbosity after init
-    #pki.set_verbosity(mainVerbosity)
+    # pki.set_verbosity(mainVerbosity)
 
     pkidb = pki.pkidbDict
 
@@ -93,12 +99,12 @@ if __name__ == '__main__':
         creation_date = pkidb[name]['created']
 
         print(
-              'Certificate name: ' +name+ '\n',
-              '\tCertificate state: ' +status+ '\n',
-              '\tCertificate serial number: ', serial, '\n',
-              '\tCertificate creation date: ' +creation_date+ '\n',
-              '\tDays of validity after creation: ', validity_time, '\n',
-              '\tCertificate usage type: ' +cert_usage+ '\n',
-              '\tCertificate shasum: ' +cert_shasum+ '\n',
-              '\tCertificate shasum encryption: ' +cert_encrytion
+            'Certificate name: ' + name + '\n',
+            '\tCertificate state: ' + status + '\n',
+            '\tCertificate serial number: ', serial, '\n',
+            '\tCertificate creation date: ' + creation_date + '\n',
+            '\tDays of validity after creation: ', validity_time, '\n',
+            '\tCertificate usage type: ' + cert_usage + '\n',
+            '\tCertificate shasum: ' + cert_shasum + '\n',
+            '\tCertificate shasum encryption: ' + cert_encrytion
         )

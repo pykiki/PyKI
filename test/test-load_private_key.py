@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from OpenSSL import crypto
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,14 +23,12 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from OpenSSL import crypto, SSL
-
 filePath = "/Users/albookpro/Downloads/pyTLSpki/building/pki/CERTS/clients/clientKey.pem"
 
 #passphrase = False
 passphrase = b'azerty'
 
-if passphrase :
+if passphrase:
     try:
         sslkeyObject = crypto.load_privatekey(
             crypto.FILETYPE_PEM, open(filePath).read(), passphrase)
@@ -36,7 +36,8 @@ if passphrase :
         print("Error reading key\n")
         exit(1)
 else:
-    # if the key is passphrase protected, you will be interactively prompt for it
+    # if the key is passphrase protected, you will be interactively prompt for
+    # it
     try:
         sslkeyObject = crypto.load_privatekey(
             crypto.FILETYPE_PEM, open(filePath).read())

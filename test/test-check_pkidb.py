@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from json import dumps as jsonDump
+from json import load as jsonLoad
+from datetime import datetime
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,32 +25,44 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from json import load as jsonLoad, loads as jsonLoadstr, dumps as jsonDump
-from datetime import datetime, date, timedelta
 
-def writeFile(wFile, wContent, mode = 'text'):
+def writeFile(wFile, wContent, mode='text'):
     try:
         if mode == 'text':
             file = open(wFile, "wt")
         elif mode == 'bytes':
             file = open(wFile, "wb")
         else:
-            res = {"error":True, "message":"ERROR: Please choose mode text or bytes to open your file "+ str(wFile)}
+            res = {
+                "error": True,
+                "message": "ERROR: Please choose mode text or bytes to open your file " +
+                str(wFile)}
             return(res)
     except IOError:
-        res = {"error":True, "message":"ERROR: Unable to open file " + str(wFile)}
+        res = {
+            "error": True,
+            "message": "ERROR: Unable to open file " +
+            str(wFile)}
         return(res)
     else:
         try:
             file.write(wContent)
         except IOError:
-            res = {"error":True, "message":'ERROR: Unable to write to file ' + wFile}
+            res = {
+                "error": True,
+                "message": 'ERROR: Unable to write to file ' +
+                wFile}
             return(res)
         else:
-            res = {"error":False, "message":'INFO: File ' + wFile + ' written'}
+            res = {
+                "error": False,
+                "message": 'INFO: File ' +
+                wFile +
+                ' written'}
             return(res)
         finally:
             file.close()
+
 
 def json2dict(fname):
     try:
@@ -55,19 +71,19 @@ def json2dict(fname):
             # load json from reading stream
             json = jsonLoad(db)
         except ValueError as e:
-            json = 'ERROR: Json format error '+ str(fname)+' --> ' + str(e)
-            res = {"error":True, "message":json}
+            json = 'ERROR: Json format error ' + str(fname) + ' --> ' + str(e)
+            res = {"error": True, "message": json}
         else:
-            res = {"error":False, "message":json}
+            res = {"error": False, "message": json}
     except IOError:
         json = 'ERROR: Unable to open file ' + fname
-        res = {"error":True, "message":json}
+        res = {"error": True, "message": json}
     else:
         db.close()
     finally:
         return(res)
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     '''
     function de mise a jour de la pki db file
         check des date
@@ -80,15 +96,19 @@ if __name__ == '__main__' :
     if not pkidb['error']:
         pkidb = pkidb['message']
     else:
-        res = {"error": True, "message":"ERROR: Unable to read Serial database "+DBfile+"."}
+        res = {
+            "error": True,
+            "message": "ERROR: Unable to read Serial database " +
+            DBfile +
+            "."}
         print(res)
         exit(0)
-        #return(res)
+        # return(res)
 
     modified = False
     critical = False
     for certname in pkidb:
-        if pkidb[certname]['state'] == "activ" :
+        if pkidb[certname]['state'] == "activ":
             createdate = pkidb[certname]['created']
             duration = pkidb[certname]['duration']
             #print(certname, createdate, duration)
@@ -96,7 +116,8 @@ if __name__ == '__main__' :
             currentDate = datetime.utcnow()
             # parse str date to datetime.datetime object
             #createDateTime = datetime.strptime(createdate, '%Y/%m/%d %H:%M:%S')
-            createDateTime = datetime.strptime("2009/07/23 14:32:30", '%Y/%m/%d %H:%M:%S')
+            createDateTime = datetime.strptime(
+                "2009/07/23 14:32:30", '%Y/%m/%d %H:%M:%S')
             # get timedelta object
             #print(currentDate - timedelta(days=366))
             timeDelta = currentDate - createDateTime
@@ -107,28 +128,32 @@ if __name__ == '__main__' :
             # in minutes
             #print(int(timeDelta.seconds / 60))
             # in seconds
-            #print(timeDelta.seconds)
+            # print(timeDelta.seconds)
             # in microseconds
-            #print(timeDelta.microseconds)
-            #if deltadays > duration :
+            # print(timeDelta.microseconds)
+            # if deltadays > duration :
             #    print("expired since "+ str(round(deltadays, 1) - duration) +" days")
-            #elif deltadays == duration:
+            # elif deltadays == duration:
             #    if timeDelta.seconds > 60:
             #        print("expired today since "+str(int(timeDelta.seconds/60))+" minutes")
             #    else:
             #        print("expired today since "+str(timeDelta.seconds)+" seconds")
-            if deltadays >= duration :
+            if deltadays >= duration:
                 pkidb[certname]['state'] = "expired"
                 modified = True
 
                 if certname == 'cacert':
                     critical = True
-                    res = {"error":True, "message":"ERROR: CA certificate is expired."}
+                    res = {
+                        "error": True,
+                        "message": "ERROR: CA certificate is expired."}
                 elif certname == 'intermediate_cacert':
                     critical = True
-                    res = {"error":True, "message":"ERROR: Intermediate CA certificate is expired."}
+                    res = {
+                        "error": True,
+                        "message": "ERROR: Intermediate CA certificate is expired."}
     if critical:
-        #return(res)
+        # return(res)
         print(res)
         exit(1)
 
@@ -136,8 +161,8 @@ if __name__ == '__main__' :
         newjson = jsonDump(pkidb, sort_keys=False)
         wresult = writeFile(DBfile, newjson)
         if wresult['error']:
-            res = {"error":True, "message":wresult['message']}
-            #return(res)
+            res = {"error": True, "message": wresult['message']}
+            # return(res)
             print(res)
             exit(1)
         if verbose:

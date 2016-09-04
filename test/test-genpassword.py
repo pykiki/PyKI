@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+import random
+import string
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,9 +24,8 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-import random, string
 
-def codegenerator(pwlen = 25, alphabet = False):
+def codegenerator(pwlen=25, alphabet=False):
     if not alphabet:
         #alphabet = string.printable
         alphabet = string.digits + string.ascii_letters + string.punctuation
@@ -37,8 +39,10 @@ def codegenerator(pwlen = 25, alphabet = False):
     return mypw
 
 if __name__ == '__main__':
-    print( codegenerator(pwlen = 26) )
-    print( codegenerator(pwlen = 42) )
-    print( codegenerator(pwlen = 3) )
-    print( codegenerator(alphabet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ") )
-    print( codegenerator(alphabet= 'azerty', pwlen=2) )
+    print(codegenerator(pwlen=26))
+    print(codegenerator(pwlen=42))
+    print(codegenerator(pwlen=3))
+    print(
+        codegenerator(
+            alphabet="abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+    print(codegenerator(alphabet='azerty', pwlen=2))

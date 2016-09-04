@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from xkcdpass import xkcd_password as xp
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,16 +23,16 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from xkcdpass import xkcd_password as xp
-
 if __name__ == '__main__':
     # create a wordlist from the default wordfile
     # use words between 7 and 12 letters long
     wordfile = xp.locate_wordfile()
-    mywords = xp.generate_wordlist(wordfile=wordfile, min_length=7, max_length=12)
+    mywords = xp.generate_wordlist(
+        wordfile=wordfile, min_length=7, max_length=12)
 
     # create a password with acrostic "face"
-    # you wil output 4 word with the begining letters of word 'face'. Eg: 'f'luidly 'a'tticism 'c'hivalrous 'e'xhilarated
+    # you wil output 4 word with the begining letters of word 'face'. Eg:
+    # 'f'luidly 'a'tticism 'c'hivalrous 'e'xhilarated
     print(xp.generate_xkcdpassword(mywords, acrostic="face"))
     # create a password with acrostic "hand" --> 4 words
     print(xp.generate_xkcdpassword(mywords, acrostic="hand"))

@@ -21,7 +21,6 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 import argparse
-from PyKI import PyKI
 
 from sys import path as syspath, argv
 from os import path as ospath
@@ -30,28 +29,61 @@ initPath = curScriptDir + "/PyKInit/"
 syspath.append(initPath)
 from PyKInit import pkinit
 
+
 def argCommandline(argv):
     """
     Manage cli script args
     """
-    parser = argparse.ArgumentParser(description='Extract files from PKCS12 archive.')
-    parser.add_argument("-d", "--dest-dir", action="store", dest="dstdata", type=str, help=u"Files destination directory", metavar='/dest/for/files/', required=True)
-    parser.add_argument("-f", "--file-path", action="store", dest="pkcsfile", type=str, help=u"PKCS12 file path", metavar='/path/to/pkcs12/file', required=True)
-    parser.add_argument("-s", "--pkcs12-pwd", action='store', dest="pkcspw", type=str, default=False, help=u"PKCS12 file password", metavar='mypkcs12passwd', required=True)
-    parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
+    parser = argparse.ArgumentParser(
+        description='Extract files from PKCS12 archive.')
+    parser.add_argument(
+        "-d",
+        "--dest-dir",
+        action="store",
+        dest="dstdata",
+        type=str,
+        help=u"Files destination directory",
+        metavar='/dest/for/files/',
+        required=True)
+    parser.add_argument(
+        "-f",
+        "--file-path",
+        action="store",
+        dest="pkcsfile",
+        type=str,
+        help=u"PKCS12 file path",
+        metavar='/path/to/pkcs12/file',
+        required=True)
+    parser.add_argument(
+        "-s",
+        "--pkcs12-pwd",
+        action='store',
+        dest="pkcspw",
+        type=str,
+        default=False,
+        help=u"PKCS12 file password",
+        metavar='mypkcs12passwd',
+        required=True)
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action='store_true',
+        dest='mainVerbosity',
+        help=u"Add output verbosity",
+        required=False)
 
     args = parser.parse_args()
     if len(argv) <= 1:
         parser.print_help()
         exit(1)
 
-    result=vars(args)
+    result = vars(args)
     return(result)
 
 if __name__ == '__main__':
-    args=argCommandline(argv)
+    args = argCommandline(argv)
 
-    pki=pkinit()
+    pki = pkinit()
     if not pki:
         print("ERROR: Errors found during init")
         exit(1)
@@ -59,8 +91,12 @@ if __name__ == '__main__':
 
     # try to extract ca, cert and key from pkcs12 file
     if args['mainVerbosity']:
-        print("INFO: Extract pkcs12 content from file "+args['pkcsfile']+" to "+args['dstdata']+"...")
-    extractres = pki.extract_pkcs12(pkcs12file=args['pkcsfile'], pkcs12pwd=args['pkcspw'], destdir=args['dstdata'])
+        print("INFO: Extract pkcs12 content from file " +
+              args['pkcsfile'] + " to " + args['dstdata'] + "...")
+    extractres = pki.extract_pkcs12(
+        pkcs12file=args['pkcsfile'],
+        pkcs12pwd=args['pkcspw'],
+        destdir=args['dstdata'])
     print(extractres['message'])
 
     exit(0)

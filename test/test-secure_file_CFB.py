@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+from os import path as ospath, walk, getcwd, remove
+import struct
+from sys import argv as sysargv
+from Crypto.Hash import SHA256
+from Crypto import Random
+from Crypto.Cipher import AES
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,18 +28,12 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-# alternativ : 
+# alternativ :
 #              https://pypi.python.org/pypi/cryptoshop
 #              https://stevenwooding.com/python-example-encryption-using-aes-in-counter-mode/
 
-from os import path as ospath, walk, getcwd, remove
-import struct
-from sys import argv as sysargv
-from Crypto.Hash import SHA256
-from Crypto import Random
-from Crypto.Cipher import AES
 
-def encryptFile(key, in_filename, out_filename=None, chunksize=64*1024):
+def encryptFile(key, in_filename, out_filename=None, chunksize=64 * 1024):
     """ Encrypts a file using AES (CFB mode) with the
         given key.
 
@@ -76,7 +77,8 @@ def encryptFile(key, in_filename, out_filename=None, chunksize=64*1024):
 
                 outfile.write(encryptor.encrypt(chunk))
 
-def decryptFile(key, in_filename, out_filename=None, chunksize=24*1024):
+
+def decryptFile(key, in_filename, out_filename=None, chunksize=24 * 1024):
     """ Decrypts a file using AES (CFB mode) with the
         given key. Parameters are similar to encrypt_file,
         with one difference: out_filename, if not supplied
@@ -105,9 +107,10 @@ def decryptFile(key, in_filename, out_filename=None, chunksize=24*1024):
 
             outfile.truncate(origsize)
 
+
 def getFiles(path):
-    if not ospath.exists(path) :
-        res = {'error':True, 'message':'ERROR: path '+path+' not found'}
+    if not ospath.exists(path):
+        res = {'error': True, 'message': 'ERROR: path ' + path + ' not found'}
         return(res)
 
     allFiles = []
@@ -119,14 +122,15 @@ def getFiles(path):
     else:
         allFiles.append(path)
 
-    res = {'error':False, 'message':allFiles}
+    res = {'error': False, 'message': allFiles}
     return(res)
 
 if __name__ == '__main__':
     choice = input("Do you want to (E)ncrypt or (D)ecrypt? ")
 
     if choice == "E":
-        filepath = input("Enter the filename or dirname containing files to encrypt: ")
+        filepath = input(
+            "Enter the filename or dirname containing files to encrypt: ")
 
         encFiles = getFiles(filepath)
         if not encFiles['error']:
@@ -137,21 +141,21 @@ if __name__ == '__main__':
 
         password = input("Enter password for encrypting file(s): ")
 
-        for Tfiles in encFiles:	
+        for Tfiles in encFiles:
             extension = ospath.splitext(Tfiles)[1][1:]
-            if extension == "enc" :
-                print("%s is already encrypted" %str(Tfiles))
-                pass
+            if extension == "enc":
+                print("%s is already encrypted" % str(Tfiles))
 
             elif Tfiles == ospath.join(getcwd(), sysargv[0]):
-                pass 
+                pass
             else:
                 encryptFile(password, str(Tfiles))
-                print( "Done encrypting %s" %str(Tfiles))
+                print("Done encrypting %s" % str(Tfiles))
                 remove(Tfiles)
 
     elif choice == "D":
-        filepath = input("Enter the filename or dirname containing files to decrypt: ")
+        filepath = input(
+            "Enter the filename or dirname containing files to decrypt: ")
         encFiles = getFiles(filepath)
         if not encFiles['error']:
             encFiles = encFiles['message']
@@ -161,14 +165,14 @@ if __name__ == '__main__':
 
         password = input("Enter password for decrypting file(s): ")
 
-        for Tfiles in encFiles:	
+        for Tfiles in encFiles:
             extension = ospath.splitext(Tfiles)[1][1:]
-            if extension != "enc" :
-                print( "%s is not encrypted" %Tfiles)
+            if extension != "enc":
+                print("%s is not encrypted" % Tfiles)
             else:
                 decryptFile(password, Tfiles)
-                print( "Done decrypting %s" %Tfiles)
+                print("Done decrypting %s" % Tfiles)
                 remove(Tfiles)
     else:
-        print( "Please choose a valid command.")
+        print("Please choose a valid command.")
         exit(1)

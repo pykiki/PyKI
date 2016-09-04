@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from json import load as jsonLoad
+from json import dumps as jsonDump
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,48 +24,58 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from json import load as jsonLoad
-from json import dumps as jsonDump
 
 def writeEncFile(wFile, wContent):
     try:
         file = open(wFile, "wt")
     except IOError:
-        res = {"error":True, "message":"ERROR: Unable to open file " + str(wFile)}
+        res = {
+            "error": True,
+            "message": "ERROR: Unable to open file " +
+            str(wFile)}
         return(res)
     finally:
         try:
             file.write(wContent)
         except IOError:
-            res = {"error":True, "message":'ERROR: Unable to write to file ' + wFile}
+            res = {
+                "error": True,
+                "message": 'ERROR: Unable to write to file ' +
+                wFile}
             return(res)
         finally:
             file.close()
-            res = {"error":False, "message":'INFO: File ' + wFile + ' written'}
+            res = {
+                "error": False,
+                "message": 'INFO: File ' +
+                wFile +
+                ' written'}
             return(res)
 
 #toto = jsonLoad(open('pkicert.db', "r"))
-#for k in toto :
+# for k in toto :
 #   print(k)
 
-# json to dictionnary         
+# json to dictionnary
+
+
 def encJson2dict(fname):
     try:
         db = open(fname, "r")
         try:
             json = jsonLoad(db)
         except ValueError as e:
-            json = 'ERROR: Json format error '+ str(fname)+' --> ' + str(e)
-            res = {"error":True, "message":json}
+            json = 'ERROR: Json format error ' + str(fname) + ' --> ' + str(e)
+            res = {"error": True, "message": json}
         else:
-            res = {"error":False, "message":json}
+            res = {"error": False, "message": json}
     except IOError:
         json = 'ERROR: Unable to open file ' + fname
-        res = {"error":True, "message":json}
+        res = {"error": True, "message": json}
     finally:
         db.close()
         return(res)
-            
+
 if __name__ == '__main__':
     passDBfile = "./toto.enc"
     name = 'test'
@@ -70,7 +83,7 @@ if __name__ == '__main__':
     verbose = True
     create = True
 
-    if create :
+    if create:
         passdb = {}
     else:
         # mise a jour de la db pki
@@ -78,16 +91,20 @@ if __name__ == '__main__':
         if not passdb['error']:
             passdb = passdb['message']
         else:
-            res = {"error": True, "message":"ERROR: Unable to read Serial database "+passDBfile+"."}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to read Serial database " +
+                passDBfile +
+                "."}
             print(res)
             exit(1)
-            
-    # ecriture dans la db 
+
+    # ecriture dans la db
     passdb[name] = passph
     newjson = jsonDump(passdb, sort_keys=False)
     wresult = writeEncFile(passDBfile, newjson)
     if wresult['error']:
-        res = {"error":True, "message":wresult['message']}
+        res = {"error": True, "message": wresult['message']}
         print(res)
         exit(1)
     if verbose:

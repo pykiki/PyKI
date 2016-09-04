@@ -24,6 +24,7 @@ from unicodedata import normalize as uninormalize
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
+
 def strip_accents(text):
     """
     Strip accents from input String.
@@ -36,16 +37,18 @@ def strip_accents(text):
     """
     try:
         text = unicode(text, 'utf-8')
-    except NameError: # unicode is a default on python 3
+    except NameError:  # unicode is a default on python 3
         pass
     text = uninormalize('NFD', text)
     text = text.encode('ascii', 'ignore')
     text = text.decode("utf-8")
     return str(text)
 
+
 def rmSpecialChar(instr):
-    cleanStr = resub('\W+','_', instr )
+    cleanStr = resub('\W+', '_', instr)
     return(cleanStr)
+
 
 def cleanStr(txt):
     string = rmSpecialChar(strip_accents(txt))
@@ -54,4 +57,3 @@ def cleanStr(txt):
 if __name__ == "__main__":
     string = "wiki.maibach.fr"
     print(cleanStr(string))
-

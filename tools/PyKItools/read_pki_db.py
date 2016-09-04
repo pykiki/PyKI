@@ -21,7 +21,6 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 import argparse
-from PyKI import PyKI
 
 from sys import path as syspath, argv
 from os import path as ospath
@@ -30,21 +29,29 @@ initPath = curScriptDir + "/PyKInit/"
 syspath.append(initPath)
 from PyKInit import pkinit
 
+
 def argCommandline(argv):
     """
     Manage cli script args
     """
-    parser = argparse.ArgumentParser(description='Get PKI database informations in Human Readable format.')
-    parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
+    parser = argparse.ArgumentParser(
+        description='Get PKI database informations in Human Readable format.')
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action='store_true',
+        dest='mainVerbosity',
+        help=u"Add output verbosity",
+        required=False)
     args = parser.parse_args()
 
-    result=vars(args)
+    result = vars(args)
     return(result)
 
 if __name__ == '__main__':
-    args=argCommandline(argv)
+    args = argCommandline(argv)
 
-    pki=pkinit()
+    pki = pkinit()
     if not pki:
         print("ERROR: Errors found during init")
         exit(1)
@@ -74,14 +81,14 @@ if __name__ == '__main__':
         creation_date = pkidb[name]['created']
 
         print(
-              'Certificate name: ' +name+ '\n',
-              '\tCertificate state: ' +status+ '\n',
-              '\tCertificate serial number: ', serial, '\n',
-              '\tCertificate creation date: ' +creation_date+ '\n',
-              '\tDays of validity after creation: ', validity_time, '\n',
-              '\tCertificate usage type: ' +cert_usage+ '\n',
-              '\tCertificate shasum: ' +cert_shasum+ '\n',
-              '\tCertificate shasum encryption: ' +hash_encrytion
+            'Certificate name: ' + name + '\n',
+            '\tCertificate state: ' + status + '\n',
+            '\tCertificate serial number: ', serial, '\n',
+            '\tCertificate creation date: ' + creation_date + '\n',
+            '\tDays of validity after creation: ', validity_time, '\n',
+            '\tCertificate usage type: ' + cert_usage + '\n',
+            '\tCertificate shasum: ' + cert_shasum + '\n',
+            '\tCertificate shasum encryption: ' + hash_encrytion
         )
 
     exit(0)

@@ -18,6 +18,9 @@ Remember that all parameters generated at PKI init can be overriden during speci
 
 Now that the init is correctly set up, you will be able to use every tools built in the tools directory.
 
+# Just one last TIPS: The field passphrase can be left empty; if you do so, you will have to give the pki authentication password each time you'll call the class.
+
+
 To use the PyKInit, you will have to add it to your syspath like that:
 ```
 from sys import path as syspath

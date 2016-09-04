@@ -25,7 +25,6 @@ __status__ = "Beta tests"
 '''
 
 import argparse
-from PyKI import PyKI
 
 from sys import path as syspath, argv
 from os import path as ospath
@@ -34,38 +33,75 @@ initPath = curScriptDir + "/PyKInit/"
 syspath.append(initPath)
 from PyKInit import pkinit
 
+
 def argCommandline(argv):
     """
     Manage cli script args
     """
-    parser = argparse.ArgumentParser(description='Revoke a certificate by its name in the PKI.')
-    parser.add_argument("-n", "--cn", action="store", dest="cn", type=str, help=u"Certificate common name", metavar='Common Name', required=True)
-    parser.add_argument("-r", "--reason", action='store', dest="reason", type=str, default='cessationOfOperation', metavar='unspecified|keyCompromise|CACompromise|affiliationChanged|superseded|cessationOfOperation|certificateHold', choices=['unspecified', 'keyCompromise', 'CACompromise', 'affiliationChanged', 'superseded', 'cessationOfOperation', 'certificateHold'], help=u"Select which type of use is required for the certificate", required=True)
-    parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
+    parser = argparse.ArgumentParser(
+        description='Revoke a certificate by its name in the PKI.')
+    parser.add_argument(
+        "-n",
+        "--cn",
+        action="store",
+        dest="cn",
+        type=str,
+        help=u"Certificate common name",
+        metavar='Common Name',
+        required=True)
+    parser.add_argument(
+        "-r",
+        "--reason",
+        action='store',
+        dest="reason",
+        type=str,
+        default='cessationOfOperation',
+        metavar='unspecified|keyCompromise|CACompromise|affiliationChanged|superseded|cessationOfOperation|certificateHold',
+        choices=[
+            'unspecified',
+            'keyCompromise',
+            'CACompromise',
+            'affiliationChanged',
+            'superseded',
+            'cessationOfOperation',
+            'certificateHold'],
+        help=u"Select which type of use is required for the certificate",
+        required=True)
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action='store_true',
+        dest='mainVerbosity',
+        help=u"Add output verbosity",
+        required=False)
     args = parser.parse_args()
 
     if len(argv) <= 1:
         parser.print_help()
         exit(1)
 
-    result=vars(args)
+    result = vars(args)
     return(result)
 
 if __name__ == '__main__':
-    args=argCommandline(argv)
+    args = argCommandline(argv)
 
-    pki=pkinit()
+    pki = pkinit()
     if not pki:
         print("ERROR: Errors found during init")
         exit(1)
     pki.set_verbosity(args['mainVerbosity'])
 
     if args['cn'] not in pki.nameList:
-        print('ERROR: Certificate '+args['cn']+" doesn't exist.")
+        print('ERROR: Certificate ' + args['cn'] + " doesn't exist.")
         exit(1)
 
     if args['mainVerbosity']:
-        print("INFO: Revoking certificate "+args['cn']+" for "+args['reason'])
+        print(
+            "INFO: Revoking certificate " +
+            args['cn'] +
+            " for " +
+            args['reason'])
     # keyCompromise
     crl = pki.revoke_cert(certname=args['cn'], reason=args['reason'])
     if crl['error']:

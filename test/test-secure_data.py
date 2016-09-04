@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+from Crypto.Hash import SHA256
+from Crypto import Random
+from Crypto.Cipher import AES
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,9 +25,6 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from Crypto.Hash import SHA256
-from Crypto import Random
-from Crypto.Cipher import AES
 
 def encryptData(key, data):
     """ Encrypts a file using AES (CBC mode) with the
@@ -61,10 +62,11 @@ def encryptData(key, data):
     iv = Random.new().read(AES.block_size)
 
     cipher = AES.new(key, AES.MODE_CFB, iv)
-    encdata = ( iv + cipher.encrypt(data) )
+    encdata = (iv + cipher.encrypt(data))
     return(encdata)
 
-def decryptData(key, encdata): 
+
+def decryptData(key, encdata):
     """ Decrypts a file using AES (CBC mode) with the
         given key. Parameters are similar to encrypt_file
     """
@@ -86,17 +88,17 @@ def decryptData(key, encdata):
     return(data)
 
 if __name__ == '__main__':
-        password = 'azerty'
+    password = 'azerty'
 
-        # decrypt string content
-        encDatas = encryptData(password, 'azerty cool :)')
-        print(
-              decryptData(password, encDatas)
-             )
+    # decrypt string content
+    encDatas = encryptData(password, 'azerty cool :)')
+    print(
+        decryptData(password, encDatas)
+    )
 
-        # decrypt a file content
-        ofile = open('./toto.txt.enc', 'rb')
-        encdatafile = ofile.read()
-        ofile.close()
-        datafile = decryptData(password, encdatafile)
-        print(str(datafile[8:]).replace('\\n', '\n'))
+    # decrypt a file content
+    ofile = open('./toto.txt.enc', 'rb')
+    encdatafile = ofile.read()
+    ofile.close()
+    datafile = decryptData(password, encdatafile)
+    print(str(datafile[8:]).replace('\\n', '\n'))

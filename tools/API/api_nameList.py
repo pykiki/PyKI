@@ -21,8 +21,7 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from os import path as ospath, sys
-from getpass import getpass
+from os import path as ospath
 from PyKI import PyKI
 from flask import Flask
 from flask import make_response
@@ -34,6 +33,7 @@ app = Flask(__name__)
 app.config['DEBUG'] = False
 lhost = "localhost"
 lport = 80
+
 
 @app.route('/')
 def index():
@@ -67,13 +67,14 @@ def index():
     resp.headers['Server'] = 'PyKI amaibach API'
     return(resp)
 
+
 @app.route('/help')
 def help():
     '''
         Documentation page
     '''
 
-    info = open(curScriptDir+"/help.html" ,'rt')
+    info = open(curScriptDir + "/help.html", 'rt')
     helpContent = info.read()
     info.close()
 
@@ -82,6 +83,7 @@ def help():
     resp.headers['Server'] = 'PyKI amaibach API'
 
     return(resp)
+
 
 @app.route('/listCert')
 def getNamesList():
@@ -92,13 +94,13 @@ def getNamesList():
 
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
-    pkey = open(pkeyPath ,'rt')
+    pkey = open(pkeyPath, 'rt')
     pkeyStr = pkey.read()
     pkey.close()
 
     # Init with privkey loaded from file
     pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
-    
+
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)
 
@@ -115,12 +117,12 @@ def getNamesList():
 if __name__ == '__main__':
     # Listen in http #
     #app.run(host=lhost, port=lport)
-     
+
     # Listen in Quick https #
     #context = ('/opt/PyKI_data/CERTS/servers/PyKIflask/PyKIflask.crt', '/opt/PyKI_data/CERTS/servers/PyKIflask/PyKIflask_unprotected.key')
     #app.run(host=lhost, port=lport, ssl_context=context, threaded=True, debug=True)
 
-    # Listen in https with defined params # 
+    # Listen in https with defined params #
 
     # Create an ssl context, with TLSv1.2 to use with flask
     #   Docu https://docs.python.org/3/library/ssl.html
@@ -144,7 +146,8 @@ if __name__ == '__main__':
     context.options |= ssl.OP_CIPHER_SERVER_PREFERENCE
 
     # Define ciphers suite
-    context.set_ciphers('ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:DHE-RSA-AES256-SHA:!LOW:!MD5:!aNULL:!eNULL:!3DES:!EXP:!PSK:!SRP:!DSS')
+    context.set_ciphers(
+        'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:DHE-RSA-AES256-SHA:!LOW:!MD5:!aNULL:!eNULL:!3DES:!EXP:!PSK:!SRP:!DSS')
 
     # disable TLS session tickets
     context.options |= 0x00004000
@@ -158,9 +161,13 @@ if __name__ == '__main__':
         context.check_hostname = False
 
     # Set Ca certificates chain file
-    context.load_verify_locations(cafile='/opt/PyKI_data/CERTS/chain_cacert.pem')
+    context.load_verify_locations(
+        cafile='/opt/PyKI_data/CERTS/chain_cacert.pem')
     # Set certificate and private key (with password optionnally)
-    context.load_cert_chain(certfile='/opt/PyKI_data/CERTS/servers/PyKIflask/PyKIflask.crt', keyfile='/opt/PyKI_data/CERTS/servers/PyKIflask/PyKIflask.key', password="$okuZHeP-Dr~`?r[i[>9HmBp[Y")
+    context.load_cert_chain(
+        certfile='/opt/PyKI_data/CERTS/servers/PyKIflask/PyKIflask.crt',
+        keyfile='/opt/PyKI_data/CERTS/servers/PyKIflask/PyKIflask.key',
+        password="$okuZHeP-Dr~`?r[i[>9HmBp[Y")
 
     # End definitions #
 

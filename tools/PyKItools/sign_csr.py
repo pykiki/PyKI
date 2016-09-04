@@ -21,7 +21,6 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 import argparse
-from PyKI import PyKI
 
 from sys import path as syspath, argv
 from os import path as ospath
@@ -30,26 +29,84 @@ initPath = curScriptDir + "/PyKInit/"
 syspath.append(initPath)
 from PyKInit import pkinit
 
+
 def argCommandline(argv):
     """
     Manage cli script args
     """
-    parser = argparse.ArgumentParser(description='Sign Certificate request and store them in the PKI signed directory')
-    parser.add_argument("-f", "--file-path", action="store", dest="filepath", type=str, help=u"Certificate request file path", metavar='path/to/request/file', required=False)
-    parser.add_argument("-n", "--name", action="store", dest="filename", type=str, help=u"Certificate request pki file name", metavar='csrname', required=False)
-    parser.add_argument("-d", "--duration", action='store', dest="duration", type=int, default=360, help=u"Number of days for certificate validity period", metavar='X', required=False)
-    parser.add_argument("-p", "--purpose", action='store', dest="purpose", type=str, default='server', metavar='client|server', choices=['server','client'], help=u"Select which type of use is required for the certificate", required=True)
-    parser.add_argument("-e", "--encryption", action='store', dest="encryption", type=str, default=False, help=u"Certificate encryption level", metavar="SHA1|SHA256|SHA512", choices=['SHA1','SHA256','SHA512'], required=False)
-    parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
+    parser = argparse.ArgumentParser(
+        description='Sign Certificate request and store them in the PKI signed directory')
+    parser.add_argument(
+        "-f",
+        "--file-path",
+        action="store",
+        dest="filepath",
+        type=str,
+        help=u"Certificate request file path",
+        metavar='path/to/request/file',
+        required=False)
+    parser.add_argument(
+        "-n",
+        "--name",
+        action="store",
+        dest="filename",
+        type=str,
+        help=u"Certificate request pki file name",
+        metavar='csrname',
+        required=False)
+    parser.add_argument(
+        "-d",
+        "--duration",
+        action='store',
+        dest="duration",
+        type=int,
+        default=360,
+        help=u"Number of days for certificate validity period",
+        metavar='X',
+        required=False)
+    parser.add_argument(
+        "-p",
+        "--purpose",
+        action='store',
+        dest="purpose",
+        type=str,
+        default='server',
+        metavar='client|server',
+        choices=[
+            'server',
+            'client'],
+        help=u"Select which type of use is required for the certificate",
+        required=True)
+    parser.add_argument(
+        "-e",
+        "--encryption",
+        action='store',
+        dest="encryption",
+        type=str,
+        default=False,
+        help=u"Certificate encryption level",
+        metavar="SHA1|SHA256|SHA512",
+        choices=[
+            'SHA1',
+            'SHA256',
+            'SHA512'],
+        required=False)
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action='store_true',
+        dest='mainVerbosity',
+        help=u"Add output verbosity",
+        required=False)
 
     args = parser.parse_args()
-    result=vars(args)
+    result = vars(args)
     return(result)
 
 if __name__ == '__main__':
-    args=argCommandline(argv)
+    args = argCommandline(argv)
 
-    pki=pkinit()
+    pki = pkinit()
     if not pki:
         print("ERROR: Errors found during init")
         exit(1)
@@ -61,22 +118,33 @@ if __name__ == '__main__':
 
     if args['filepath']:
         if not ospath.exists(args['filepath']):
-            print("ERROR: File "+args['filepath']+" not found")
+            print("ERROR: File " + args['filepath'] + " not found")
             exit(1)
-        filepath=args['filepath']
+        filepath = args['filepath']
     else:
-        filepath=pki.csrDir+'/'+args['filename']+'/'+args['filename']+'.csr'
+        filepath = pki.csrDir + '/' + \
+            args['filename'] + '/' + args['filename'] + '.csr'
 
     if args['purpose'] == 'server':
-        args['purpose']='serverAuth'
+        args['purpose'] = 'serverAuth'
     elif args['purpose'] == 'client':
-        args['purpose']='clientAuth'
+        args['purpose'] = 'clientAuth'
 
-    print("INFO: Signing Certificate Request "+filepath+" for "+str(args['duration'])+" days of validity...")
+    print("INFO: Signing Certificate Request " + filepath +
+          " for " + str(args['duration']) + " days of validity...")
 
-    signRes = pki.sign_csr(csr=filepath, KeyUsage=args['purpose'], days_valid=args['duration'], encryption=args['encryption'])
-    if signRes['error'] :
-        print("ERROR: Unable to generate certificate for csr "+filepath+" properly --> "+signRes['message']+", aborting...")
+    signRes = pki.sign_csr(
+        csr=filepath,
+        KeyUsage=args['purpose'],
+        days_valid=args['duration'],
+        encryption=args['encryption'])
+    if signRes['error']:
+        print(
+            "ERROR: Unable to generate certificate for csr " +
+            filepath +
+            " properly --> " +
+            signRes['message'] +
+            ", aborting...")
         exit(1)
     else:
         print(signRes['message'])

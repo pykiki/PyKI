@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from OpenSSL import crypto
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,22 +23,21 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from OpenSSL import crypto, SSL
-
 filePath = "/Users/albookpro/Downloads/pyTLSpki/building/pki/CERTS/clients/clientPKCS.p12"
 
 #passphrase = False
 passphrase = b'azerty'
 
-if passphrase :
-    #try:
+if passphrase:
+    # try:
     bufferObj = open(filePath).read(2)
 #    pkcs12object = crypto.load_pkcs12(bufferObj, passphrase)
-    #except:
+    # except:
     #    print("Error opening pkcs12 file\n")
     #    exit(1)
 else:
-    # if the key is passphrase protected, you will be interactively prompt for it
+    # if the key is passphrase protected, you will be interactively prompt for
+    # it
     try:
         pkcs12object = crypto.load_pkcs12(
             open(filePath).read())

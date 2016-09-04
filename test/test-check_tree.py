@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from os import path as ospath, walk as oswalk
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,28 +23,29 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from os import path as ospath, walk as oswalk
-
-if __name__ == '__main__' :
+if __name__ == '__main__':
     '''
     # ajouter un check en debut de script, si le pki path contien des choses, vérifier que la structure a bien etee creee par ce script sinon on créé tout !
     '''
     pkipath = "/Users/albookpro/Downloads/pyTLSpki/building/tests/toto6/"
 
     if not ospath.exists(pkipath):
-        res = { 'error': True, 'message':"ERROR: Pki Path doesn't exists"}
+        res = {'error': True, 'message': "ERROR: Pki Path doesn't exists"}
         print(res)
         exit(1)
 
-    # pkipath must be an absolute path, without the final "/" for the realpath check
+    # pkipath must be an absolute path, without the final "/" for the realpath
+    # check
     if pkipath[-1] == '/':
-        pkipath = pkipath[:len(pkipath)-1]
+        pkipath = pkipath[:len(pkipath) - 1]
 
     if ospath.realpath(pkipath) != pkipath:
         print('ERROR: pki is a symlink, refusing to init pki')
 
     if not ospath.isdir(pkipath):
-        res = { 'error': True, 'message':"ERROR: Pki init failed, your pki path is already used"}
+        res = {
+            'error': True,
+            'message': "ERROR: Pki init failed, your pki path is already used"}
         print(res)
         exit(1)
     else:
@@ -62,7 +65,8 @@ if __name__ == '__main__' :
         if dirlen < 6 and dirlen > 0 and initiated:
             print("Unproper PKI filesystem missing directories")
         elif dirlen != 6 and dirlen > 0 and not initiated:
-            print("Your PKI filesystem seems to contains partial old structure. You should backup and init again")
+            print(
+                "Your PKI filesystem seems to contains partial old structure. You should backup and init again")
 
         if 'intermediate_cacert.pem' in filenames or 'cacert.pem' in filenames:
             if 'pkicert.db' not in filenames or 'public_key.pem' not in filenames or 'pkipass.db' not in filenames:

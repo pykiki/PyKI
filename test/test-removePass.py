@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from os import path as ospath, sys
+curScriptDir = ospath.dirname(ospath.abspath(__file__))
+PyKImodPath = curScriptDir + "/../"
+sys.path.append(PyKImodPath)
+from PyKI import PyKI
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,22 +27,15 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from socket import gethostname
-from os import path as ospath, sys
-from getpass import getpass
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-PyKImodPath = curScriptDir + "/../"
-sys.path.append(PyKImodPath)
-from PyKI import PyKI
 
 def rmPass(name, pki, passphrase):
     '''
     Remove passphrase from key
     '''
     # define type in pkicert.db /get path in crt dir
-    print("INFO: Removing passphrase from "+name)
+    print("INFO: Removing passphrase from " + name)
 
-    unprotectres = pki.unprotect_key(keyname = name, privKeypass = passphrase)
+    unprotectres = pki.unprotect_key(keyname=name, privKeypass=passphrase)
     if unprotectres['error']:
         print(unprotectres['message'])
         return(False)
@@ -54,8 +53,16 @@ if __name__ == '__main__':
 
     # first init, creating private key
     if not ospath.exists(pkeyPath):
-        print("\n!!!!! INFO: The auth private key will be saved in "+pkeyPath+" !!!!!\n")
-        pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+        print(
+            "\n!!!!! INFO: The auth private key will be saved in " +
+            pkeyPath +
+            " !!!!!\n")
+        pki = PyKI(
+            verbose=False,
+            authKeypass=privateKeyPassphrase,
+            authKeylen=1024,
+            KEY_SIZE=1024,
+            SIGN_ALGO='SHA1')
         #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase)
 
         # get private key for authentication after first init
@@ -64,13 +71,13 @@ if __name__ == '__main__':
         try:
             wfile = open(pkeyPath, "wt")
         except IOError:
-            print('ERROR: unable to open file '+pkeyPath)
+            print('ERROR: unable to open file ' + pkeyPath)
             exit(1)
         else:
             try:
                 wfile.write(authprivkey)
             except IOError:
-                print('ERROR: Unable to write to file '+pkeyPath)
+                print('ERROR: Unable to write to file ' + pkeyPath)
                 exit(1)
             else:
                 if mainVerbosity:
@@ -80,13 +87,13 @@ if __name__ == '__main__':
             authprivkey = None
 
     # Init with privkey loaded from file
-    pkey = open(pkeyPath ,'rt')
+    pkey = open(pkeyPath, 'rt')
     pkeyStr = pkey.read()
     pkey.close()
     pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
-    
+
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)
 
     # Remove passphrase from cert
-    rmPass(name = 'wiki.maibach.fr', pki = pki, passphrase = 'azerty')
+    rmPass(name='wiki.maibach.fr', pki=pki, passphrase='azerty')

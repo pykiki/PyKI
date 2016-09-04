@@ -22,7 +22,6 @@
 '''
 
 import argparse
-from PyKI import PyKI
 
 from sys import path as syspath, argv
 from os import path as ospath
@@ -31,21 +30,29 @@ initPath = curScriptDir + "/PyKInit/"
 syspath.append(initPath)
 from PyKInit import pkinit
 
+
 def argCommandline(argv):
     """
     Manage cli script args
     """
-    parser = argparse.ArgumentParser(description='List all certificates name present in the PKI')
-    parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
+    parser = argparse.ArgumentParser(
+        description='List all certificates name present in the PKI')
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action='store_true',
+        dest='mainVerbosity',
+        help=u"Add output verbosity",
+        required=False)
     args = parser.parse_args()
 
-    result=vars(args)
+    result = vars(args)
     return(result)
 
 if __name__ == '__main__':
-    args=argCommandline(argv)
+    args = argCommandline(argv)
 
-    pki=pkinit()
+    pki = pkinit()
     if not pki:
         print("ERROR: Errors found during init")
         exit(1)

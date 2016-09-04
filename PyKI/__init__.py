@@ -30,15 +30,17 @@ from Crypto.PublicKey import RSA
 from Crypto import Random
 from Crypto.Hash import SHA256
 from Crypto.Cipher import AES
-from datetime import datetime, timedelta
-from os import path as ospath, makedirs, chmod, remove, rmdir, access, getcwd, walk as oswalk
+from datetime import datetime
+from os import makedirs
+from os import path as ospath
+from os import remove
+from os import rmdir
+from os import walk as oswalk
 #from sys import version_info
 import sys
 from json import load as jsonLoad, loads as jsonLoadstr, dumps as jsonDump
-from random import randint, randrange
+from random import randrange
 import errno
-import string
-import types
 from re import sub as resub, search as research, match as rematch
 from unicodedata import normalize as uninormalize
 import hashlib
@@ -46,13 +48,30 @@ import pytz
 import struct
 import signal
 
+
 class PyKI():
     '''
     Main class to instanciate which will load the pki and it's management functions
     All certificates and private keys including crl will be encoded into PEM format and will be encrypted in RSA
     '''
 
-    def __init__(self, issuerName=None, authKeypass=False, privkeyStr=False, C = 'FR', ST = 'ALPES MARITIMES', L = 'Antibes', O = 'MAIBACH Corp.', OU = 'IT Department', adminEmail = 'alain.maibach@gmail.com', verbose = False, KEY_SIZE = 8192, SIGN_ALGO = 'SHA512', KEY_CIPHER = 'DES3', CRL_ALGO = 'sha256', authKeylen = 8192):
+    def __init__(
+            self,
+            issuerName=None,
+            authKeypass=False,
+            privkeyStr=False,
+            C='FR',
+            ST='ALPES MARITIMES',
+            L='Antibes',
+            O='MAIBACH Corp.',
+            OU='IT Department',
+            adminEmail='alain.maibach@gmail.com',
+            verbose=False,
+            KEY_SIZE=8192,
+            SIGN_ALGO='SHA512',
+            KEY_CIPHER='DES3',
+            CRL_ALGO='sha256',
+            authKeylen=8192):
         '''
         Init the pki:
             - Initiating global default pki values
@@ -137,15 +156,15 @@ class PyKI():
         self.__rootCAdir = self.__pkiPath + '/CA'
         self.__intermediateCAdir = self.__pkiPath + '/INTERMEDIATE'
         self.__crtsDir = self.__pkiPath + '/CERTS'
-        self.__srvCRTdir = self.__crtsDir +'/servers'
-        self.__cltCRTdir = self.__crtsDir +'/clients'
-        self.__csrDir = self.__crtsDir +'/requests'
-        self.__signeDir = self.__crtsDir +'/signed'
+        self.__srvCRTdir = self.__crtsDir + '/servers'
+        self.__cltCRTdir = self.__crtsDir + '/clients'
+        self.__csrDir = self.__crtsDir + '/requests'
+        self.__signeDir = self.__crtsDir + '/signed'
 
-        if not ospath.exists(self.__pkiPath) :
+        if not ospath.exists(self.__pkiPath):
             if self.__verbose:
                 print('INFO: Initialising pki...')
-            
+
             self.__init = True
 
             result = self.create_dir(self.__pkiPath, 0o750)
@@ -158,12 +177,12 @@ class PyKI():
                 exit(1)
 
         # create empty lock file to guarantee usage ownership
-        self.__lockfile = self.__pkiPath+'/pki.lock'
-        if not ospath.exists(self.__lockfile) :
+        self.__lockfile = self.__pkiPath + '/pki.lock'
+        if not ospath.exists(self.__lockfile):
             try:
                 open(self.__lockfile, 'a').close()
             except OSError as exception:
-                print("ERROR: Unable to lock the pki -->",exception)
+                print("ERROR: Unable to lock the pki -->", exception)
                 exit(1)
             except:
                 print("ERROR: Unhandled error. Unable to lock the pki")
@@ -181,7 +200,8 @@ class PyKI():
         if chkres['error']:
             print(chkres['message'])
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after detecting bad filesystem tree..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after detecting bad filesystem tree..")
             exit(1)
         else:
             if self.__verbose:
@@ -196,7 +216,8 @@ class PyKI():
         else:
             print(result1['message'])
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after error during creating dir..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after error during creating dir..")
             exit(1)
 
         result2 = self.create_dir(self.__intermediateCAdir, 0o750)
@@ -207,7 +228,8 @@ class PyKI():
         else:
             print(result2['message'])
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after error during creating dir..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after error during creating dir..")
             exit(1)
 
         result3 = self.create_dir(self.__crtsDir, 0o750)
@@ -218,7 +240,8 @@ class PyKI():
         else:
             print(result3['message'])
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after error during creating dir..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after error during creating dir..")
             exit(1)
 
         result4 = self.create_dir(self.__srvCRTdir, 0o750)
@@ -229,7 +252,8 @@ class PyKI():
         else:
             print(result4['message'])
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after error during creating dir..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after error during creating dir..")
             exit(1)
 
         result5 = self.create_dir(self.__cltCRTdir, 0o750)
@@ -240,7 +264,8 @@ class PyKI():
         else:
             print(result5['message'])
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after error during creating dir..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after error during creating dir..")
             exit(1)
 
         result6 = self.create_dir(self.__signeDir, 0o750)
@@ -251,7 +276,8 @@ class PyKI():
         else:
             print(result6['message'])
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after error during creating dir..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after error during creating dir..")
             exit(1)
 
         result7 = self.create_dir(self.__csrDir, 0o750)
@@ -262,17 +288,19 @@ class PyKI():
         else:
             print(result7['message'])
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after error during creating dir..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after error during creating dir..")
             exit(1)
 
-        self.__passdir = self.__pkiPath+'/passphrases'
-        self.__pubkeypath = self.__passdir+'/public_key.pem'
+        self.__passdir = self.__pkiPath + '/passphrases'
+        self.__pubkeypath = self.__passdir + '/public_key.pem'
 
         # check if key pair for authentication has already been created
         if privkeyStr and not ospath.exists(self.__pubkeypath):
             print("ERROR: You cannot use a private key at this stage, because the pki has not been already initiated !!")
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after trying to use a private key before pki init'..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after trying to use a private key before pki init'..")
             exit(1)
         if not ospath.exists(self.__pubkeypath):
             if self.__verbose:
@@ -282,12 +310,14 @@ class PyKI():
             if gres['error']:
                 print(gres['message'])
                 # remove lock file
-                self.remove_lockf("INFO: PKI unlocked after failing to generate auth key pair..")
+                self.remove_lockf(
+                    "INFO: PKI unlocked after failing to generate auth key pair..")
                 exit(1)
             else:
                 self.__initPkey = gres['message']
                 if self.__verbose:
-                    print("\nINFO: Please save this private key and callback your script with the private key, now exiting...")
+                    print(
+                        "\nINFO: Please save this private key and callback your script with the private key, now exiting...")
 
                 # remove lock file
                 self.remove_lockf("INFO: PKI unlocked after first init..")
@@ -296,9 +326,11 @@ class PyKI():
                 exit(0)
         else:
             if not privkeyStr:
-                print("ERROR: Please give your private key to authenticate before continue...")
+                print(
+                    "ERROR: Please give your private key to authenticate before continue...")
                 # remove lock file
-                self.remove_lockf("INFO: PKI unlocked after authenticate error..")
+                self.remove_lockf(
+                    "INFO: PKI unlocked after authenticate error..")
                 exit(1)
 
         # sending authentication try
@@ -306,7 +338,8 @@ class PyKI():
         if resauth['error']:
             print(resauth['message'])
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after error during creating dir..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after error during creating dir..")
             exit(1)
         else:
             if self.__verbose:
@@ -316,12 +349,13 @@ class PyKI():
         if not self.__token:
             print("ERROR: Unable to authenticate, please check your private key")
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after error during creating dir..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after error during creating dir..")
             exit(1)
 
         # key encryptions def
         self.__KEY_ALGO = crypto.TYPE_RSA
-        
+
         # certificate hash encryption for pkidb shasum content
         #       sha1, sha224, sha256, sha384, sha512
         self.__HASH_ENC = 'sha1'
@@ -355,7 +389,7 @@ class PyKI():
         self.__passDBfile = self.__passdir + '/pkipass.db'
         self.__rootCAkeyfile = self.__rootCAdir + "/cakey.pem"
         self.__rootCAcrtfile = self.__rootCAdir + "/cacert.pem"
-        self.__ca_chain = self.__crtsDir +'/chain_cacert.pem'
+        self.__ca_chain = self.__crtsDir + '/chain_cacert.pem'
         self.__crlpath = self.__intermediateCAdir + "/crl.pem"
         self.__intermediateCAkeyfile = self.__intermediateCAdir + "/intermediate_cakey.pem"
         self.__intermediateCAcrtfile = self.__intermediateCAdir + "/intermediate_cacert.pem"
@@ -367,70 +401,86 @@ class PyKI():
         if passphrases['error']:
             print("ERROR: Unable to retrieve passphrases. Exiting...")
             # remove lock file
-            self.remove_lockf("INFO: PKI unlocked after failing to loading passphrases..")
+            self.remove_lockf(
+                "INFO: PKI unlocked after failing to loading passphrases..")
             exit(1)
         else:
             passphrases = passphrases['message']
 
         # define CA passphrase
         if self.__cacertname not in passphrases:
-            pwd = self.genpasswd(pwlen=26) 
+            pwd = self.genpasswd(pwlen=26)
             pwd = pwd['message']
             reseditdb = self.editpassDB(certname=self.__cacertname, passph=pwd)
             if reseditdb['error']:
-                print('ERROR: Unable to add CA passphrase to DB --> '+reseditdb['message'])
+                print(
+                    'ERROR: Unable to add CA passphrase to DB --> ' +
+                    reseditdb['message'])
                 # remove lock file
-                self.remove_lockf("INFO: PKI unlocked after failing to define CA passphrase..")
+                self.remove_lockf(
+                    "INFO: PKI unlocked after failing to define CA passphrase..")
                 exit(1)
             else:
                 if self.__verbose:
-                    print(reseditdb['message']+" for "+self.__cacertname)
+                    print(reseditdb['message'] + " for " + self.__cacertname)
             self.__caPass = pwd.encode('utf-8')
         else:
             self.__caPass = passphrases[self.__cacertname].encode('utf-8')
 
         # define CA intermediate passphrase
         if self.__intermediateCertname not in passphrases:
-            pwd = self.genpasswd(pwlen=26) 
+            pwd = self.genpasswd(pwlen=26)
             pwd = pwd['message']
-            reseditdb = self.editpassDB(certname=self.__intermediateCertname, passph=pwd)
+            reseditdb = self.editpassDB(
+                certname=self.__intermediateCertname, passph=pwd)
             if reseditdb['error']:
-                print('ERROR: Unable to add CA intermediate passphrase to DB --> '+reseditdb['message'])
+                print(
+                    'ERROR: Unable to add CA intermediate passphrase to DB --> ' +
+                    reseditdb['message'])
                 # remove lock file
-                self.remove_lockf("INFO: PKI unlocked after failing to define intermediate CA passphrase..")
+                self.remove_lockf(
+                    "INFO: PKI unlocked after failing to define intermediate CA passphrase..")
                 exit(1)
             else:
                 if self.__verbose:
-                    print(reseditdb['message']+" for "+ self.__intermediateCertname)
+                    print(
+                        reseditdb['message'] +
+                        " for " +
+                        self.__intermediateCertname)
             self.__intermediatePass = pwd.encode('utf-8')
         else:
-            self.__intermediatePass = passphrases[self.__intermediateCertname].encode('utf-8')
+            self.__intermediatePass = passphrases[
+                self.__intermediateCertname].encode('utf-8')
 
         # flushing dictionnary
         passphrases.clear()
         pwd = ''
 
-        if not ospath.isfile(self.__rootCAkeyfile) :
+        if not ospath.isfile(self.__rootCAkeyfile):
             if not self.__init:
                 if self.__verbose:
                     print("INFO: Initialising pki...")
                 self.__init = True
             if self.__verbose:
                 print("INFO: Generating CA root private key...")
-            rootcakey = self.create_key(passphrase=self.__caPass, name = self.__cacertname, ca = True)
+            rootcakey = self.create_key(
+                passphrase=self.__caPass,
+                name=self.__cacertname,
+                ca=True)
 
-            if rootcakey['error'] :
+            if rootcakey['error']:
                 #print("ERROR: Unable to generate root CA key properly, aborting...")
                 print(rootcakey['message'])
                 # remove lock file
-                self.remove_lockf("INFO: PKI unlocked after failing to generate CA key..")
+                self.remove_lockf(
+                    "INFO: PKI unlocked after failing to generate CA key..")
                 exit(1)
             else:
                 if self.__verbose:
                     print("INFO: Root CA key created.")
-        
-        if not ospath.isfile(self.__rootCAcrtfile) :
-            if ospath.isfile(self.__ca_chain) :
+
+        if not ospath.isfile(self.__rootCAcrtfile):
+            if ospath.isfile(self.__ca_chain):
                 remove(self.__ca_chain)
 
             if not self.__init:
@@ -441,42 +491,47 @@ class PyKI():
             if self.__verbose:
                 print("INFO: Generating CA root certificate for 20 years...")
             cacert = self.create_cert(
-                                     cn = self.__cacertname,
-                                     ca = True,
-                                     days_valid = 20*365
-                                    )
-            if cacert['error'] :
+                cn=self.__cacertname,
+                ca=True,
+                days_valid=20 * 365
+            )
+            if cacert['error']:
                 #print("ERROR: Unable to generate root CA certificate properly, aborting...")
                 print(cacert['message'])
                 # remove lock file
-                self.remove_lockf("INFO: PKI unlocked after failing to generate CA cert..")
+                self.remove_lockf(
+                    "INFO: PKI unlocked after failing to generate CA cert..")
                 exit(1)
             else:
                 if self.__verbose:
                     print("INFO: Root CA certificate created.")
-    
-        ## intermediate CA key pair and certificate
-        if not ospath.isfile(self.__intermediateCAkeyfile) :
+
+        # intermediate CA key pair and certificate
+        if not ospath.isfile(self.__intermediateCAkeyfile):
             if not self.__init:
                 if self.__verbose:
                     print("INFO: Initialising pki...")
                 self.__init = True
             if self.__verbose:
                 print("INFO: Generating intermediate CA private key...")
-            cakey = self.create_key(passphrase=self.__intermediatePass, name = self.__intermediateCertname, ca = 'intermediate')
+            cakey = self.create_key(
+                passphrase=self.__intermediatePass,
+                name=self.__intermediateCertname,
+                ca='intermediate')
 
-            if cakey['error'] :
+            if cakey['error']:
                 #print("ERROR: Unable to generate intermediate CA key properly, aborting...")
                 print(cakey['message'])
                 # remove lock file
-                self.remove_lockf("INFO: PKI unlocked after failing to generate intermediate CA key..")
+                self.remove_lockf(
+                    "INFO: PKI unlocked after failing to generate intermediate CA key..")
                 exit(1)
             else:
                 if self.__verbose:
                     print("INFO: Intermediate CA key created.")
 
-        if not ospath.isfile(self.__intermediateCAcrtfile) :
-            if ospath.isfile(self.__ca_chain) :
+        if not ospath.isfile(self.__intermediateCAcrtfile):
+            if ospath.isfile(self.__ca_chain):
                 remove(self.__ca_chain)
 
             if not self.__init:
@@ -487,38 +542,40 @@ class PyKI():
             if self.__verbose:
                 print("INFO: Generating intermediate CA certificate for 10 years...")
             intermediate = self.create_cert(
-                                     cn = self.__intermediateCertname,
-                                     ca = 'intermediate',
-                                     days_valid = 10*365
-                                    )
-            if intermediate['error'] :
+                cn=self.__intermediateCertname,
+                ca='intermediate',
+                days_valid=10 * 365
+            )
+            if intermediate['error']:
                 #print("ERROR: Unable to generate intermediate CA certificate properly, aborting...")
                 print(intermediate['message'])
                 # remove lock file
-                self.remove_lockf("INFO: PKI unlocked after failing to generate intermediate CA cert..")
+                self.remove_lockf(
+                    "INFO: PKI unlocked after failing to generate intermediate CA cert..")
                 exit(1)
             else:
                 if self.__verbose:
                     print("INFO: Intermediate CA certificate created.")
 
-        if not ospath.isfile(self.__ca_chain) :
+        if not ospath.isfile(self.__ca_chain):
             if self.__verbose:
                 print("INFO: Building ca certificates chain file...")
 
             certs4chain = [self.__rootCAcrtfile, self.__intermediateCAcrtfile]
             built = self.build_chain(certs4chain, self.__ca_chain)
 
-            if not built['error'] :
+            if not built['error']:
                 if self.__verbose:
                     print("INFO: CA certificates chain file created.")
             else:
                 #print("ERROR: Unable to generate CA certificates chain file created, aborting...")
                 # remove lock file
-                self.remove_lockf("INFO: PKI unlocked after failing to generate CA chain file..")
+                self.remove_lockf(
+                    "INFO: PKI unlocked after failing to generate CA chain file..")
                 print(built['message'])
                 exit(1)
 
-        if not ospath.isfile(self.__crlpath) :
+        if not ospath.isfile(self.__crlpath):
             if not self.__init:
                 if self.__verbose:
                     print("INFO: Initialising pki")
@@ -529,7 +586,8 @@ class PyKI():
             if crlres['error']:
                 print(crlres['message'])
                 # remove lock file
-                self.remove_lockf("INFO: PKI unlocked after failing to generate CRL..")
+                self.remove_lockf(
+                    "INFO: PKI unlocked after failing to generate CRL..")
                 exit(1)
 
         if not self.__init:
@@ -538,7 +596,8 @@ class PyKI():
             if chk_pkidb_res['error']:
                 print(chk_pkidb_res['message'])
                 # remove lock file
-                self.remove_lockf("INFO: PKI unlocked after failing to update pki db..")
+                self.remove_lockf(
+                    "INFO: PKI unlocked after failing to update pki db..")
                 exit(1)
             else:
                 if self.__verbose:
@@ -551,11 +610,12 @@ class PyKI():
         Class sig handler for ctrl+c interrupt
         '''
 
-        if self.__verbose :
+        if self.__verbose:
             print('\nINFO: Execution interrupted by pressing [CTRL+C]')
 
         # remove lock file
-        self.remove_lockf(message = "INFO: PKI unlocked after user interruption..")
+        self.remove_lockf(
+            message="INFO: PKI unlocked after user interruption..")
         exit(0)
 
     def chk_tree(self):
@@ -572,21 +632,28 @@ class PyKI():
         '''
 
         if not ospath.exists(self.__pkiPath):
-            res = {'error': True, 'message':"ERROR: Pki Path "+self.__pkiPath+" doesn't exists. Please remove your current private key and init the pki again."}
+            res = {'error': True, 'message': "ERROR: Pki Path " + self.__pkiPath +
+                   " doesn't exists. Please remove your current private key" +
+                   " and init the pki again."}
             return(res)
 
-        # pkipath must be an absolute path, without the final "/" for the realpath check
+        # pkipath must be an absolute path, without the final "/" for the
+        # realpath check
         if self.__pkiPath[-1] == '/':
-            pkipath = self.__pkiPath[:len(self.__pkiPath)-1]
+            pkipath = self.__pkiPath[:len(self.__pkiPath) - 1]
         else:
             pkipath = self.__pkiPath
 
         if ospath.realpath(pkipath) != pkipath:
-            res = {'error': True, 'message':"ERROR: Pki is a symlink, refusing to init pki."}
+            res = {
+                'error': True,
+                'message': "ERROR: Pki is a symlink, refusing to init pki."}
             return(res)
 
         if not ospath.isdir(pkipath):
-            res = {'error': True, 'message':"ERROR: Pki init failed, your pki path is already used."}
+            res = {
+                'error': True,
+                'message': "ERROR: Pki init failed, your pki path is already used."}
             return(res)
         else:
             dirnames = []
@@ -598,20 +665,26 @@ class PyKI():
                     filenames.append(f)
 
             if 'public_key.pem' not in filenames:
-                res = {'error': False, 'message':"WARN: First init has to be done."}
+                res = {
+                    'error': False,
+                    'message': "WARN: First init has to be done."}
                 return(res)
 
             dirlen = len(dirnames)
             if dirlen < 6 and dirlen > 0:
-                res = {'error': True, 'message':"ERROR: Unproper PKI filesystem missing directories. Please erase current file system and re-init' the pki"}
+                res = {
+                    'error': True,
+                    'message': "ERROR: Unproper PKI filesystem missing directories. Please erase current file system and re-init' the pki"}
                 return(res)
 
             if 'intermediate_cacert.pem' in filenames or 'cacert.pem' in filenames:
                 if 'pkicert.db' not in filenames or 'public_key.pem' not in filenames or 'pkipass.db' not in filenames:
-                    res = {'error': True, 'message':"ERROR: Unproper PKI filesystem, missing essential files. Please erase current file system and re-init' the pki"}
+                    res = {
+                        'error': True,
+                        'message': "ERROR: Unproper PKI filesystem, missing essential files. Please erase current file system and re-init' the pki"}
                     return(res)
 
-        res = {'error': False, 'message':"INFO: PKI Filesystem clean."}
+        res = {'error': False, 'message': "INFO: PKI Filesystem clean."}
         return(res)
 
     def strip_accents(self, text):
@@ -627,7 +700,7 @@ class PyKI():
 
         try:
             text = unicode(text, 'utf-8')
-        except NameError: # unicode is a default on python 3
+        except NameError:  # unicode is a default on python 3
             pass
         text = uninormalize('NFD', text)
         text = text.encode('ascii', 'ignore')
@@ -645,7 +718,7 @@ class PyKI():
         :rtype: String.
         '''
 
-        cleanedStr = resub('\W+','_', instr )
+        cleanedStr = resub('\W+', '_', instr)
         return(cleanedStr)
 
     def cleanStr(self, txt):
@@ -659,7 +732,7 @@ class PyKI():
         :rtype: String.
         '''
 
-        string = self.rmSpecialChar( self.strip_accents(txt) )
+        string = self.rmSpecialChar(self.strip_accents(txt))
         return(string)
 
     def set_expiry_pkidb(self):
@@ -675,36 +748,44 @@ class PyKI():
         if not pkidb['error']:
             pkidb = pkidb['message']
         else:
-            res = {"error": True, "message":"ERROR: Unable to read Serial database "+self.__DBfile+"."}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to read Serial database " +
+                self.__DBfile +
+                "."}
             return(res)
 
         modified = False
         critical = False
         for certname in pkidb:
-            if pkidb[certname]['state'] == "activ" :
+            if pkidb[certname]['state'] == "activ":
                 createdate = pkidb[certname]['created']
                 duration = pkidb[certname]['duration']
                 currentDate = datetime.utcnow()
-                
+
                 # parse str date to datetime.datetime object
-                createDateTime = datetime.strptime(createdate, '%Y/%m/%d %H:%M:%S')
-                
+                createDateTime = datetime.strptime(
+                    createdate, '%Y/%m/%d %H:%M:%S')
+
                 # get timedelta object
                 timeDelta = currentDate - createDateTime
-                
+
                 # get timedelta in days
                 deltadays = timeDelta.days - 1
 
-                if deltadays >= duration :
+                if deltadays >= duration:
                     pkidb[certname]['state'] = "expired"
                     modified = True
 
                     if certname == 'cacert':
                         critical = True
-                        res = {"error":True, "message":"ERROR: CA certificate is expired."}
+                        res = {"error": True,
+                               "message": "ERROR: CA certificate is expired."}
                     elif certname == 'intermediate_cacert':
                         critical = True
-                        res = {"error":True, "message":"ERROR: Intermediate CA certificate is expired."}
+                        res = {
+                            "error": True,
+                            "message": "ERROR: Intermediate CA certificate is expired."}
         if critical:
             return(res)
 
@@ -712,13 +793,13 @@ class PyKI():
             newjson = jsonDump(pkidb, sort_keys=False)
             wresult = self.writeFile(self.__DBfile, newjson)
             if wresult['error']:
-                res = {"error":True, "message":wresult['message']}
+                res = {"error": True, "message": wresult['message']}
                 return(res)
             else:
-                res = {"error":False, "message":"INFO: Pki db file updated."}
+                res = {"error": False, "message": "INFO: Pki db file updated."}
                 return(res)
         else:
-            res = {"error":False, "message":"INFO: Pki db clean."}
+            res = {"error": False, "message": "INFO: Pki db clean."}
             return(res)
 
     def gt_to_dt(self, gt):
@@ -745,8 +826,10 @@ class PyKI():
             utc = True
             gt = gt[:-1]
         if gt[-5] in ['+', '-']:
-            # offsets are given from local time to UTC, so substract the offset to get UTC time
-            hour_offset, min_offset = -int(gt[-5] + gt[-4:-2]), -int(gt[-5] + gt[-2:])
+            # offsets are given from local time to UTC, so substract the offset
+            # to get UTC time
+            hour_offset, min_offset = - \
+                int(gt[-5] + gt[-4:-2]), -int(gt[-5] + gt[-2:])
             utc = True
             gt = gt[:-5]
         else:
@@ -761,15 +844,18 @@ class PyKI():
 
         # seconds and minutes are optionnals too
         if len(gt) == 14:
-            year, month, day, hours, minutes, sec = int(gt[:4]), int(gt[4:6]), int(gt[6:8]), int(gt[8:10]), int(gt[10:12]), int(gt[12:])
+            year, month, day, hours, minutes, sec = int(gt[:4]), int(
+                gt[4:6]), int(gt[6:8]), int(gt[8:10]), int(gt[10:12]), int(gt[12:])
             hours += hour_offset
             minutes += min_offset
         elif len(gt) == 12:
-            year, month, day, hours, minutes, sec = int(gt[:4]), int(gt[4:6]), int(gt[6:8]), int(gt[8:10]), int(gt[10:]), 0
+            year, month, day, hours, minutes, sec = int(gt[:4]), int(
+                gt[4:6]), int(gt[6:8]), int(gt[8:10]), int(gt[10:]), 0
             hours += hour_offset
             minutes += min_offset
         elif len(gt) == 10:
-            year, month, day, hours, minutes, sec = int(gt[:4]), int(gt[4:6]), int(gt[6:8]), int(gt[8:]), 0, 0
+            year, month, day, hours, minutes, sec = int(gt[:4]), int(
+                gt[4:6]), int(gt[6:8]), int(gt[8:]), 0, 0
             hours += hour_offset
             minutes += min_offset
         else:
@@ -779,9 +865,18 @@ class PyKI():
         # construct aware or naive datetime and format it with strftime
         if utc:
             #dt = datetime(year, month, day, hours, minutes, sec, microsecond, tzinfo=pytz.UTC).strftime('%Y-%m-%d %H:%M:%S')
-            dt = datetime(year, month, day, hours, minutes, sec, microsecond, tzinfo=pytz.UTC).strftime('%d/%m/%Y %H:%M')
+            dt = datetime(
+                year,
+                month,
+                day,
+                hours,
+                minutes,
+                sec,
+                microsecond,
+                tzinfo=pytz.UTC).strftime('%d/%m/%Y %H:%M')
         else:
-            dt = datetime(year, month, day, hours, minutes, sec, microsecond).strftime('%d/%m/%Y %H:%M')
+            dt = datetime(year, month, day, hours, minutes, sec,
+                          microsecond).strftime('%d/%m/%Y %H:%M')
         # done !
         return(dt)
 
@@ -799,21 +894,31 @@ class PyKI():
         :rtype: Dict.
         '''
 
-        if not ospath.exists(pathDir) :
+        if not ospath.exists(pathDir):
             try:
                 makedirs(pathDir, mode)
             except PermissionError as e:
-                res = {'error':True, 'message':'ERROR: Unable to create dir '+pathDir+': '+e.strerror}
+                res = {
+                    'error': True,
+                    'message': 'ERROR: Unable to create dir ' + pathDir + ': ' + e.strerror}
                 return(res)
             except OSError as exception:
                 if exception.errno != errno.EEXIST:
-                    res = {"error":True, "message":"ERROR: "+exception}
+                    res = {"error": True, "message": "ERROR: " + exception}
                     return(res)
 
-            res = {"error":False, "message":"INFO: Missing directory "+ pathDir + " created"}
+            res = {
+                "error": False,
+                "message": "INFO: Missing directory " +
+                pathDir +
+                " created"}
             return(res)
         else:
-            res = {"error":False, "message":"INFO: Directory "+pathDir+" already exists"}
+            res = {
+                "error": False,
+                "message": "INFO: Directory " +
+                pathDir +
+                " already exists"}
             return(res)
 
     def get_csrinfo(self, filepath):
@@ -828,12 +933,22 @@ class PyKI():
         '''
 
         try:
-            reqObj = crypto.load_certificate_request(crypto.FILETYPE_PEM, open(filepath).read())
+            reqObj = crypto.load_certificate_request(
+                crypto.FILETYPE_PEM, open(filepath).read())
         except crypto.Error as e:
-            res = {"error":True, "message":"ERROR: Unable to read CSR for "+csrname+" --> "+e.args[0][0][2]}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to read CSR for " +
+                csrname +
+                " --> " +
+                e.args[0][0][2]}
             return(res)
         except FileNotFoundError:
-            res = {"error":True, "message":"ERROR: Unable to read CSR for "+csrname+" --> File not found"}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to read CSR for " +
+                csrname +
+                " --> File not found"}
             return(res)
 
         formatted_res = ''
@@ -846,19 +961,19 @@ class PyKI():
         certSubjectInfos = subject.get_components()
         unhandled = []
         for i in certSubjectInfos:
-            if( i[0] == b'CN' ):
+            if(i[0] == b'CN'):
                 CN = i[1]
-            elif( i[0] == b'C' ):
+            elif(i[0] == b'C'):
                 C = i[1]
-            elif( i[0] == b'ST' ):
+            elif(i[0] == b'ST'):
                 ST = i[1]
-            elif( i[0] == b'L' ):
+            elif(i[0] == b'L'):
                 L = i[1]
-            elif( i[0] == b'O' ):
+            elif(i[0] == b'O'):
                 O = i[1]
-            elif( i[0] == b'OU' ):
+            elif(i[0] == b'OU'):
                 OU = i[1]
-            elif( i[0] == b'emailAddress' ):
+            elif(i[0] == b'emailAddress'):
                 email = i[1]
             else:
                 unhandled.append(i)
@@ -866,40 +981,48 @@ class PyKI():
         if len(unhandled) > 0:
             formatted_res += "INFOS: Unhandled items found:\n"
             for h in unhandled:
-                formatted_res += '\t'+h[0].decode('utf-8')+'\n'
+                formatted_res += '\t' + h[0].decode('utf-8') + '\n'
                 # print value of item
                 #print( h[1] )
 
         # Now print the subject Common Name of the certificate
-        if CN :
-            formatted_res += "Subject Common Name: "+CN.decode('utf-8')+'\n'
+        if CN:
+            formatted_res += "Subject Common Name: " + \
+                CN.decode('utf-8') + '\n'
         else:
             formatted_res += "Subject Common Name not found\n"
 
         if C:
-            formatted_res += "Subject Country Name: "+C.decode('utf-8')+'\n'
+            formatted_res += "Subject Country Name: " + \
+                C.decode('utf-8') + '\n'
 
         if ST:
-            formatted_res += "Subject State or Province: "+ST.decode('utf-8')+'\n'
+            formatted_res += "Subject State or Province: " + \
+                ST.decode('utf-8') + '\n'
 
         if L:
-            formatted_res += "Subject Locality Name: "+L.decode('utf-8')+'\n'
+            formatted_res += "Subject Locality Name: " + \
+                L.decode('utf-8') + '\n'
 
         if O:
-            formatted_res += "Subject Organization Name: "+O.decode('utf-8')+'\n'
+            formatted_res += "Subject Organization Name: " + \
+                O.decode('utf-8') + '\n'
 
         if OU:
-            formatted_res += "Subject Organizational Unit Name: "+OU.decode('utf-8')+'\n'
+            formatted_res += "Subject Organizational Unit Name: " + \
+                OU.decode('utf-8') + '\n'
 
-        if email :
-            formatted_res += "Subject Owner email is: "+email.decode('utf-8')+'\n'
+        if email:
+            formatted_res += "Subject Owner email is: " + \
+                email.decode('utf-8') + '\n'
 
         ####################
         # Get cert version #
         ####################
 
         cert_ver = reqObj.get_version()
-        formatted_res += "\nCertificate Version number: "+str(cert_ver)+'\n'
+        formatted_res += "\nCertificate Version number: " + \
+            str(cert_ver) + '\n'
 
         ################################
         # Format a public key as a PEM #
@@ -911,8 +1034,8 @@ class PyKI():
 
         pubkey_size = reqObj.get_pubkey().bits()
 
-        formatted_res += "\nPublic key size: "+str(pubkey_size)+'\n'
-        formatted_res += "Public key:\n\n" + pubkey.decode('utf-8') +'\n'
+        formatted_res += "\nPublic key size: " + str(pubkey_size) + '\n'
+        formatted_res += "Public key:\n\n" + pubkey.decode('utf-8') + '\n'
 
         #########################################################
         # Get all extensions of the certificate in list of dict #
@@ -926,34 +1049,36 @@ class PyKI():
             ext_name = ext.get_short_name().decode('utf-8')
             ext_data = ext.__str__()
             ext_critical = ext.get_critical()
-            extensions[ext_name] = {'critical':ext_critical, 'data':ext_data}
+            extensions[ext_name] = {'critical': ext_critical, 'data': ext_data}
 
         # Now extensions contains all extensions infoso we can consult it like that
-        #print(extensions)
+        # print(extensions)
         formatted_res += '\n'
 
         # print info of extensions which you are looking for
         if 'extendedKeyUsage' in extensions:
-            formatted_res += '\tExtended key usage: '+extensions['extendedKeyUsage']['data']+'\n'
+            formatted_res += '\tExtended key usage: ' + \
+                extensions['extendedKeyUsage']['data'] + '\n'
             extensions.pop('extendedKeyUsage', None)
 
         if 'basicConstraints' in extensions:
-            formatted_res += '\tBasic constraints: '+extensions['basicConstraints']['data']+'\n'
+            formatted_res += '\tBasic constraints: ' + \
+                extensions['basicConstraints']['data'] + '\n'
             extensions.pop('basicConstraints', None)
 
         if 'subjectAltName' in extensions:
             formatted_res += 'Subject alt-names:\n'
             for altname in extensions['subjectAltName']['data'].split(', '):
-                formatted_res += "\t"+altname.split(':')[1]+'\n'
+                formatted_res += "\t" + altname.split(':')[1] + '\n'
             extensions.pop('subjectAltName', None)
 
         # for all unhandled extensions
         for key, value in extensions.items():
-            formatted_res += '\t'+key+': '+value+'\n'
+            formatted_res += '\t' + key + ': ' + value + '\n'
 
         formatted_res += "\n"
 
-        res = {'error':False, 'message':formatted_res}
+        res = {'error': False, 'message': formatted_res}
         return(res)
 
     def get_certinfo(self, certname):
@@ -971,7 +1096,12 @@ class PyKI():
         if not typeCert['error']:
             typeCert = typeCert['message']
         else:
-            res = {"error":True, "message":"ERROR: Unable to find certificate type for "+certname+" --> "+typeCert['message']}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to find certificate type for " +
+                certname +
+                " --> " +
+                typeCert['message']}
             return(res)
 
         if typeCert == 'SRV':
@@ -979,23 +1109,26 @@ class PyKI():
         elif typeCert == 'CLT':
             CRTdir = self.__cltCRTdir
         else:
-            usage = False
             CRTdir = self.__srvCRTdir
 
-        filespath = CRTdir+'/'+certname+'/'+certname
-        certfilepath = filespath+'.crt'
+        filespath = CRTdir + '/' + certname + '/' + certname
+        certfilepath = filespath + '.crt'
         # if we do not find cert, trying to find it in signed dir
         if not ospath.isfile(certfilepath):
-            certfilepath = self.__signeDir+'/'+certname+'/'+certname+'.crt'
+            certfilepath = self.__signeDir + '/' + certname + '/' + certname + '.crt'
 
         # loading certificate into X509 object
         try:
-            latest_cert = crypto.load_certificate( crypto.FILETYPE_PEM, open(certfilepath).read() )
+            latest_cert = crypto.load_certificate(
+                crypto.FILETYPE_PEM, open(certfilepath).read())
         except FileNotFoundError as e:
-            res = {'error':True, 'message':"ERROR: "+e.strerror+": "+certfilepath}
+            res = {'error': True, 'message': "ERROR: " +
+                   e.strerror + ": " + certfilepath}
             return(res)
         except:
-            res = {'error':True, 'message':"ERROR: Unhandled error opening file: "+certfilepath}
+            res = {
+                'error': True,
+                'message': "ERROR: Unhandled error opening file: " + certfilepath}
             return(res)
 
         formatted_res = ""
@@ -1007,19 +1140,19 @@ class PyKI():
         certIssuerInfos = issuer.get_components()
         unhandled = []
         for i in certIssuerInfos:
-            if( i[0] == b'CN' ):
+            if(i[0] == b'CN'):
                 CN = i[1]
-            elif( i[0] == b'C' ):
+            elif(i[0] == b'C'):
                 C = i[1]
-            elif( i[0] == b'ST' ):
+            elif(i[0] == b'ST'):
                 ST = i[1]
-            elif( i[0] == b'L' ):
+            elif(i[0] == b'L'):
                 L = i[1]
-            elif( i[0] == b'O' ):
+            elif(i[0] == b'O'):
                 O = i[1]
-            elif( i[0] == b'OU' ):
+            elif(i[0] == b'OU'):
                 OU = i[1]
-            elif( i[0] == b'emailAddress' ):
+            elif(i[0] == b'emailAddress'):
                 email = i[1]
             else:
                 unhandled.append(i)
@@ -1027,58 +1160,64 @@ class PyKI():
         if len(unhandled) > 0:
             formatted_res += "INFOS: Unhandled items found:\n"
             for h in unhandled:
-                formatted_res += '\t'+h[0].decode('utf-8')+'\n'
+                formatted_res += '\t' + h[0].decode('utf-8') + '\n'
                 # print value of item
                 #print( h[1] )
 
         # Now print the issuer Common Name of the certificate
-        if CN :
-            formatted_res += "Issuer Common Name: "+CN.decode('utf-8')+'\n'
+        if CN:
+            formatted_res += "Issuer Common Name: " + CN.decode('utf-8') + '\n'
         else:
             formatted_res += "Issuer Common Name: Not found\n"
 
         if C:
-            formatted_res += "Issuer Country Name: "+C.decode('utf-8')+'\n'
+            formatted_res += "Issuer Country Name: " + C.decode('utf-8') + '\n'
 
         if ST:
-            formatted_res += "Issuer State or Province: "+ST.decode('utf-8')+'\n'
+            formatted_res += "Issuer State or Province: " + \
+                ST.decode('utf-8') + '\n'
 
         if L:
-            formatted_res += "Issuer Locality Name: "+L.decode('utf-8')+'\n'
+            formatted_res += "Issuer Locality Name: " + \
+                L.decode('utf-8') + '\n'
 
         if O:
-            formatted_res += "Issuer Organization Name: "+O.decode('utf-8')+'\n'
+            formatted_res += "Issuer Organization Name: " + \
+                O.decode('utf-8') + '\n'
 
         if OU:
-            formatted_res += "Issuer Organizational Unit Name: "+OU.decode('utf-8')+'\n'
+            formatted_res += "Issuer Organizational Unit Name: " + \
+                OU.decode('utf-8') + '\n'
 
-        if email :
-            formatted_res += "Issuer Owner email is: "+email.decode('utf-8')+'\n'
+        if email:
+            formatted_res += "Issuer Owner email is: " + \
+                email.decode('utf-8') + '\n'
 
         ########################################
         # Get certificate subject informations #
         ########################################
 
         cert_subjectname_hash = latest_cert.subject_name_hash()
-        formatted_res += "\nSubject name hash: "+ str(cert_subjectname_hash)+'\n'
+        formatted_res += "\nSubject name hash: " + \
+            str(cert_subjectname_hash) + '\n'
 
         subject = latest_cert.get_subject()
         certSubjectInfos = subject.get_components()
         unhandled = []
         for i in certSubjectInfos:
-            if( i[0] == b'CN' ):
+            if(i[0] == b'CN'):
                 CN = i[1]
-            elif( i[0] == b'C' ):
+            elif(i[0] == b'C'):
                 C = i[1]
-            elif( i[0] == b'ST' ):
+            elif(i[0] == b'ST'):
                 ST = i[1]
-            elif( i[0] == b'L' ):
+            elif(i[0] == b'L'):
                 L = i[1]
-            elif( i[0] == b'O' ):
+            elif(i[0] == b'O'):
                 O = i[1]
-            elif( i[0] == b'OU' ):
+            elif(i[0] == b'OU'):
                 OU = i[1]
-            elif( i[0] == b'emailAddress' ):
+            elif(i[0] == b'emailAddress'):
                 email = i[1]
             else:
                 unhandled.append(i)
@@ -1086,33 +1225,40 @@ class PyKI():
         if len(unhandled) > 0:
             formatted_res += "INFOS: Unhandled items found:\n"
             for h in unhandled:
-                formatted_res += '\t'+h[0].decode('utf-8')+'\n'
+                formatted_res += '\t' + h[0].decode('utf-8') + '\n'
                 # print value of item
                 #print( h[1] )
 
         # Now print the subject Common Name of the certificate
-        if CN :
-            formatted_res += "Subject Common Name: "+CN.decode('utf-8')+'\n'
+        if CN:
+            formatted_res += "Subject Common Name: " + \
+                CN.decode('utf-8') + '\n'
         else:
             formatted_res += "Subject Common Name not found\n"
 
         if C:
-            formatted_res += "Subject Country Name: "+C.decode('utf-8')+'\n'
+            formatted_res += "Subject Country Name: " + \
+                C.decode('utf-8') + '\n'
 
         if ST:
-            formatted_res += "Subject State or Province: "+ST.decode('utf-8')+'\n'
+            formatted_res += "Subject State or Province: " + \
+                ST.decode('utf-8') + '\n'
 
         if L:
-            formatted_res += "Subject Locality Name: "+L.decode('utf-8')+'\n'
+            formatted_res += "Subject Locality Name: " + \
+                L.decode('utf-8') + '\n'
 
         if O:
-            formatted_res += "Subject Organization Name: "+O.decode('utf-8')+'\n'
+            formatted_res += "Subject Organization Name: " + \
+                O.decode('utf-8') + '\n'
 
         if OU:
-            formatted_res += "Subject Organizational Unit Name: "+OU.decode('utf-8')+'\n'
+            formatted_res += "Subject Organizational Unit Name: " + \
+                OU.decode('utf-8') + '\n'
 
-        if email :
-            formatted_res += "Subject Owner email is: "+email.decode('utf-8')+'\n'
+        if email:
+            formatted_res += "Subject Owner email is: " + \
+                email.decode('utf-8') + '\n'
 
         ####################################
         # Check if certificate has expired #
@@ -1131,7 +1277,8 @@ class PyKI():
 
         fromdate = latest_cert.get_notBefore()
         todate = latest_cert.get_notAfter()
-        formatted_res += "Valid from "+self.gt_to_dt(fromdate)+" to "+self.gt_to_dt(todate)+'\n'
+        formatted_res += "Valid from " + \
+            self.gt_to_dt(fromdate) + " to " + self.gt_to_dt(todate) + '\n'
 
         ###############################
         # Get some other informations #
@@ -1140,9 +1287,10 @@ class PyKI():
         cert_sn = latest_cert.get_serial_number()
         cert_algo_sign = latest_cert.get_signature_algorithm().decode('utf-8')
         cert_ver = latest_cert.get_version()
-        formatted_res += "\nCertificate Serial Number: "+str(cert_sn)+'\n'
-        formatted_res += "\nCertificate algorithm signature: "+cert_algo_sign+'\n'
-        formatted_res += "\nCertificate Version number: "+str(cert_ver)+'\n'
+        formatted_res += "\nCertificate Serial Number: " + str(cert_sn) + '\n'
+        formatted_res += "\nCertificate algorithm signature: " + cert_algo_sign + '\n'
+        formatted_res += "\nCertificate Version number: " + \
+            str(cert_ver) + '\n'
 
         ################################
         # Format a public key as a PEM #
@@ -1154,8 +1302,8 @@ class PyKI():
 
         pubkey_size = latest_cert.get_pubkey().bits()
 
-        formatted_res += "\nPublic key size: "+str(pubkey_size)+'\n'
-        formatted_res += "Public key:\n\n" + pubkey.decode('utf-8') +'\n'
+        formatted_res += "\nPublic key size: " + str(pubkey_size) + '\n'
+        formatted_res += "Public key:\n\n" + pubkey.decode('utf-8') + '\n'
 
         #########################################################
         # Get all extensions of the certificate in list of dict #
@@ -1166,43 +1314,47 @@ class PyKI():
         extensions = {}
         extnbr = latest_cert.get_extension_count()
         for count in range(extnbr):
-            ext_name = latest_cert.get_extension(count).get_short_name().decode('utf-8')
+            ext_name = latest_cert.get_extension(
+                count).get_short_name().decode('utf-8')
             ext_critical = latest_cert.get_extension(count).get_critical()
             ext_data = latest_cert.get_extension(count).__str__()
-            extensions[ext_name] = {'critical':ext_critical, 'data':ext_data}
+            extensions[ext_name] = {'critical': ext_critical, 'data': ext_data}
 
         # Now extensions contains all extensions infoso we can consult it like that
-        #print(extensions)
+        # print(extensions)
 
         # print info of extensions which you are looking for
         if 'extendedKeyUsage' in extensions:
-            formatted_res += '\tExtended key usage: '+extensions['extendedKeyUsage']['data']+'\n'
+            formatted_res += '\tExtended key usage: ' + \
+                extensions['extendedKeyUsage']['data'] + '\n'
             extensions.pop('extendedKeyUsage', None)
 
         if 'basicConstraints' in extensions:
-            formatted_res += '\tBasic constraints: '+extensions['basicConstraints']['data']+'\n'
+            formatted_res += '\tBasic constraints: ' + \
+                extensions['basicConstraints']['data'] + '\n'
             extensions.pop('basicConstraints', None)
 
         if 'subjectAltName' in extensions:
             formatted_res += '\tSubject alt-names:\n'
             for altname in extensions['subjectAltName']['data'].split(', '):
-                formatted_res += "\t\t"+altname.split(':')[1]+'\n'
+                formatted_res += "\t\t" + altname.split(':')[1] + '\n'
             extensions.pop('subjectAltName', None)
 
         if 'keyUsage' in extensions:
-            formatted_res += '\tKey Usage: '+extensions['keyUsage']['data']+'\n'
+            formatted_res += '\tKey Usage: ' + \
+                extensions['keyUsage']['data'] + '\n'
             extensions.pop('keyUsage', None)
 
-        # for all unhandled extensions 
+        # for all unhandled extensions
         for key, value in extensions.items():
-            formatted_res += '\t'+key+': '+value+'\n'
+            formatted_res += '\t' + key + ': ' + value + '\n'
 
         formatted_res += "\n"
 
-        res = {'error':False, 'message':formatted_res}
+        res = {'error': False, 'message': formatted_res}
         return(res)
 
-    def writeFile(self, wFile, wContent, mode = 'text'):
+    def writeFile(self, wFile, wContent, mode='text'):
         '''
         Print formatted informations stored in the certificate
 
@@ -1225,19 +1377,32 @@ class PyKI():
             elif mode == 'bytes':
                 file = open(wFile, "wb")
             else:
-                res = {"error":True, "message":"ERROR: Please choose mode text or bytes to open your file "+ str(wFile)}
+                res = {
+                    "error": True,
+                    "message": "ERROR: Please choose mode text or bytes to open your file " +
+                    str(wFile)}
                 return(res)
         except IOError:
-            res = {"error":True, "message":"ERROR: Unable to open file " + str(wFile)}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to open file " +
+                str(wFile)}
             return(res)
         else:
             try:
                 file.write(wContent)
             except IOError:
-                res = {"error":True, "message":'ERROR: Unable to write to file ' + wFile}
+                res = {
+                    "error": True,
+                    "message": 'ERROR: Unable to write to file ' +
+                    wFile}
                 return(res)
             else:
-                res = {"error":False, "message":'INFO: File ' + wFile + ' written'}
+                res = {
+                    "error": False,
+                    "message": 'INFO: File ' +
+                    wFile +
+                    ' written'}
                 return(res)
             finally:
                 file.close()
@@ -1258,13 +1423,14 @@ class PyKI():
                 # load json from reading stream
                 json = jsonLoad(db)
             except ValueError as e:
-                json = 'ERROR: Json format error '+ str(fname)+' --> ' + str(e)
-                res = {"error":True, "message":json}
+                json = 'ERROR: Json format error ' + \
+                    str(fname) + ' --> ' + str(e)
+                res = {"error": True, "message": json}
             else:
-                res = {"error":False, "message":json}
+                res = {"error": False, "message": json}
         except IOError:
             json = 'ERROR: Unable to open file ' + fname
-            res = {"error":True, "message":json}
+            res = {"error": True, "message": json}
         else:
             db.close()
         finally:
@@ -1278,21 +1444,31 @@ class PyKI():
         :rtype: Dict.
         '''
 
-        if self.__DBfile == "" :
-            res = {"error": True, "message":"ERROR: Empty serial database path"}
+        if self.__DBfile == "":
+            res = {
+                "error": True,
+                "message": "ERROR: Empty serial database path"}
             return(res)
-        elif not ospath.isfile( self.__DBfile ) :
-            res = {"error": False, "message":"WARN: Serial database "+self.__DBfile+" not found"}
+        elif not ospath.isfile(self.__DBfile):
+            res = {
+                "error": False,
+                "message": "WARN: Serial database " +
+                self.__DBfile +
+                " not found"}
             return(res)
         else:
             jsondict = self.json2dict(self.__DBfile)
             if not jsondict['error']:
                 jsondict = jsondict['message']
             else:
-                res = {"error": True, "message":"ERROR: Unable to read Serial database "+self.__DBfile+"."}
+                res = {
+                    "error": True,
+                    "message": "ERROR: Unable to read Serial database " +
+                    self.__DBfile +
+                    "."}
                 return(res)
 
-            if type(jsondict) is dict:
+            if isinstance(jsondict, dict):
                 values = jsondict.values()
                 v = list(values)
                 size = len(v)
@@ -1310,7 +1486,7 @@ class PyKI():
             res = {"error": False, "message": serialNum}
             return(res)
 
-    def genpasswd(self, pwlen = 25, alphabet = False):
+    def genpasswd(self, pwlen=25, alphabet=False):
         '''
         Pasword generator.
         :param pwlen: Password length.
@@ -1326,7 +1502,7 @@ class PyKI():
         if not alphabet:
             # Too many dangerous char for json format
             #alphabet = string.digits + string.ascii_letters + string.punctuation
-            alphabet='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&()*+,-.:;<=>?@^_'
+            alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&()*+,-.:;<=>?@^_'
 
         pw_length = pwlen
         mypw = ""
@@ -1335,10 +1511,19 @@ class PyKI():
             next_index = randrange(len(alphabet))
             mypw = mypw + alphabet[next_index]
 
-        res = {'error':False, 'message':mypw}
+        res = {'error': False, 'message': mypw}
         return(res)
 
-    def writeJsonCert(self, serial, date, duration, state, certpath, sha, typeCert, createMode = False):
+    def writeJsonCert(
+            self,
+            serial,
+            date,
+            duration,
+            state,
+            certpath,
+            sha,
+            typeCert,
+            createMode=False):
         '''
         Edit pki certificates database file.
 
@@ -1374,14 +1559,26 @@ class PyKI():
         cn = ospath.splitext(certfilename)[0]
         certname = self.cleanStr(cn)
 
-        certInfos = { 'cn':cn, 'serial':serial, 'shasum':sha, 'shaenc':self.__HASH_ENC, 'created':date, 'duration':duration, 'type':typeCert, 'state':state}
+        certInfos = {
+            'cn': cn,
+            'serial': serial,
+            'shasum': sha,
+            'shaenc': self.__HASH_ENC,
+            'created': date,
+            'duration': duration,
+            'type': typeCert,
+            'state': state}
 
         if not createMode:
             jsondict = self.json2dict(self.__DBfile)
             if not jsondict['error']:
                 jsondict = jsondict['message']
             else:
-                res = {"error": True, "message":"ERROR: Unable to read pki database "+self.__DBfile+"."}
+                res = {
+                    "error": True,
+                    "message": "ERROR: Unable to read pki database " +
+                    self.__DBfile +
+                    "."}
                 return(res)
         else:
             jsondict = {}
@@ -1390,13 +1587,13 @@ class PyKI():
         json_out = jsonDump(jsondict, sort_keys=False)
         wresult = self.writeFile(self.__DBfile, json_out)
         if not wresult['error']:
-            res = {"error": False, "message":wresult['message']}
+            res = {"error": False, "message": wresult['message']}
             return(res)
         else:
-            res = {"error": True, "message":wresult['message']}
+            res = {"error": True, "message": wresult['message']}
             return(res)
 
-    def getFromSTDIN (self, prompt):
+    def getFromSTDIN(self, prompt):
         '''
         Get param from user STDIN
 
@@ -1407,10 +1604,10 @@ class PyKI():
         :rtype: String.
         '''
 
-        if self.__python2 :
-            userinput = raw_input(prompt+": ")
+        if self.__python2:
+            userinput = raw_input(prompt + ": ")
         else:
-            userinput = input(prompt+": ")
+            userinput = input(prompt + ": ")
         return(userinput)
 
     def getFiles(self, path):
@@ -1424,8 +1621,10 @@ class PyKI():
         :rtype: Dict.
         '''
 
-        if not ospath.exists(path) :
-            res = {'error':True, 'message':'ERROR: path '+path+' not found'}
+        if not ospath.exists(path):
+            res = {
+                'error': True,
+                'message': 'ERROR: path ' + path + ' not found'}
             return(res)
 
         allFiles = []
@@ -1437,7 +1636,7 @@ class PyKI():
         else:
             allFiles.append(path)
 
-        res = {'error':False, 'message':allFiles}
+        res = {'error': False, 'message': allFiles}
         return(res)
 
     def writeKey(self, wFile, wContent):
@@ -1457,16 +1656,26 @@ class PyKI():
         try:
             file = open(wFile, "wb")
         except IOError:
-            res = {"error":True, "message":"ERROR: Unable to open file " + str(wFile)}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to open file " +
+                str(wFile)}
             return(res)
         else:
             try:
                 file.write(wContent)
             except IOError:
-                res = {"error":True, "message":'ERROR: Unable to write to file ' + wFile}
+                res = {
+                    "error": True,
+                    "message": 'ERROR: Unable to write to file ' +
+                    wFile}
                 return(res)
             else:
-                res = {"error":False, "message":'INFO: File ' + wFile + ' written'}
+                res = {
+                    "error": False,
+                    "message": 'INFO: File ' +
+                    wFile +
+                    ' written'}
                 return(res)
             finally:
                 file.close()
@@ -1492,16 +1701,18 @@ class PyKI():
 
         cdres = self.create_dir(self.__passdir, 0o750)
         if cdres['error']:
-            res = {"error":True, "message":'ERROR: '+cdres['message']}
+            res = {"error": True, "message": 'ERROR: ' + cdres['message']}
             return(res)
 
         wpures = self.writeKey(wFile=self.__pubkeypath, wContent=public_key)
         if wpures['error']:
-            res = {"error":True, "message":'ERROR: '+wpures['message']}
+            res = {"error": True, "message": 'ERROR: ' + wpures['message']}
             return(res)
 
-        print('INFO: Please keep this private key carefully, this will allow you to init the pki:\n'+encrypted_key.decode('utf-8'))
-        res = {"error":False, "message":encrypted_key.decode('utf-8')}
+        print(
+            'INFO: Please keep this private key carefully, this will allow you to init the pki:\n' +
+            encrypted_key.decode('utf-8'))
+        res = {"error": False, "message": encrypted_key.decode('utf-8')}
 
         return(res)
 
@@ -1522,19 +1733,25 @@ class PyKI():
         # encrypt with pubkey
         pubkeydir = self.__passdir
         try:
-            pkey = open(pubkeydir+"/public_key.pem", "rt")
+            pkey = open(pubkeydir + "/public_key.pem", "rt")
             try:
-                public_key = RSA.importKey( pkey.read() )
+                public_key = RSA.importKey(pkey.read())
             except ValueError as e:
-                res = {"error":True, "message":'ERROR: Unable to import public key --> '+e.args[0]+". Unable to authenticate..."}
+                res = {
+                    "error": True,
+                    "message": 'ERROR: Unable to import public key --> ' +
+                    e.args[0] +
+                    ". Unable to authenticate..."}
                 return(res)
             finally:
                 pkey.close()
         except FileNotFoundError as e:
-            res = {"error":True, "message":'ERROR: Public key not found.'}
+            res = {"error": True, "message": 'ERROR: Public key not found.'}
             return(res)
         except:
-            res = {"error":True, "message":'ERROR: Problem reading public key'}
+            res = {
+                "error": True,
+                "message": 'ERROR: Problem reading public key'}
             return(res)
 
         randomData = Random.get_random_bytes(32)
@@ -1544,20 +1761,34 @@ class PyKI():
         try:
             private_key = RSA.importKey(privkeyString, passph)
         except ValueError as e:
-            res = {"error":True, "message":'ERROR: Unable to import private key --> '+e.args[0]+". Unable to authenticate..."}
+            res = {
+                "error": True,
+                "message": 'ERROR: Unable to import private key --> ' +
+                e.args[0] +
+                ". Unable to authenticate..."}
             return(res)
 
         dec_data = private_key.decrypt(enc_data)
-        if dec_data == b'success' :
+        if dec_data == b'success':
             self.__token = SHA256.new(private_key.exportKey()).digest()
-            res = {"error":False, "message":"INFO: Successfully authenticated"}
+            res = {
+                "error": False,
+                "message": "INFO: Successfully authenticated"}
             return(res)
         else:
             self.__token = False
-            res = {"error":True, "message":'ERROR: Unable to authenticate, please check your private key'}
+            res = {
+                "error": True,
+                "message": 'ERROR: Unable to authenticate, please check your private key'}
             return(res)
 
-    def encryptFile(self, key, in_filename, out_filename=None, chunksize=64*1024):
+    def encryptFile(
+            self,
+            key,
+            in_filename,
+            out_filename=None,
+            chunksize=64 *
+            1024):
         '''
         Encrypts a file using AES (CFB mode) with the
         given key.
@@ -1605,7 +1836,13 @@ class PyKI():
 
                     outfile.write(encryptor.encrypt(chunk))
 
-    def decryptFile(self, key, in_filename, out_filename=None, chunksize=24*1024):
+    def decryptFile(
+            self,
+            key,
+            in_filename,
+            out_filename=None,
+            chunksize=24 *
+            1024):
         '''
         Decrypts a file using AES (CFB mode) with the
         given key.
@@ -1626,7 +1863,9 @@ class PyKI():
         key = SHA256.new(key).digest()
 
         with open(in_filename, 'rb') as infile:
-            origsize = struct.unpack('<Q', infile.read(struct.calcsize('Q')))[0]
+            origsize = struct.unpack(
+                '<Q', infile.read(
+                    struct.calcsize('Q')))[0]
             iv = infile.read(16)
 
             decryptor = AES.new(key, AES.MODE_CFB, iv)
@@ -1662,9 +1901,9 @@ class PyKI():
         iv = Random.new().read(AES.block_size)
 
         cipher = AES.new(key, AES.MODE_CFB, iv)
-        encdata = ( iv + cipher.encrypt(data) )
+        encdata = (iv + cipher.encrypt(data))
 
-        res = {'error':False, 'message':encdata}
+        res = {'error': False, 'message': encdata}
         return(res)
 
     def decryptData(self, key, encdata):
@@ -1682,7 +1921,7 @@ class PyKI():
         cipher = AES.new(key, AES.MODE_CFB, iv)
         data = cipher.decrypt(encdata[16:])
 
-        res = {'error':False, 'message':data}
+        res = {'error': False, 'message': data}
         return(res)
 
     def decryptDataFile(self, encdatafile, key):
@@ -1702,7 +1941,10 @@ class PyKI():
         try:
             ofile = open(encdatafile, 'rb')
         except IOError:
-            res = {"error":True, "message":"ERROR: Unable to open file " + str(encdatafile)}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to open file " +
+                str(encdatafile)}
             return(res)
         else:
             encdata = ofile.read()
@@ -1710,12 +1952,12 @@ class PyKI():
             ofile.close()
 
         datafile = self.decryptData(key, encdata)
-        # we are stripin' the 8 first char, and interpreting \n to have a clean output
+        # we are stripin' the 8 first char, and interpreting \n to have a clean
+        # output
         data = str(datafile[8:]).replace('\\n', '\n')
 
-        res = {'error':False, 'message':data}
+        res = {'error': False, 'message': data}
         return(res)
-
 
     def loadpassDB(self):
         '''
@@ -1733,19 +1975,22 @@ class PyKI():
                 try:
                     encdatafile = ofile.read()
                 except:
-                    res = {"error":True, "message":'ERROR: Unable to read content of passphrases DB.'}
+                    res = {
+                        "error": True,
+                        "message": 'ERROR: Unable to read content of passphrases DB.'}
                     return(res)
             except IOError:
                 json = 'ERROR: Unable to open file ' + self.__passDBfile
-                res = {"error":True, "message":json}
+                res = {"error": True, "message": json}
                 return(res)
             finally:
                 ofile.close()
 
-            if encdatafile != b'': 
-                datafile = self.decryptData(key=self.__token, encdata = encdatafile)
+            if encdatafile != b'':
+                datafile = self.decryptData(
+                    key=self.__token, encdata=encdatafile)
                 if datafile['error']:
-                    res = {"error":True, "message":datafile['message']}
+                    res = {"error": True, "message": datafile['message']}
                     return(res)
                 else:
                     datafile = datafile['message']
@@ -1754,15 +1999,16 @@ class PyKI():
                     # load json from str decoded in utf-8
                     passdb = jsonLoadstr(datafile.decode("utf-8", "strict"))
                 except ValueError as e:
-                    json = 'ERROR: Json format error '+ str(datafile)+' --> ' + str(e)
-                    res = {"error":True, "message":json}
+                    json = 'ERROR: Json format error ' + \
+                        str(datafile) + ' --> ' + str(e)
+                    res = {"error": True, "message": json}
                     return(res)
                 finally:
                     datafile = ''
             else:
                 passdb = {}
 
-        res = {"error":False, 'message':passdb}
+        res = {"error": False, 'message': passdb}
         return(res)
 
     def reqType(self, certname):
@@ -1777,32 +2023,44 @@ class PyKI():
         :rtype: Dict.
         '''
 
-        if self.__DBfile == "" :
-            res = {"error": True, "message":"ERROR: Empty pki database path"}
+        if self.__DBfile == "":
+            res = {"error": True, "message": "ERROR: Empty pki database path"}
             return(res)
-        elif not ospath.isfile( self.__DBfile ) :
-            res = {"error": False, "message":"WARN: pki database "+self.__DBfile+" not found"}
+        elif not ospath.isfile(self.__DBfile):
+            res = {
+                "error": False,
+                "message": "WARN: pki database " +
+                self.__DBfile +
+                " not found"}
             return(res)
         else:
             jsondict = self.json2dict(self.__DBfile)
             if not jsondict['error']:
                 jsondict = jsondict['message']
             else:
-                res = {"error": True, "message":"ERROR: Unable to read pki database "+self.__DBfile+"."}
+                res = {
+                    "error": True,
+                    "message": "ERROR: Unable to read pki database " +
+                    self.__DBfile +
+                    "."}
                 return(res)
 
-        if type(jsondict) is dict:
+        if isinstance(jsondict, dict):
             jcertname = self.cleanStr(certname)
             if jcertname in jsondict:
                 typeCert = jsondict[jcertname]['type']
             else:
-                res = {"error": True, "message":"ERROR: Unable to find certificate "+ certname + " in pki database"}
+                res = {
+                    "error": True,
+                    "message": "ERROR: Unable to find certificate " +
+                    certname +
+                    " in pki database"}
                 return(res)
         else:
-            res = {"error": True, "message":"ERROR: "+ jsondict}
+            res = {"error": True, "message": "ERROR: " + jsondict}
             return(res)
 
-        res = {"error":False, 'message':typeCert}
+        res = {"error": False, 'message': typeCert}
         return(res)
 
     def reqPass(self, certname):
@@ -1817,7 +2075,7 @@ class PyKI():
         '''
 
         if not ospath.exists(self.__passDBfile):
-            res = {"error":True, "message":'ERROR: Database not found !'}
+            res = {"error": True, "message": 'ERROR: Database not found !'}
             return(res)
         else:
             try:
@@ -1825,19 +2083,22 @@ class PyKI():
                 try:
                     encdatafile = ofile.read()
                 except:
-                    res = {"error":True, "message":'ERROR: Unable to read content of passphrases DB.'}
+                    res = {
+                        "error": True,
+                        "message": 'ERROR: Unable to read content of passphrases DB.'}
                     return(res)
             except IOError:
                 json = 'ERROR: Unable to open file ' + self.__passDBfile
-                res = {"error":True, "message":json}
+                res = {"error": True, "message": json}
                 return(res)
             finally:
                 ofile.close()
 
-            if encdatafile != b'': 
-                datafile = self.decryptData(key=self.__token, encdata = encdatafile)
+            if encdatafile != b'':
+                datafile = self.decryptData(
+                    key=self.__token, encdata=encdatafile)
                 if datafile['error']:
-                    res = {"error":True, "message":datafile['message']}
+                    res = {"error": True, "message": datafile['message']}
                     return(res)
                 else:
                     datafile = datafile['message']
@@ -1846,13 +2107,14 @@ class PyKI():
                     # load json from str decoded in utf-8
                     passdb = jsonLoadstr(datafile.decode("utf-8", "strict"))
                 except ValueError as e:
-                    json = 'ERROR: Json format error '+ str(datafile)+' --> ' + str(e)
-                    res = {"error":True, "message":json}
+                    json = 'ERROR: Json format error ' + \
+                        str(datafile) + ' --> ' + str(e)
+                    res = {"error": True, "message": json}
                     return(res)
                 finally:
                     datafile = ''
             else:
-                res = {"error":True, "message":'ERROR: Database empty !'}
+                res = {"error": True, "message": 'ERROR: Database empty !'}
                 return(res)
 
         certname = self.cleanStr(certname)
@@ -1862,7 +2124,7 @@ class PyKI():
             pwd = passdb[certname]
         passdb.clear()
 
-        res = {"error":False, 'message':pwd}
+        res = {"error": False, 'message': pwd}
         return(res)
 
     def editpassDB(self, certname, passph):
@@ -1882,7 +2144,7 @@ class PyKI():
         certname = self.cleanStr(certname)
         passdb = self.loadpassDB()
         if passdb['error']:
-            res = {"error":True, 'message':passdb['message']}
+            res = {"error": True, 'message': passdb['message']}
             return(res)
         else:
             passdb = passdb['message']
@@ -1898,17 +2160,28 @@ class PyKI():
         encDatas = self.encryptData(key=self.__token, data=newjson)
         encDatas = encDatas['message']
 
-        wresult = self.writeFile(wFile=self.__passDBfile, wContent=encDatas, mode='bytes')
+        wresult = self.writeFile(
+            wFile=self.__passDBfile,
+            wContent=encDatas,
+            mode='bytes')
         if wresult['error']:
-            res = {"error":True, "message":wresult['message']}
+            res = {"error": True, "message": wresult['message']}
             return(res)
         else:
             passdb.clear()
             newjson = ''
-            res = {"error":False, "message":"INFO: Passphrases db file updated"}
+            res = {
+                "error": False,
+                "message": "INFO: Passphrases db file updated"}
             return(res)
 
-    def create_key(self, passphrase='None', keysize=False, name = None, usage = None, ca = False):
+    def create_key(
+            self,
+            passphrase='None',
+            keysize=False,
+            name=None,
+            usage=None,
+            ca=False):
         '''
         This module will generate a private key for certificate gen. At the end, the private key will be returned in utf-8 String format.
 
@@ -1932,7 +2205,9 @@ class PyKI():
         '''
 
         if not name:
-            res = {"error":True, "message":'ERROR: Missing certificate common name.'}
+            res = {
+                "error": True,
+                "message": 'ERROR: Missing certificate common name.'}
             return(res)
 
         if usage == 'serverAuth':
@@ -1943,20 +2218,20 @@ class PyKI():
             usage = False
             CRTdir = self.__srvCRTdir
 
-        if not ca :
-            keyfile = CRTdir+'/'+name+'/'+name+'.key'
+        if not ca:
+            keyfile = CRTdir + '/' + name + '/' + name + '.key'
         elif ca == 'intermediate':
             keyfile = self.__intermediateCAkeyfile
         else:
             keyfile = self.__rootCAkeyfile
-        
+
         name = self.cleanStr(name)
         # encoding to utf-8 unicode to be compatible python3/python2
-        if type(passphrase) is str:
+        if isinstance(passphrase, str):
             passphrase = passphrase.encode('utf-8')
 
-        if not keyfile :
-            res = {"error": True, "message":"WTF: Fuck, no keyname"}
+        if not keyfile:
+            res = {"error": True, "message": "WTF: Fuck, no keyname"}
             return(res)
         else:
             keydir = ospath.dirname(keyfile)
@@ -1967,9 +2242,10 @@ class PyKI():
                 if self.__verbose:
                     print(resultkeydir['message'])
 
-        if ospath.isfile(keyfile) :
+        if ospath.isfile(keyfile):
             if self.__verbose:
-                message = "WARN: Key "+keyfile+" has already been generated, trying to load it..."
+                message = "WARN: Key " + keyfile + \
+                    " has already been generated, trying to load it..."
                 print(message)
 
             if not passphrase or passphrase == 'None':
@@ -1977,7 +2253,9 @@ class PyKI():
                     if subjectAltName:
                         passname = subjectAltName[0]
                         if not passname or passname == '':
-                            res = {"error":True, "message":'ERROR: Unable to define owner name'}
+                            res = {
+                                "error": True,
+                                "message": 'ERROR: Unable to define owner name'}
                             return(res)
                 else:
                     passname = name
@@ -1985,7 +2263,9 @@ class PyKI():
                 # loading passDB to get passphrase
                 passphrase = self.reqPass(passname)
                 if passphrase['error']:
-                    res = {'error':True, 'message':'ERROR: Unable to retrieve passphrase, '+passphrase['message']+'. Exiting...'}
+                    res = {
+                        'error': True,
+                        'message': 'ERROR: Unable to retrieve passphrase, ' + passphrase['message'] + '. Exiting...'}
                     return(res)
                 else:
                     privkeypass = passphrase['message']
@@ -2006,10 +2286,10 @@ class PyKI():
             if not key['error']:
                 key = key['message']
             else:
-                res = {"error":True, "message":key['message']}
+                res = {"error": True, "message": key['message']}
                 return(res)
 
-            res = {"error": False, "message":key}
+            res = {"error": False, "message": key}
             return(res)
         else:
             key = crypto.PKey()
@@ -2018,25 +2298,32 @@ class PyKI():
             else:
                 key.generate_key(self.__KEY_ALGO, self.__KEY_SIZE)
             if passphrase and passphrase != b'None':
-                dumpedKey = crypto.dump_privatekey(crypto.FILETYPE_PEM, key, self.__KEY_CIPHER, passphrase).decode('utf-8')
+                dumpedKey = crypto.dump_privatekey(
+                    crypto.FILETYPE_PEM, key, self.__KEY_CIPHER, passphrase).decode('utf-8')
             else:
-                dumpedKey = crypto.dump_privatekey(crypto.FILETYPE_PEM, key).decode('utf-8')
+                dumpedKey = crypto.dump_privatekey(
+                    crypto.FILETYPE_PEM, key).decode('utf-8')
 
             # addin passphrase to db
-            reseditdb = self.editpassDB(certname = name, passph = passphrase)
+            reseditdb = self.editpassDB(certname=name, passph=passphrase)
             if reseditdb['error']:
-                res = {"error":True, "message":'ERROR: Unable to add '+name+' passphrase to DB --> '+reseditdb['message']}
+                res = {
+                    "error": True,
+                    "message": 'ERROR: Unable to add ' +
+                    name +
+                    ' passphrase to DB --> ' +
+                    reseditdb['message']}
                 return(res)
             else:
                 if self.__verbose:
-                    print(reseditdb['message']+" for "+name)
+                    print(reseditdb['message'] + " for " + name)
 
             wresult = self.writeFile(keyfile, dumpedKey)
             if not wresult['error']:
-                res = {"error":False, "message":key}
+                res = {"error": False, "message": key}
                 return(res)
             else:
-                res = {"error":True, "message":wresult['message']}
+                res = {"error": True, "message": wresult['message']}
                 return(res)
 
     def build_chain(self, filenames, chain):
@@ -2061,10 +2348,10 @@ class PyKI():
         except:
             raise
 
-        res = {"error": False, "message":"INFO: build chain written"}
+        res = {"error": False, "message": "INFO: build chain written"}
         return(res)
 
-    def create_pkcs12(self, pkcs12name, pkcs12pwd = None):
+    def create_pkcs12(self, pkcs12name, pkcs12pwd=None):
         '''
         Create pkcs12 file of the matching PKI certificate name.
 
@@ -2082,13 +2369,19 @@ class PyKI():
         if not typeCert['error']:
             typeCert = typeCert['message']
         else:
-            res = {"error":True, "message":"ERROR: Unable to find certificate type for "+keyname+" --> "+typeCert['error']}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to find certificate type for " +
+                keyname +
+                " --> " +
+                typeCert['error']}
             return(res)
 
         # loading passDB to get passphrase
         passphrase = self.reqPass(pkcs12name)
         if passphrase['error']:
-            res = {'error':True, 'message':'ERROR: Unable to retrieve passphrase, '+passphrase['message']+'. Exiting...'}
+            res = {'error': True, 'message': 'ERROR: Unable to retrieve passphrase, ' +
+                   passphrase['message'] + '. Exiting...'}
             return(res)
         else:
             keypass = passphrase['message']
@@ -2104,45 +2397,48 @@ class PyKI():
         elif typeCert == 'CLT':
             CRTdir = self.__cltCRTdir
         else:
-            usage = False
             CRTdir = self.__srvCRTdir
 
-        filespath = CRTdir+'/'+pkcs12name+'/'+pkcs12name
-        key = filespath+'.key'
-        cert = filespath+'.crt'
-        pkcs12filePath = filespath+'.p12'
+        filespath = CRTdir + '/' + pkcs12name + '/' + pkcs12name
+        key = filespath + '.key'
+        cert = filespath + '.crt'
+        pkcs12filePath = filespath + '.p12'
 
-        if ospath.isfile(pkcs12filePath) :
-            res = {"error":False, "message":"WARN: PKCS12 file "+pkcs12filePath+" has already been generated !"}
+        if ospath.isfile(pkcs12filePath):
+            res = {
+                "error": False,
+                "message": "WARN: PKCS12 file " +
+                pkcs12filePath +
+                " has already been generated !"}
             return(res)
 
         pkcs12 = crypto.PKCS12()
 
         # if we do not find key, trying to find it in requested dir
         if not ospath.exists(key):
-            key = self.__csrDir+'/'+pkcs12name+'/'+pkcs12name+'.key'
+            key = self.__csrDir + '/' + pkcs12name + '/' + pkcs12name + '.key'
         opsslObjKey = self.load_pkey(key, keypass)
         if not opsslObjKey['error']:
             opsslObjKey = opsslObjKey['message']
         else:
-            res = {"error":True, "message":opsslObjKey['message']}
+            res = {"error": True, "message": opsslObjKey['message']}
             return(res)
 
         issuerCertObj = self.load_crt(self.__intermediateCAcrtfile)
         if not issuerCertObj['error']:
             issuerCertObj = issuerCertObj['message']
         else:
-            res = {"error":True, "message":issuerCertObj['message']}
+            res = {"error": True, "message": issuerCertObj['message']}
             return(res)
 
         # if we do not find cert, trying to find it in signed dir
         if not ospath.isfile(cert):
-            cert = self.__signeDir+'/'+pkcs12name+'/'+pkcs12name+'.crt'
+            cert = self.__signeDir + '/' + pkcs12name + '/' + pkcs12name + '.crt'
         certObj = self.load_crt(cert)
         if not certObj['error']:
             certObj = certObj['message']
         else:
-            res = {"error":True, "message":certObj['message']}
+            res = {"error": True, "message": certObj['message']}
             return(res)
 
         pkcs12.set_certificate(certObj)
@@ -2155,14 +2451,31 @@ class PyKI():
             print(resultpkcs12dir['message'])
 
         try:
-            open(pkcs12filePath, "wb").write(pkcs12.export(passphrase = pkcs12pwd, iter=2048, maciter=2048))
+            open(
+                pkcs12filePath,
+                "wb").write(
+                pkcs12.export(
+                    passphrase=pkcs12pwd,
+                    iter=2048,
+                    maciter=2048))
         except IOError:
-            res = {"error":True, "message":"ERROR: Unable to create PKCS12 file: "+ pkcs12filePath}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to create PKCS12 file: " +
+                pkcs12filePath}
             return(res)
-        res = {"error":False, "message":"INFO: PKCS12 file created in: "+ pkcs12filePath}
+        res = {
+            "error": False,
+            "message": "INFO: PKCS12 file created in: " +
+            pkcs12filePath}
         return(res)
 
-    def extract_pkcs12(self, pkcs12file, destdir,  pkcs12pwd = False, inPrivKeypass = False):
+    def extract_pkcs12(
+            self,
+            pkcs12file,
+            destdir,
+            pkcs12pwd=False,
+            inPrivKeypass=False):
         '''
         Extract files from pkcs12 file path archive.
 
@@ -2182,40 +2495,64 @@ class PyKI():
         :rtype: Dict.
         '''
 
-        if ospath.exists(destdir) :
-            useransw = self.getFromSTDIN("WARN: File has already been extracted in "+destdir+", do you want to replace it [y/n]")
-            answlist = ['y','Y','N','n']
+        if ospath.exists(destdir):
+            useransw = self.getFromSTDIN(
+                "WARN: File has already been extracted in " +
+                destdir +
+                ", do you want to replace it [y/n]")
+            answlist = ['y', 'Y', 'N', 'n']
             count = 0
             while useransw not in answlist:
                 count += 1
                 if count > 2:
-                    res = {"error":True, "message":"ERROR: You must choose y or n, but you entered "+useransw+" aborting extract..."}
+                    res = {
+                        "error": True,
+                        "message": "ERROR: You must choose y or n, but you entered " +
+                        useransw +
+                        " aborting extract..."}
                     return(res)
-                    #break
-                useransw = self.getFromSTDIN("WARN: File has already been extracted in "+destdir+", do you want to replace it [y/n]")
+                    # break
+                useransw = self.getFromSTDIN(
+                    "WARN: File has already been extracted in " +
+                    destdir +
+                    ", do you want to replace it [y/n]")
             if useransw == 'n' or useransw == 'N':
-                res = {"error":False, "message":"INFO: Extract abort."}
+                res = {"error": False, "message": "INFO: Extract abort."}
                 return(res)
 
         if destdir[-1] != '/':
-            destdir = destdir+"/"
+            destdir = destdir + "/"
 
-        resultdir = self.create_dir(destdir, 0o750)
-            
+        self.create_dir(destdir, 0o750)
+
         if not pkcs12pwd:
             try:
                 pkcsObj = crypto.load_pkcs12(open(pkcs12file, 'rb').read())
             except:
-                res = {"error":True, "message":"ERROR: Unable to load pkcs file: "+pkcs12file+" The pkcs file is probably password protected.."}
+                res = {
+                    "error": True,
+                    "message": "ERROR: Unable to load pkcs file: " +
+                    pkcs12file +
+                    " The pkcs file is probably password protected.."}
                 return(res)
         else:
             try:
-                pkcsObj = crypto.load_pkcs12(open(pkcs12file, 'rb').read(), pkcs12pwd)
+                pkcsObj = crypto.load_pkcs12(
+                    open(pkcs12file, 'rb').read(), pkcs12pwd)
             except SSL.Error as e:
-                res = {"error":True, "message":"ERROR: "+e.strerror+" "+e.filename}
+                res = {
+                    "error": True,
+                    "message": "ERROR: " +
+                    e.strerror +
+                    " " +
+                    e.filename}
                 return(res)
             except:
-                res = {"error":True, "message":"ERROR: Unable to load pkcs file: "+pkcs12file+" Please verify your pkcs12 password."}
+                res = {
+                    "error": True,
+                    "message": "ERROR: Unable to load pkcs file: " +
+                    pkcs12file +
+                    " Please verify your pkcs12 password."}
                 return(res)
 
         cacert = pkcsObj.get_ca_certificates()
@@ -2225,32 +2562,65 @@ class PyKI():
         subject = cert.get_subject()
         subject_infos = subject.get_components()
         for info in subject_infos:
-            if info[0] == b'CN' :
+            if info[0] == b'CN':
                 commonName = str(info[1].decode('utf-8'))
 
         if inPrivKeypass:
-            dumpedKey = crypto.dump_privatekey(crypto.FILETYPE_PEM, key, self.__KEY_CIPHER, inPrivKeypass).decode('utf-8')
+            dumpedKey = crypto.dump_privatekey(
+                crypto.FILETYPE_PEM,
+                key,
+                self.__KEY_CIPHER,
+                inPrivKeypass).decode('utf-8')
         else:
-            dumpedKey = crypto.dump_privatekey(crypto.FILETYPE_PEM, key).decode('utf-8')
+            dumpedKey = crypto.dump_privatekey(
+                crypto.FILETYPE_PEM, key).decode('utf-8')
 
-        dumpedCACert = crypto.dump_certificate(crypto.FILETYPE_PEM, cacert[0]).decode('utf-8')
-        dumpedCert = crypto.dump_certificate(crypto.FILETYPE_PEM, cert).decode('utf-8')
+        dumpedCACert = crypto.dump_certificate(
+            crypto.FILETYPE_PEM, cacert[0]).decode('utf-8')
+        dumpedCert = crypto.dump_certificate(
+            crypto.FILETYPE_PEM, cert).decode('utf-8')
 
-        wres1 = self.writeFile(destdir+"ca_"+commonName+".crt", dumpedCACert)
-        wres2 = self.writeFile(destdir+commonName+".crt", dumpedCert)
-        wres3 = self.writeFile(destdir+commonName+".key", dumpedKey)
+        wres1 = self.writeFile(
+            destdir +
+            "ca_" +
+            commonName +
+            ".crt",
+            dumpedCACert)
+        wres2 = self.writeFile(destdir + commonName + ".crt", dumpedCert)
+        self.writeFile(destdir + commonName + ".key", dumpedKey)
 
         if wres1['error']:
-            res = {"error":True, "message":"ERROR: Unable to write "+destdir+"ca_"+commonName+".crt"}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to write " +
+                destdir +
+                "ca_" +
+                commonName +
+                ".crt"}
             return(res)
         elif wres1['error']:
-            res = {"error":True, "message":"ERROR: Unable to write "+destdir+commonName+".crt"}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to write " +
+                destdir +
+                commonName +
+                ".crt"}
             return(res)
         elif wres2['error']:
-            res = {"error":True, "message":"ERROR: Unable to write "+destdir+commonName+".key"}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to write " +
+                destdir +
+                commonName +
+                ".key"}
             return(res)
         else:
-            res = {"error":False, "message":"INFO: File "+pkcs12file+" extracted successfully in "+destdir}
+            res = {
+                "error": False,
+                "message": "INFO: File " +
+                pkcs12file +
+                " extracted successfully in " +
+                destdir}
             return(res)
 
     def unprotect_key(self, keyname, privKeypass):
@@ -2271,52 +2641,93 @@ class PyKI():
         if not typeCert['error']:
             typeCert = typeCert['message']
         else:
-            res = {"error":True, "message":"ERROR: Unable to find certificate type for "+keyname+" --> "+typeCert['error']}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to find certificate type for " +
+                keyname +
+                " --> " +
+                typeCert['error']}
             return(res)
 
         if typeCert == "SRV":
-            keydir = self.__srvCRTdir+"/"+keyname
+            keydir = self.__srvCRTdir + "/" + keyname
         if typeCert == "CLT":
-            keydir = self.__cltCRTdir+"/"+keyname
+            keydir = self.__cltCRTdir + "/" + keyname
 
-        key = keydir+"/"+keyname+".key"
+        key = keydir + "/" + keyname + ".key"
         #keyfilename = ospath.basename(key)
         #keyname = ospath.splitext(keyfilename)[0]
         #keydir = ospath.dirname(key)
 
-        if ospath.isfile(keydir+"/"+keyname+"_unprotected.key"):
-            res = {"error":False, "message":"WARN: Key "+key+" already unprotected, see:"+keydir+"/"+keyname+"_unprotected.key !"}
+        if ospath.isfile(keydir + "/" + keyname + "_unprotected.key"):
+            res = {
+                "error": False,
+                "message": "WARN: Key " +
+                key +
+                " already unprotected, see:" +
+                keydir +
+                "/" +
+                keyname +
+                "_unprotected.key !"}
             return(res)
 
         if not ospath.isfile(key):
             # if we do not find key, trying to find it in requested dir
-            key = self.__csrDir+'/'+keyname+'/'+keyname+'.key'
+            key = self.__csrDir + '/' + keyname + '/' + keyname + '.key'
             if not ospath.isfile(key):
-                res = {"error":True, "message":"ERROR: Unable to find "+key}
+                res = {
+                    "error": True,
+                    "message": "ERROR: Unable to find " +
+                    key}
                 return(res)
 
-        if type(privKeypass) is str:
+        if isinstance(privKeypass, str):
             privKeypass = privKeypass.encode('utf-8')
 
         keyObj = self.load_pkey(key, privKeypass)
         if not keyObj['error']:
             keyObj = keyObj['message']
         else:
-            res = {"error":True, "message":keyObj['message']}
+            res = {"error": True, "message": keyObj['message']}
             return(res)
 
-        dumpedKey = crypto.dump_privatekey(crypto.FILETYPE_PEM, keyObj).decode('utf-8')
+        dumpedKey = crypto.dump_privatekey(
+            crypto.FILETYPE_PEM, keyObj).decode('utf-8')
 
-        wresult = self.writeFile(keydir+"/"+keyname+"_unprotected.key", dumpedKey)
+        wresult = self.writeFile(
+            keydir +
+            "/" +
+            keyname +
+            "_unprotected.key",
+            dumpedKey)
         if wresult['error']:
-            res = {"error":True, "message":wresult['message']}
+            res = {"error": True, "message": wresult['message']}
             return(res)
         else:
-            res = {"error":False, "message":"INFO: Unprotected version of private key "+key+" put in "+keydir+"/"+keyname+"_unprotected.key"}
+            res = {
+                "error": False,
+                "message": "INFO: Unprotected version of private key " +
+                key +
+                " put in " +
+                keydir +
+                "/" +
+                keyname +
+                "_unprotected.key"}
             return(res)
 
-    def create_csr(self, passphrase=None, country='', subjectAltName=None,
-                    state='', city='', org='', ou='', cn='', email='', encryption=False, keysize=False):
+    def create_csr(
+            self,
+            passphrase=None,
+            country='',
+            subjectAltName=None,
+            state='',
+            city='',
+            org='',
+            ou='',
+            cn='',
+            email='',
+            encryption=False,
+            keysize=False):
         '''
         Generate private key with it 's Certificate Signature Request.
 
@@ -2361,16 +2772,22 @@ class PyKI():
             if subjectAltName:
                 passname = subjectAltName[0]
                 if not passname or passname == '':
-                    res = {"error":True, "message":'ERROR: Unable to define owner name'}
+                    res = {
+                        "error": True,
+                        "message": 'ERROR: Unable to define owner name'}
                     return(res)
         else:
             passname = cn
 
-        csrfile = self.__csrDir+"/"+passname+"/"+passname+".csr"
-        csrkey = self.__csrDir+"/"+passname+"/"+passname+".key"
+        csrfile = self.__csrDir + "/" + passname + "/" + passname + ".csr"
+        csrkey = self.__csrDir + "/" + passname + "/" + passname + ".key"
 
-        if ospath.isfile(csrfile) :
-            res = {"error":False, "message":"WARN: CSR "+csrfile+" has already been generated !"}
+        if ospath.isfile(csrfile):
+            res = {
+                "error": False,
+                "message": "WARN: CSR " +
+                csrfile +
+                " has already been generated !"}
             return(res)
         else:
             if country == '':
@@ -2388,16 +2805,22 @@ class PyKI():
 
             if passphrase:
                 # addin passphrase to db
-                reseditdb = self.editpassDB(certname = passname, passph = passphrase)
+                reseditdb = self.editpassDB(
+                    certname=passname, passph=passphrase)
                 if reseditdb['error']:
-                    res = {"error":True, "message":'ERROR: Unable to add '+passname+' passphrase to DB --> '+reseditdb['message']}
+                    res = {
+                        "error": True,
+                        "message": 'ERROR: Unable to add ' +
+                        passname +
+                        ' passphrase to DB --> ' +
+                        reseditdb['message']}
                     return(res)
                 else:
                     if self.__verbose:
-                        print(reseditdb['message']+" for "+passname)
+                        print(reseditdb['message'] + " for " + passname)
 
                 # encoding to utf-8 unicode to be compatible python3/python2
-                if type(passphrase) is str:
+                if isinstance(passphrase, str):
                     passphrase = passphrase.encode('utf-8')
 
             csrpathdir = ospath.dirname(csrfile)
@@ -2414,10 +2837,10 @@ class PyKI():
 
             req = crypto.X509Req()
 
-            req.get_subject().C  = country
+            req.get_subject().C = country
             req.get_subject().ST = state
-            req.get_subject().L  = city
-            req.get_subject().O  = org
+            req.get_subject().L = city
+            req.get_subject().O = org
             req.get_subject().OU = ou
             if cn:
                 req.get_subject().CN = cn
@@ -2426,9 +2849,8 @@ class PyKI():
 
             if subjectAltName:
                 critical = True if not cn else False
-                req.add_extensions([
-                                    crypto.X509Extension( b"subjectAltName", critical, b",     ".join(s.encode('utf-8') for s in subjectAltName) )
-                                  ])
+                req.add_extensions([crypto.X509Extension(b"subjectAltName", critical, b",     ".join(
+                    s.encode('utf-8') for s in subjectAltName))])
             if not encryption:
                 req.sign(key, self.__SIGN_ALGO)
             else:
@@ -2436,25 +2858,37 @@ class PyKI():
 
             # Write private key
             if passphrase:
-                dumpedKey = crypto.dump_privatekey(crypto.FILETYPE_PEM, key, self.__KEY_CIPHER, passphrase).decode('utf-8')
+                dumpedKey = crypto.dump_privatekey(
+                    crypto.FILETYPE_PEM, key, self.__KEY_CIPHER, passphrase).decode('utf-8')
             else:
-                dumpedKey = crypto.dump_privatekey(crypto.FILETYPE_PEM, key, self.__KEY_CIPHER, passphrase).decode('utf-8')
+                dumpedKey = crypto.dump_privatekey(
+                    crypto.FILETYPE_PEM, key, self.__KEY_CIPHER, passphrase).decode('utf-8')
             wresult = self.writeFile(csrkey, dumpedKey)
             if wresult['error']:
-                res = {"error":True, "message":wresult['message']}
+                res = {"error": True, "message": wresult['message']}
                 return(res)
 
             # Write request
-            dumpedCsr = crypto.dump_certificate_request(crypto.FILETYPE_PEM, req).decode('utf-8')
+            dumpedCsr = crypto.dump_certificate_request(
+                crypto.FILETYPE_PEM, req).decode('utf-8')
             wresult = self.writeFile(csrfile, dumpedCsr)
             if wresult['error']:
-                res = {"error":True, "message":wresult['message']}
+                res = {"error": True, "message": wresult['message']}
                 return(res)
 
-            res = {"error":False, "message":"INFO: CSR and private key generated in: "+csrpathdir}
+            res = {
+                "error": False,
+                "message": "INFO: CSR and private key generated in: " +
+                csrpathdir}
             return(res)
 
-    def sign_csr(self, csr, valid_before = 0, KeyUsage = False, days_valid = None, encryption=False):
+    def sign_csr(
+            self,
+            csr,
+            valid_before=0,
+            KeyUsage=False,
+            days_valid=None,
+            encryption=False):
         '''
         Create a X509 signed certificate.
 
@@ -2478,7 +2912,7 @@ class PyKI():
         :rtype: Dict.
         '''
 
-        if not KeyUsage: # define key usage
+        if not KeyUsage:  # define key usage
             typecrt = "SRV"
             KeyUsage = "serverAuth, clientAuth"
         elif KeyUsage == "clientAuth":
@@ -2486,22 +2920,30 @@ class PyKI():
         elif KeyUsage == "serverAuth":
             typecrt = "SRV"
         else:
-            res = {"error":True, "message":"ERROR: Wrong Key Usage type "+KeyUsage+", it must be serverAuth or clientAuth !"}
+            res = {
+                "error": True,
+                "message": "ERROR: Wrong Key Usage type " +
+                KeyUsage +
+                ", it must be serverAuth or clientAuth !"}
             return(res)
         CRTdir = self.__signeDir
 
         certbname = ospath.basename(csr)
         certname = ospath.splitext(certbname)[0]
-        filespath = CRTdir+'/'+certname+'/'+certname
-        resultdir = self.create_dir(CRTdir+'/'+certname, 0o750)
+        filespath = CRTdir + '/' + certname + '/' + certname
+        resultdir = self.create_dir(CRTdir + '/' + certname, 0o750)
         if self.__verbose:
             if resultdir['message']:
                 print(resultdir['message'])
-        cert = filespath+'.crt'
-        csr_bk_path = filespath+'.csr'
+        cert = filespath + '.crt'
+        csr_bk_path = filespath + '.csr'
 
-        if ospath.isfile(cert) :
-            res = {"error":False, "message":"WARN: Certificate "+certname+" has already been signed !"}
+        if ospath.isfile(cert):
+            res = {
+                "error": False,
+                "message": "WARN: Certificate " +
+                certname +
+                " has already been signed !"}
             return(res)
 
         if not days_valid:
@@ -2510,98 +2952,120 @@ class PyKI():
         currentDate = datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S')
         tocreate = False
 
-        caKeyObj = self.load_pkey(self.__intermediateCAkeyfile, self.__intermediatePass)
+        caKeyObj = self.load_pkey(
+            self.__intermediateCAkeyfile,
+            self.__intermediatePass)
         if not caKeyObj['error']:
             caKeyObj = caKeyObj['message']
         else:
-            res = {"error":True, "message":caKeyObj['message']}
+            res = {"error": True, "message": caKeyObj['message']}
             return(res)
 
         caCertObj = self.load_crt(self.__intermediateCAcrtfile)
         if not caCertObj['error']:
             caCertObj = caCertObj['message']
         else:
-            res = {"error":True, "message":caCertObj['message']}
+            res = {"error": True, "message": caCertObj['message']}
             return(res)
 
         try:
-            reqObj = crypto.load_certificate_request(crypto.FILETYPE_PEM, open(csr).read())
+            reqObj = crypto.load_certificate_request(
+                crypto.FILETYPE_PEM, open(csr).read())
         except SSL.SysCallError as e:
-            res = {"error":True, "message":e.strerror+" "+e.filename}
+            res = {"error": True, "message": e.strerror + " " + e.filename}
             #print(e.args, e.errno, e.filename, e.strerror)
             return(res)
         except SSL.Error as f:
-            res = {"error":True, "message":f.strerror+" "+f.filename}
+            res = {"error": True, "message": f.strerror + " " + f.filename}
             return(res)
         except SSL.WantReadError as r:
-            res = {"error":True, "message":r.strerror+" "+r.filename}
+            res = {"error": True, "message": r.strerror + " " + r.filename}
             return(res)
         except SSL.WantWriteError as w:
-            res = {"error":True, "message":w.strerror+" "+w.filename}
+            res = {"error": True, "message": w.strerror + " " + w.filename}
             return(res)
         except SSL.WantX509LookupError as x:
-            res = {"error":True, "message":x.strerror+" "+x.filename}
+            res = {"error": True, "message": x.strerror + " " + x.filename}
             return(res)
         except Exception as ex:
-            res = {"error":True, "message":ex.strerror+" "+ex.filename}
+            res = {"error": True, "message": ex.strerror + " " + ex.filename}
             return(res)
         except:
-            res = {"error":True, "message":"Unexpected error"}
+            res = {"error": True, "message": "Unexpected error"}
             return(res)
 
-        #archive csr
-        dumpedCsr = crypto.dump_certificate_request(crypto.FILETYPE_PEM, reqObj).decode('utf-8')
+        # archive csr
+        dumpedCsr = crypto.dump_certificate_request(
+            crypto.FILETYPE_PEM, reqObj).decode('utf-8')
         wresult = self.writeFile(csr_bk_path, dumpedCsr)
         if wresult['error']:
-            res = {"error":True, "message":wresult['message']}
+            res = {"error": True, "message": wresult['message']}
             return(res)
 
         SERIAL_NUMBER = self.getSN()
         if SERIAL_NUMBER['error']:
-            res = {"error":True, "message":SERIAL_NUMBER['message']}
+            res = {"error": True, "message": SERIAL_NUMBER['message']}
             return(res)
         else:
             SERIAL_NUMBER = SERIAL_NUMBER['message']
 
-        if type(SERIAL_NUMBER) != int :
-            if research("Serial database.+not found", SERIAL_NUMBER) is not None :
+        if not isinstance(SERIAL_NUMBER, int):
+            if research(
+                "Serial database.+not found",
+                    SERIAL_NUMBER) is not None:
                 if rematch(".*intermediate.*", cert):
-                    print( SERIAL_NUMBER )
+                    print(SERIAL_NUMBER)
                 else:
                     SERIAL_NUMBER = 1
                     tocreate = True
             else:
-                res = {"error":True, "message":SERIAL_NUMBER+" during generation of "+ cert}
+                res = {
+                    "error": True,
+                    "message": SERIAL_NUMBER +
+                    " during generation of " +
+                    cert}
                 return(res)
 
         csr_subject = reqObj.get_subject()
 
         certObj = crypto.X509()
-        certObj.set_version(3-1) # version 3, starts at 0
+        certObj.set_version(3 - 1)  # version 3, starts at 0
         certObj.set_subject(csr_subject)
         certObj.set_serial_number(SERIAL_NUMBER)
         certObj.set_pubkey(reqObj.get_pubkey())
         certObj.set_issuer(caCertObj.get_subject())
         certObj.gmtime_adj_notBefore(valid_before * 24 * 3600)
         certObj.gmtime_adj_notAfter(days_valid * 24 * 3600)
-        
+
         csr_components = dict(csr_subject.get_components())
-        csr_cn = csr_components[b'CN']    
-        
+        csr_components[b'CN']
+
         certObj.add_extensions([
-                                crypto.X509Extension(b"basicConstraints", False, b"CA:FALSE")
-                              ])
+            crypto.X509Extension(b"basicConstraints", False, b"CA:FALSE")
+        ])
 
         if KeyUsage == "serverAuth, clientAuth":
-            certObj.add_extensions([
-                                    crypto.X509Extension(b"keyUsage", True, b"dataEncipherment, digitalSignature, nonRepudiation"),
-                                    crypto.X509Extension(b"extendedKeyUsage", True, b"serverAuth, clientAuth")
-                                  ])
+            certObj.add_extensions(
+                [
+                    crypto.X509Extension(
+                        b"keyUsage",
+                        True,
+                        b"dataEncipherment, digitalSignature, nonRepudiation"),
+                    crypto.X509Extension(
+                        b"extendedKeyUsage",
+                        True,
+                        b"serverAuth, clientAuth")])
         else:
-            certObj.add_extensions([
-                                    crypto.X509Extension(b"keyUsage", True, b"dataEncipherment, digitalSignature, nonRepudiation"),
-                                    crypto.X509Extension(b"extendedKeyUsage", True, KeyUsage.encode('utf-8') )
-                                  ])
+            certObj.add_extensions(
+                [
+                    crypto.X509Extension(
+                        b"keyUsage",
+                        True,
+                        b"dataEncipherment, digitalSignature, nonRepudiation"),
+                    crypto.X509Extension(
+                        b"extendedKeyUsage",
+                        True,
+                        KeyUsage.encode('utf-8'))])
 
         # look for san x509 extension
         x509exts = reqObj.get_extensions()
@@ -2613,7 +3077,7 @@ class PyKI():
                 san_ext = ext
 
         # if san found, add it to the certificate
-        if san :
+        if san:
             certObj.add_extensions([san_ext])
 
         if encryption:
@@ -2621,35 +3085,51 @@ class PyKI():
         else:
             certObj.sign(caKeyObj, self.__SIGN_ALGO)
 
-        dumpedCert = crypto.dump_certificate(crypto.FILETYPE_PEM, certObj).decode('utf-8')
+        dumpedCert = crypto.dump_certificate(
+            crypto.FILETYPE_PEM, certObj).decode('utf-8')
         wresult = self.writeFile(cert, dumpedCert)
         if wresult['error']:
-            res = {"error":True, "message":wresult['message']}
+            res = {"error": True, "message": wresult['message']}
             return(res)
         else:
-            if self.__HASH_ENC == 'sha1' :
+            if self.__HASH_ENC == 'sha1':
                 shasum = hashlib.sha1(dumpedCert.encode('utf-8')).hexdigest()
-            elif self.__HASH_ENC == '224' :
+            elif self.__HASH_ENC == '224':
                 shasum = hashlib.sha224(dumpedCert.encode('utf-8')).hexdigest()
-            elif self.__HASH_ENC == '256' :
+            elif self.__HASH_ENC == '256':
                 shasum = hashlib.sha256(dumpedCert.encode('utf-8')).hexdigest()
-            elif self.__HASH_ENC == '384' :
+            elif self.__HASH_ENC == '384':
                 shasum = hashlib.sha384(dumpedCert.encode('utf-8')).hexdigest()
-            elif self.__HASH_ENC == '512' :
+            elif self.__HASH_ENC == '512':
                 shasum = hashlib.sha512(dumpedCert.encode('utf-8')).hexdigest()
 
-            if tocreate :
-                success = self.writeJsonCert(sha = shasum, serial = SERIAL_NUMBER, date = currentDate, duration = self.__VALID_DAYS, state = 'activ', certpath = cert, createMode = True, typeCert = typecrt)
+            if tocreate:
+                success = self.writeJsonCert(
+                    sha=shasum,
+                    serial=SERIAL_NUMBER,
+                    date=currentDate,
+                    duration=self.__VALID_DAYS,
+                    state='activ',
+                    certpath=cert,
+                    createMode=True,
+                    typeCert=typecrt)
                 if success['error']:
-                    res = {"error":True, "message":success['message']}
+                    res = {"error": True, "message": success['message']}
                     return(res)
             else:
-                success = self.writeJsonCert(sha = shasum, serial = SERIAL_NUMBER, date = currentDate, duration = self.__VALID_DAYS, state = 'activ', certpath = cert, typeCert = typecrt)
+                success = self.writeJsonCert(
+                    sha=shasum,
+                    serial=SERIAL_NUMBER,
+                    date=currentDate,
+                    duration=self.__VALID_DAYS,
+                    state='activ',
+                    certpath=cert,
+                    typeCert=typecrt)
                 if success['error']:
-                    res = {"error":True, "message":success['message']}
+                    res = {"error": True, "message": success['message']}
                     return(res)
 
-        res = {"error":False, "message":"INFO: CSR signed."}
+        res = {"error": False, "message": "INFO: CSR signed."}
         return(res)
 
     def check_cer_vs_key(self, cert, key, keypass=False):
@@ -2670,24 +3150,24 @@ class PyKI():
         '''
 
         if not ospath.isfile(cert):
-            res = {"error":True, "message":"ERROR: Unable to find "+cert}
+            res = {"error": True, "message": "ERROR: Unable to find " + cert}
             return(res)
         elif not ospath.isfile(key):
-            res = {"error":True, "message":"ERROR: Unable to find "+key}
+            res = {"error": True, "message": "ERROR: Unable to find " + key}
             return(res)
 
         keyObj = self.load_pkey(key, keypass)
         if not keyObj['error']:
             keyObj = keyObj['message']
         else:
-            res = {"error":True, "message":keyObj['message']}
+            res = {"error": True, "message": keyObj['message']}
             return(res)
 
         certObj = self.load_crt(cert)
         if not certObj['error']:
             certObj = certObj['message']
         else:
-            res = {"error":True, "message":certObj['message']}
+            res = {"error": True, "message": certObj['message']}
             return(res)
 
         ctx = SSL.Context(SSL.TLSv1_METHOD)
@@ -2697,10 +3177,20 @@ class PyKI():
         try:
             ctx.check_privatekey()
         except SSL.Error:
-            res = {"error":True, "message":"ERROR: Incorrect key "+key+" for certificate "+cert}
+            res = {
+                "error": True,
+                "message": "ERROR: Incorrect key " +
+                key +
+                " for certificate " +
+                cert}
             return(res)
         else:
-            res = {"error":False, "message":"INFO: Key "+key+" matches certificate "+cert}
+            res = {
+                "error": False,
+                "message": "INFO: Key " +
+                key +
+                " matches certificate " +
+                cert}
             return(res)
 
     def load_crl(self, crlfile):
@@ -2714,32 +3204,37 @@ class PyKI():
         :rtype: Dict.
         '''
 
-        if not ospath.isfile(crlfile) :
+        if not ospath.isfile(crlfile):
             x509obj = crypto.CRL()
             if self.__verbose:
-                print("INFO: New CRL "+crlfile+" created.")
-            res = {"error":False, "message":x509obj}
+                print("INFO: New CRL " + crlfile + " created.")
+            res = {"error": False, "message": x509obj}
             return(res)
         else:
             try:
-                x509obj = crypto.load_crl(crypto.FILETYPE_PEM, open(crlfile).read())
+                x509obj = crypto.load_crl(
+                    crypto.FILETYPE_PEM, open(crlfile).read())
             except SSL.SysCallError as e:
-                res = {"error":True, "message":e.strerror+" "+e.filename}
+                res = {"error": True, "message": e.strerror + " " + e.filename}
                 #print(e.args, e.errno, e.filename, e.strerror)
             except SSL.Error as f:
-                res = {"error":True, "message":f.strerror+" "+f.filename}
+                res = {"error": True, "message": f.strerror + " " + f.filename}
             except SSL.WantReadError as r:
-                res = {"error":True, "message":r.strerror+" "+r.filename}
+                res = {"error": True, "message": r.strerror + " " + r.filename}
             except SSL.WantWriteError as w:
-                res = {"error":True, "message":w.strerror+" "+w.filename}
+                res = {"error": True, "message": w.strerror + " " + w.filename}
             except SSL.WantX509LookupError as x:
-                res = {"error":True, "message":x.strerror+" "+x.filename}
+                res = {"error": True, "message": x.strerror + " " + x.filename}
             except Exception as ex:
-                res = {"error":True, "message":ex.strerror+" "+ex.filename}
+                res = {
+                    "error": True,
+                    "message": ex.strerror +
+                    " " +
+                    ex.filename}
             except:
-                res = {"error":True, "message":"Unexpected error"}
+                res = {"error": True, "message": "Unexpected error"}
             else:
-                res = {"error":False, "message":x509obj}
+                res = {"error": False, "message": x509obj}
             finally:
                 return(res)
 
@@ -2759,55 +3254,65 @@ class PyKI():
 
         if not keypass:
             try:
-                x509obj = crypto.load_privatekey(crypto.FILETYPE_PEM, open(key).read())
+                x509obj = crypto.load_privatekey(
+                    crypto.FILETYPE_PEM, open(key).read())
             except SSL.SysCallError as e:
-                res = {"error":True, "message":e.strerror+" "+e.filename}
+                res = {"error": True, "message": e.strerror + " " + e.filename}
                 #print(e.args, e.errno, e.filename, e.strerror)
             except SSL.Error as f:
-                res = {"error":True, "message":f.strerror+" "+f.filename}
+                res = {"error": True, "message": f.strerror + " " + f.filename}
             except SSL.WantReadError as r:
-                res = {"error":True, "message":r.strerror+" "+r.filename}
+                res = {"error": True, "message": r.strerror + " " + r.filename}
             except SSL.WantWriteError as w:
-                res = {"error":True, "message":w.strerror+" "+w.filename}
+                res = {"error": True, "message": w.strerror + " " + w.filename}
             except SSL.WantX509LookupError as x:
-                res = {"error":True, "message":x.strerror+" "+x.filename}
+                res = {"error": True, "message": x.strerror + " " + x.filename}
             except Exception as ex:
-                res = {"error":True, "message":ex.strerror+" "+ex.filename}
+                res = {
+                    "error": True,
+                    "message": ex.strerror +
+                    " " +
+                    ex.filename}
             except:
-                res = {"error":True, "message":"Unexpected error"}
+                res = {"error": True, "message": "Unexpected error"}
             else:
-                res = {"error":False, "message":x509obj}
+                res = {"error": False, "message": x509obj}
             finally:
                 return(res)
         else:
-            if type(keypass) is str:
+            if isinstance(keypass, str):
                 keypass = keypass.encode('utf-8')
 
             try:
                 keyfile = open(key, "rb")
             except IOError:
-                res = {"error":True, "message":'ERROR: Unable to open file ' + key}
+                res = {
+                    "error": True,
+                    "message": 'ERROR: Unable to open file ' +
+                    key}
                 return(res)
 
             try:
-                x509obj = crypto.load_privatekey(crypto.FILETYPE_PEM, keyfile.read(), keypass)
+                x509obj = crypto.load_privatekey(
+                    crypto.FILETYPE_PEM, keyfile.read(), keypass)
             except SSL.SysCallError as e:
-                res = {"error":True, "message":e.strerror+" "+e.filename}
+                res = {"error": True, "message": e.strerror + " " + e.filename}
                 #print(e.args, e.errno, e.filename, e.strerror)
             except SSL.Error as f:
-                res = {"error":True, "message":f.strerror+" "+f.filename}
+                res = {"error": True, "message": f.strerror + " " + f.filename}
             except SSL.WantReadError as r:
-                res = {"error":True, "message":r.strerror+" "+r.filename}
+                res = {"error": True, "message": r.strerror + " " + r.filename}
             except SSL.WantWriteError as w:
-                res = {"error":True, "message":w.strerror+" "+w.filename}
+                res = {"error": True, "message": w.strerror + " " + w.filename}
             except SSL.WantX509LookupError as x:
-                res = {"error":True, "message":x.strerror+" "+x.filename}
+                res = {"error": True, "message": x.strerror + " " + x.filename}
             except Exception as ex:
-                res = {"error":True, "message":"ERROR: Unable to load private key "+key+' ---> '.join(ex.args[0])}
+                res = {"error": True, "message": "ERROR: Unable to load private key " +
+                       key + ' ---> '.join(ex.args[0])}
             except:
-                res = {"error":True, "message":"Unexpected error"}
+                res = {"error": True, "message": "Unexpected error"}
             else:
-                res = {"error":False, "message":x509obj}
+                res = {"error": False, "message": x509obj}
             finally:
                 return(res)
 
@@ -2823,28 +3328,29 @@ class PyKI():
         '''
 
         try:
-            x509obj = crypto.load_certificate(crypto.FILETYPE_PEM, open(crt).read())
+            x509obj = crypto.load_certificate(
+                crypto.FILETYPE_PEM, open(crt).read())
         except SSL.SysCallError as e:
-            res = {"error":True, "message":e.strerror+" "+e.filename}
+            res = {"error": True, "message": e.strerror + " " + e.filename}
             #print(ex.args, ex.errno, ex.filename, ex.strerror)
         except SSL.Error as f:
-            res = {"error":True, "message":f.strerror+" "+f.filename}
+            res = {"error": True, "message": f.strerror + " " + f.filename}
         except SSL.WantReadError as r:
-            res = {"error":True, "message":r.strerror+" "+r.filename}
+            res = {"error": True, "message": r.strerror + " " + r.filename}
         except SSL.WantWriteError as w:
-            res = {"error":True, "message":w.strerror+" "+w.filename}
+            res = {"error": True, "message": w.strerror + " " + w.filename}
         except SSL.WantX509LookupError as x:
-            res = {"error":True, "message":x.strerror+" "+x.filename}
+            res = {"error": True, "message": x.strerror + " " + x.filename}
         except Exception as ex:
-            res = {"error":True, "message":ex.strerror+" "+ex.filename}
+            res = {"error": True, "message": ex.strerror + " " + ex.filename}
         except:
-            res = {"error":True, "message":"Unexpected error"}
+            res = {"error": True, "message": "Unexpected error"}
         else:
-            res = {"error":False, "message":x509obj}
+            res = {"error": False, "message": x509obj}
         finally:
             return(res)
 
-    def renew_crl_date(self, next_crl_days = 183):
+    def renew_crl_date(self, next_crl_days=183):
         '''
         Extend crl expiry date and/or renwew crl
 
@@ -2859,34 +3365,43 @@ class PyKI():
         if not crlObj['error']:
             crlObj = crlObj['message']
         else:
-            res = {"error":True, "message":crlObj['message']}
+            res = {"error": True, "message": crlObj['message']}
             return(res)
 
-        caKeyObj = self.load_pkey(self.__intermediateCAkeyfile, self.__intermediatePass)
+        caKeyObj = self.load_pkey(
+            self.__intermediateCAkeyfile,
+            self.__intermediatePass)
         if not caKeyObj['error']:
             caKeyObj = caKeyObj['message']
         else:
-            res = {"error":True, "message":caKeyObj['message']}
+            res = {"error": True, "message": caKeyObj['message']}
             return(res)
-        
+
         caCertObj = self.load_crt(self.__intermediateCAcrtfile)
         if not caCertObj['error']:
             caCertObj = caCertObj['message']
         else:
-            res = {"error":True, "message":caCertObj['message']}
+            res = {"error": True, "message": caCertObj['message']}
             return(res)
 
         try:
-            encodedCrl = crlObj.export(caCertObj, caKeyObj, days = next_crl_days, digest = self.__CRL_ALGO.encode('utf-8')).decode('utf-8')
+            encodedCrl = crlObj.export(
+                caCertObj,
+                caKeyObj,
+                days=next_crl_days,
+                digest=self.__CRL_ALGO.encode('utf-8')).decode('utf-8')
             wresult = self.writeFile(self.__crlpath, encodedCrl)
             if wresult['error']:
-                res = {"error":True, "message":wresult['message']}
+                res = {"error": True, "message": wresult['message']}
                 return(res)
         except:
-            res = {"error":True, "message":"ERROR: Unable to edit crl: "+self.__crlpath}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to edit crl: " +
+                self.__crlpath}
             return(res)
 
-        res = {"error":False, "message":"INFO: CRL date updated successfuly."}
+        res = {"error": False, "message": "INFO: CRL date updated successfuly."}
         return(res)
 
     def revoke_cert(self, certname, next_crl_days=183, reason='unspecified'):
@@ -2900,7 +3415,7 @@ class PyKI():
         :param next_crl_days: Number of days to add for CRL expiry due to the CRL update.
         :type next_crl_days: Int.
 
-        :param reason: Certificate revocation reason to set in the CRL. Must be in 
+        :param reason: Certificate revocation reason to set in the CRL. Must be in
             [unspecified, keyCompromise, CACompromise, affiliationChanged,
              superseded, cessationOfOperation, certificateHold].
         :type reason: Bytes.
@@ -2913,7 +3428,12 @@ class PyKI():
         if not typeCert['error']:
             typeCert = typeCert['message']
         else:
-            res = {"error":True, "message":"ERROR: Unable to find certificate type for "+certname+" --> "+typeCert['error']}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to find certificate type for " +
+                certname +
+                " --> " +
+                typeCert['error']}
             return(res)
 
         if typeCert == 'SRV':
@@ -2921,14 +3441,13 @@ class PyKI():
         elif typeCert == 'CLT':
             CRTdir = self.__cltCRTdir
         else:
-            usage = False
             CRTdir = self.__srvCRTdir
 
-        filespath = CRTdir+'/'+certname+'/'+certname
-        revokedcert = filespath+'.crt'
+        filespath = CRTdir + '/' + certname + '/' + certname
+        revokedcert = filespath + '.crt'
 
-        if ospath.isfile(revokedcert) :
-            # check if this cert is revoked 
+        if ospath.isfile(revokedcert):
+            # check if this cert is revoked
             validity, valreason = self.chk_validity(certname)
             if not research("has been revoked", valreason):
                 reasons_lst = [
@@ -2942,37 +3461,43 @@ class PyKI():
                     # b"removeFromCRL",
                 ]
                 if reason.encode('utf-8') not in reasons_lst:
-                    res = {"error":True, "message":"ERROR: Bad reason '"+ reason +"'. Please use normalized reason: [unspecified, keyCompromise, CACompromise, affiliationChanged, superseded, cessationOfOperation, certificateHold]"}
+                    res = {
+                        "error": True,
+                        "message": "ERROR: Bad reason '" +
+                        reason +
+                        "'. Please use normalized reason: [unspecified, keyCompromise, CACompromise, affiliationChanged, superseded, cessationOfOperation, certificateHold]"}
                     return(res)
 
                 crlObj = self.load_crl(self.__crlpath)
                 if not crlObj['error']:
                     crlObj = crlObj['message']
                 else:
-                    res = {"error":True, "message":crlObj['message']}
+                    res = {"error": True, "message": crlObj['message']}
                     return(res)
 
                 revokedObj = crypto.Revoked()
 
-                caKeyObj = self.load_pkey(self.__intermediateCAkeyfile, self.__intermediatePass)
+                caKeyObj = self.load_pkey(
+                    self.__intermediateCAkeyfile,
+                    self.__intermediatePass)
                 if not caKeyObj['error']:
                     caKeyObj = caKeyObj['message']
                 else:
-                    res = {"error":True, "message":caKeyObj['message']}
+                    res = {"error": True, "message": caKeyObj['message']}
                     return(res)
 
                 caCertObj = self.load_crt(self.__intermediateCAcrtfile)
                 if not caCertObj['error']:
                     caCertObj = caCertObj['message']
                 else:
-                    res = {"error":True, "message":caCertObj['message']}
+                    res = {"error": True, "message": caCertObj['message']}
                     return(res)
 
                 certObj = self.load_crt(revokedcert)
                 if not certObj['error']:
                     certObj = certObj['message']
                 else:
-                    res = {"error":True, "message":certObj['message']}
+                    res = {"error": True, "message": certObj['message']}
                     return(res)
 
                 serial_number = "%x" % certObj.get_serial_number()
@@ -2981,21 +3506,32 @@ class PyKI():
 
                 revokedObj.set_serial(serial_number.encode('utf-8'))
                 revokedObj.set_reason(reason.encode('utf-8'))
-                revokedObj.set_rev_date(now_str.encode('utf-8'))   # revoked as of now
+                revokedObj.set_rev_date(
+                    now_str.encode('utf-8'))   # revoked as of now
 
                 crlObj.add_revoked(revokedObj)
                 try:
-                    encodedCrl = crlObj.export(caCertObj, caKeyObj, days = next_crl_days, digest = self.__CRL_ALGO.encode('utf-8')).decode('utf-8')
+                    encodedCrl = crlObj.export(
+                        caCertObj,
+                        caKeyObj,
+                        days=next_crl_days,
+                        digest=self.__CRL_ALGO.encode('utf-8')).decode('utf-8')
                 except:
-                    res = {"error":True, "message":"ERROR: Unable to export new crl: "+self.__crlpath}
+                    res = {
+                        "error": True,
+                        "message": "ERROR: Unable to export new crl: " +
+                        self.__crlpath}
                     return(res)
                 try:
                     wresult = self.writeFile(self.__crlpath, encodedCrl)
                     if wresult['error']:
-                        res = {"error":True, "message":wresult['message']}
+                        res = {"error": True, "message": wresult['message']}
                         return(res)
                 except:
-                    res = {"error":True, "message":"ERROR: Unable to write crl: "+self.__crlpath}
+                    res = {
+                        "error": True,
+                        "message": "ERROR: Unable to write crl: " +
+                        self.__crlpath}
                     return(res)
 
                 if self.__verbose:
@@ -3006,7 +3542,11 @@ class PyKI():
                 if not pkidb['error']:
                     pkidb = pkidb['message']
                 else:
-                    res = {"error": True, "message":"ERROR: Unable to read Serial database "+self.__DBfile+"."}
+                    res = {
+                        "error": True,
+                        "message": "ERROR: Unable to read Serial database " +
+                        self.__DBfile +
+                        "."}
                     return(res)
 
                 rcertbname = ospath.basename(revokedcert)
@@ -3017,7 +3557,7 @@ class PyKI():
                 newjson = jsonDump(pkidb, sort_keys=False)
                 wresult = self.writeFile(self.__DBfile, newjson)
                 if wresult['error']:
-                    res = {"error":True, "message":wresult['message']}
+                    res = {"error": True, "message": wresult['message']}
                     return(res)
                 if self.__verbose:
                     print("INFO: Pki db file updated.")
@@ -3032,28 +3572,60 @@ class PyKI():
                             rmdir(ospath.join(root, name))
                     rmdir(rcertdir)
                     if self.__verbose:
-                        print("INFO: All files from the revoked certificate "+origrcertname+" are deleted.")
+                        print(
+                            "INFO: All files from the revoked certificate " +
+                            origrcertname +
+                            " are deleted.")
 
-                res = {"error":False, "message":"INFO: Certificate "+origrcertname+" revoked."}
+                res = {
+                    "error": False,
+                    "message": "INFO: Certificate " +
+                    origrcertname +
+                    " revoked."}
                 return(res)
             else:
-                res = {"error":False, "message":"WARN: Certificate "+origrcertname+" already revoked"}
+                res = {
+                    "error": False,
+                    "message": "WARN: Certificate " +
+                    origrcertname +
+                    " already revoked"}
                 return(res)
         else:
             validity, valreason = self.chk_validity(certname)
             if research("has been revoked", valreason):
-                res = {"error":False, "message":"WARN: Certificate "+certname+" already revoked"}
+                res = {
+                    "error": False,
+                    "message": "WARN: Certificate " +
+                    certname +
+                    " already revoked"}
                 return(res)
             else:
-                res = {"error":True, "message":"ERROR: Certificate "+certname+" doesn't exists"}
+                res = {
+                    "error": True,
+                    "message": "ERROR: Certificate " +
+                    certname +
+                    " doesn't exists"}
                 return(res)
 
-    def create_cert(self, country='', state='', city='', org='', ou='', cn='', email='',
-                    ca=False, valid_before=0, days_valid=False, subjectAltName=None,
-                    KeyUsage=False, encryption=False, toRenew=False):
+    def create_cert(
+            self,
+            country='',
+            state='',
+            city='',
+            org='',
+            ou='',
+            cn='',
+            email='',
+            ca=False,
+            valid_before=0,
+            days_valid=False,
+            subjectAltName=None,
+            KeyUsage=False,
+            encryption=False,
+            toRenew=False):
         '''
         Create a X509 signed certificate.
-        
+
         :param country: Certificate country information.
         :type country: String.
 
@@ -3117,67 +3689,82 @@ class PyKI():
         currentDate = datetime.utcnow().strftime('%Y/%m/%d %H:%M:%S')
         tocreate = False
 
-        if ca and ca != 'intermediate' :
+        if ca and ca != 'intermediate':
             keypath = self.__rootCAkeyfile
             certfile = self.__rootCAcrtfile
             if ospath.isfile(certfile) and not toRenew:
-                res = {"error":False, "message":"WARN: Certificate "+certfile+" has already been generated. Doing nothing !"}
+                res = {
+                    "error": False,
+                    "message": "WARN: Certificate " +
+                    certfile +
+                    " has already been generated. Doing nothing !"}
                 return(res)
 
             opsslObjKey = self.load_pkey(keypath, self.__caPass)
             if not opsslObjKey['error']:
                 opsslObjKey = opsslObjKey['message']
             else:
-                res = {"error":True, "message":opsslObjKey['message']}
+                res = {"error": True, "message": opsslObjKey['message']}
                 return(res)
-        elif ca == 'intermediate' :
+        elif ca == 'intermediate':
             keypath = self.__intermediateCAkeyfile
             certfile = self.__intermediateCAcrtfile
             if ospath.isfile(certfile) and not toRenew:
-                res = {"error":False, "message":"WARN: Certificate "+certfile+" has already been generated. Doing nothing !"}
+                res = {
+                    "error": False,
+                    "message": "WARN: Certificate " +
+                    certfile +
+                    " has already been generated. Doing nothing !"}
                 return(res)
             opsslObjKey = self.load_pkey(keypath, self.__intermediatePass)
             if not opsslObjKey['error']:
                 opsslObjKey = opsslObjKey['message']
             else:
-                res = {"error":True, "message":opsslObjKey['message']}
+                res = {"error": True, "message": opsslObjKey['message']}
                 return(res)
         else:
             if not cn or cn == '':
                 if subjectAltName:
                     passname = subjectAltName[0]
                     if not passname or passname == '':
-                        res = {"error":True, "message":'ERROR: Unable to define owner name'}
+                        res = {"error": True,
+                               "message": 'ERROR: Unable to define owner name'}
                         return(res)
                     filename = self.cleanStr(passname)
                     # removing alt-name field prefix after cleaning
-                    filename = resub('DNS_|IP_|URI_|email_','', filename)
+                    filename = resub('DNS_|IP_|URI_|email_', '', filename)
             else:
                 passname = cn
                 filename = cn
 
-            if not KeyUsage: # define key usage
+            if not KeyUsage:  # define key usage
                 typecrt = "SRV"
                 KeyUsage = "serverAuth, clientAuth"
-                keydir = self.__srvCRTdir+"/"+filename
+                keydir = self.__srvCRTdir + "/" + filename
             elif KeyUsage == "clientAuth":
                 typecrt = "CLT"
-                keydir = self.__cltCRTdir+"/"+filename
+                keydir = self.__cltCRTdir + "/" + filename
             else:
                 typecrt = "SRV"
-                keydir = self.__srvCRTdir+"/"+filename
+                keydir = self.__srvCRTdir + "/" + filename
 
-            keypath = keydir+'/'+filename+'.key'
-            certfile = keydir+'/'+filename+'.crt'
+            keypath = keydir + '/' + filename + '.key'
+            certfile = keydir + '/' + filename + '.crt'
 
             if ospath.isfile(certfile) and not toRenew:
-                res = {"error":False, "message":"WARN: Certificate "+certfile+" has already been generated. Doing nothing !"}
+                res = {
+                    "error": False,
+                    "message": "WARN: Certificate " +
+                    certfile +
+                    " has already been generated. Doing nothing !"}
                 return(res)
 
             # loading passDB to get passphrase
             passphrase = self.reqPass(passname)
             if passphrase['error']:
-                res = {'error':True, 'message':'ERROR: Unable to retrieve passphrase, '+passphrase['message']+'. Exiting...'}
+                res = {
+                    'error': True,
+                    'message': 'ERROR: Unable to retrieve passphrase, ' + passphrase['message'] + '. Exiting...'}
                 return(res)
             else:
                 privkeypass = passphrase['message']
@@ -3193,99 +3780,109 @@ class PyKI():
                 if not opsslObjKey['error']:
                     opsslObjKey = opsslObjKey['message']
                 else:
-                    res = {"error":True, "message":opsslObjKey['message']}
+                    res = {"error": True, "message": opsslObjKey['message']}
                     return(res)
             else:
-                if type(privkeypass) is str:
+                if isinstance(privkeypass, str):
                     privkeypass = privkeypass.encode('utf-8')
 
                 opsslObjKey = self.load_pkey(keypath, privkeypass)
                 if not opsslObjKey['error']:
                     opsslObjKey = opsslObjKey['message']
                 else:
-                    res = {"error":True, "message":opsslObjKey['message']}
+                    res = {"error": True, "message": opsslObjKey['message']}
                     return(res)
 
         SERIAL_NUMBER = self.getSN()
         if SERIAL_NUMBER['error']:
-            res = {"error":True, "message":SERIAL_NUMBER['message']}
+            res = {"error": True, "message": SERIAL_NUMBER['message']}
             return(res)
         else:
             SERIAL_NUMBER = SERIAL_NUMBER['message']
 
-        if type(SERIAL_NUMBER) != int :
-            if research("Serial database.+not found", SERIAL_NUMBER) is not None :
-                if not ca or rematch(".*intermediate.*", certfile) or ca == 'intermediate' :
+        if not isinstance(SERIAL_NUMBER, int):
+            if research(
+                "Serial database.+not found",
+                    SERIAL_NUMBER) is not None:
+                if not ca or rematch(
+                    ".*intermediate.*",
+                        certfile) or ca == 'intermediate':
                     if self.__verbose:
-                        print( SERIAL_NUMBER )
-                    message = "ERROR: Unable to get a certificate Serial Number, Removing assiociated key: "+keypath
+                        print(SERIAL_NUMBER)
+                    message = "ERROR: Unable to get a certificate Serial Number, Removing assiociated key: " + keypath
                     try:
                         remove(keypath)
                     except:
-                        message = "ERROR: Unable to remove "+keypath
-                    res = {"error":True, "message":message}
+                        message = "ERROR: Unable to remove " + keypath
+                    res = {"error": True, "message": message}
                     return(res)
                 else:
                     SERIAL_NUMBER = 1
                     tocreate = True
             else:
-                res = {"error":True, "message":SERIAL_NUMBER+" during generation of "+certfile}
+                res = {
+                    "error": True,
+                    "message": SERIAL_NUMBER +
+                    " during generation of " +
+                    certfile}
                 return(res)
 
         cert = crypto.X509()
 
-        cert.set_version(3-1) # version 3, starts at 0
-        cert.get_subject().C  = country
+        cert.set_version(3 - 1)  # version 3, starts at 0
+        cert.get_subject().C = country
         cert.get_subject().ST = state
-        cert.get_subject().L  = city 
-        cert.get_subject().O  = org 
+        cert.get_subject().L = city
+        cert.get_subject().O = org
         cert.get_subject().OU = ou
         if cn and not ca:
             cert.get_subject().CN = cn
-        elif ca and ca != 'intermediate' :
-            cert.get_subject().CN = self.__localCN+'_CA_root'
-        elif ca and ca == 'intermediate' :
-            cert.get_subject().CN = self.__localCN+'_CA_intermediate'
+        elif ca and ca != 'intermediate':
+            cert.get_subject().CN = self.__localCN + '_CA_root'
+        elif ca and ca == 'intermediate':
+            cert.get_subject().CN = self.__localCN + '_CA_intermediate'
         cert.get_subject().emailAddress = email
         cert.set_serial_number(SERIAL_NUMBER)
         cert.set_pubkey(opsslObjKey)
 
         cert.gmtime_adj_notBefore(valid_before * 24 * 3600)
-        if not days_valid :
+        if not days_valid:
             cert.gmtime_adj_notAfter(self.__VALID_DAYS * 24 * 3600)
         else:
             cert.gmtime_adj_notAfter(days_valid * 24 * 3600)
 
-        if ca and ca != 'intermediate' :
+        if ca and ca != 'intermediate':
             issuerCertObj = cert
             issuerKeyObj = opsslObjKey
-        elif ca == 'intermediate' :
+        elif ca == 'intermediate':
             issuerCertObj = self.load_crt(self.__rootCAcrtfile)
             if not issuerCertObj['error']:
                 issuerCertObj = issuerCertObj['message']
             else:
-                res = {"error":True, "message":issuerCertObj['message']}
+                res = {"error": True, "message": issuerCertObj['message']}
                 return(res)
 
             issuerKeyObj = self.load_pkey(self.__rootCAkeyfile, self.__caPass)
             if not issuerKeyObj['error']:
                 issuerKeyObj = issuerKeyObj['message']
             else:
-                res = {"error":True, "message":issuerKeyObj['message']}
+                res = {"error": True, "message": issuerKeyObj['message']}
                 return(res)
         else:
             issuerCertObj = self.load_crt(self.__intermediateCAcrtfile)
             if not issuerCertObj['error']:
                 issuerCertObj = issuerCertObj['message']
             else:
-                res = {"error":True, "message":issuerCertObj['message']}
+                res = {"error": True, "message": issuerCertObj['message']}
                 return(res)
 
-            issuerKeyObj = self.load_pkey(self.__intermediateCAkeyfile, self.__intermediatePass)
+            issuerKeyObj = self.load_pkey(
+                self.__intermediateCAkeyfile,
+                self.__intermediatePass)
             if not issuerKeyObj['error']:
                 issuerKeyObj = issuerKeyObj['message']
             else:
-                res = {"error":True, "message":issuerKeyObj['message']}
+                res = {"error": True, "message": issuerKeyObj['message']}
                 return(res)
 
         cert.set_issuer(issuerCertObj.get_subject())
@@ -3294,101 +3891,157 @@ class PyKI():
             typecrt = "CA"
             if ca == 'intermediate':
                 cert.add_extensions([
-                                    crypto.X509Extension(b"basicConstraints", True, b"CA:TRUE, pathlen:0"),
-                                    crypto.X509Extension(b"subjectKeyIdentifier", False, b"hash", subject=cert),
-                                    crypto.X509Extension(b"keyUsage", True, b"digitalSignature, cRLSign, keyCertSign")
-                                   ])
-                # You must add this extension separatelty to allow pyOpenssl to find subjectKeyIdentifier when setting authorityKeyIdentifier 
-                cert.add_extensions([
-                                    crypto.X509Extension(b"authorityKeyIdentifier", False, b"keyid:always,issuer", issuer=issuerCertObj)
-                                   ])
+                                    crypto.X509Extension(
+                                        b"basicConstraints", True, b"CA:TRUE, pathlen:0"),
+                                    crypto.X509Extension(
+                                        b"subjectKeyIdentifier", False, b"hash", subject=cert),
+                                    crypto.X509Extension(
+                                        b"keyUsage", True, b"digitalSignature, cRLSign, keyCertSign")
+                                    ])
+                # You must add this extension separatelty to allow pyOpenssl to
+                # find subjectKeyIdentifier when setting authorityKeyIdentifier
+                cert.add_extensions([crypto.X509Extension(
+                    b"authorityKeyIdentifier", False, b"keyid:always,issuer", issuer=issuerCertObj)])
             else:
                 cert.add_extensions([
-                                    crypto.X509Extension(b"basicConstraints", True, b"CA:TRUE"),
-                                    crypto.X509Extension(b"subjectKeyIdentifier", False, b"hash", subject=cert),
-                                    crypto.X509Extension(b"keyUsage", True, b"digitalSignature, cRLSign, keyCertSign")
-                                   ])
-                # You must add this extension separatelty to allow pyOpenssl to find subjectKeyIdentifier when setting authorityKeyIdentifier 
-                cert.add_extensions([
-                                    crypto.X509Extension(b"authorityKeyIdentifier", False, b"keyid:always,issuer", issuer=issuerCertObj)
-                                   ])
+                                    crypto.X509Extension(
+                                        b"basicConstraints", True, b"CA:TRUE"),
+                                    crypto.X509Extension(
+                                        b"subjectKeyIdentifier", False, b"hash", subject=cert),
+                                    crypto.X509Extension(
+                                        b"keyUsage", True, b"digitalSignature, cRLSign, keyCertSign")
+                                    ])
+                # You must add this extension separatelty to allow pyOpenssl to
+                # find subjectKeyIdentifier when setting authorityKeyIdentifier
+                cert.add_extensions([crypto.X509Extension(
+                    b"authorityKeyIdentifier", False, b"keyid:always,issuer", issuer=issuerCertObj)])
         else:
-            cert.add_extensions([
-                                crypto.X509Extension(b"basicConstraints", False, b"CA:FALSE")
-                               ])
+            cert.add_extensions([crypto.X509Extension(
+                b"basicConstraints", False, b"CA:FALSE")])
             if not KeyUsage:
                 typecrt = "SRV"
                 # define key usage
-                cert.add_extensions([
-                                    crypto.X509Extension(b"keyUsage", True, b"dataEncipherment, digitalSignature, nonRepudiation"),
-                                    crypto.X509Extension(b"extendedKeyUsage", True, b"serverAuth, clientAuth")
-                                   ])
+                cert.add_extensions(
+                    [
+                        crypto.X509Extension(
+                            b"keyUsage",
+                            True,
+                            b"dataEncipherment, digitalSignature, nonRepudiation"),
+                        crypto.X509Extension(
+                            b"extendedKeyUsage",
+                            True,
+                            b"serverAuth, clientAuth")])
             else:
                 if KeyUsage == "clientAuth":
                     typecrt = "CLT"
-                    cert.add_extensions([
-                                        crypto.X509Extension(b"keyUsage", True, b"dataEncipherment, digitalSignature, nonRepudiation"),
-                                        crypto.X509Extension(b"extendedKeyUsage", True, KeyUsage.encode('utf-8') )
-                                       ])
+                    cert.add_extensions(
+                        [
+                            crypto.X509Extension(
+                                b"keyUsage",
+                                True,
+                                b"dataEncipherment, digitalSignature, nonRepudiation"),
+                            crypto.X509Extension(
+                                b"extendedKeyUsage",
+                                True,
+                                KeyUsage.encode('utf-8'))])
                 else:
                     typecrt = "SRV"
-                    cert.add_extensions([
-                                        crypto.X509Extension(b"keyUsage", True, b"dataEncipherment, digitalSignature, nonRepudiation"),
-                                        crypto.X509Extension(b"extendedKeyUsage", True, KeyUsage.encode('utf-8') )
-                                       ])
+                    cert.add_extensions(
+                        [
+                            crypto.X509Extension(
+                                b"keyUsage",
+                                True,
+                                b"dataEncipherment, digitalSignature, nonRepudiation"),
+                            crypto.X509Extension(
+                                b"extendedKeyUsage",
+                                True,
+                                KeyUsage.encode('utf-8'))])
 
         if subjectAltName:
             critical = True if not cn else False
             try:
-                altnames = b",     ".join(s.encode('utf-8') for s in subjectAltName)
+                altnames = b",     ".join(s.encode('utf-8')
+                                          for s in subjectAltName)
             except:
-                res = {"error":True, "message":'ERROR: Error parsing alt-names'}
+                res = {
+                    "error": True,
+                    "message": 'ERROR: Error parsing alt-names'}
                 return(res)
-            cert.add_extensions([
-                                crypto.X509Extension( b"subjectAltName", critical, altnames )
-                                ])
+            cert.add_extensions([crypto.X509Extension(
+                b"subjectAltName", critical, altnames)])
 
         if not encryption:
             cert.sign(issuerKeyObj, self.__SIGN_ALGO)
         else:
             cert.sign(issuerKeyObj, encryption)
 
-        dumpedCert = crypto.dump_certificate(crypto.FILETYPE_PEM, cert).decode('utf-8')
+        dumpedCert = crypto.dump_certificate(
+            crypto.FILETYPE_PEM, cert).decode('utf-8')
         wresult = self.writeFile(certfile, dumpedCert)
         if wresult['error']:
-            res = {"error":True, "message":wresult['message']}
+            res = {"error": True, "message": wresult['message']}
             return(res)
         else:
-            if self.__HASH_ENC == 'sha1' :
+            if self.__HASH_ENC == 'sha1':
                 shasum = hashlib.sha1(dumpedCert.encode('utf-8')).hexdigest()
-            elif self.__HASH_ENC == '224' :
+            elif self.__HASH_ENC == '224':
                 shasum = hashlib.sha224(dumpedCert.encode('utf-8')).hexdigest()
-            elif self.__HASH_ENC == '256' :
+            elif self.__HASH_ENC == '256':
                 shasum = hashlib.sha256(dumpedCert.encode('utf-8')).hexdigest()
-            elif self.__HASH_ENC == '384' :
+            elif self.__HASH_ENC == '384':
                 shasum = hashlib.sha384(dumpedCert.encode('utf-8')).hexdigest()
-            elif self.__HASH_ENC == '512' :
+            elif self.__HASH_ENC == '512':
                 shasum = hashlib.sha512(dumpedCert.encode('utf-8')).hexdigest()
 
-            if tocreate :
-                if not days_valid :
-                    success = self.writeJsonCert(sha = shasum, serial = SERIAL_NUMBER, date = currentDate, duration = self.__VALID_DAYS, state = 'activ', certpath = certfile, createMode = True, typeCert = typecrt)
+            if tocreate:
+                if not days_valid:
+                    success = self.writeJsonCert(
+                        sha=shasum,
+                        serial=SERIAL_NUMBER,
+                        date=currentDate,
+                        duration=self.__VALID_DAYS,
+                        state='activ',
+                        certpath=certfile,
+                        createMode=True,
+                        typeCert=typecrt)
                 else:
-                    success = self.writeJsonCert(sha = shasum, serial = SERIAL_NUMBER, date = currentDate, duration = days_valid, state = 'activ', certpath = certfile, createMode = True, typeCert = typecrt)
+                    success = self.writeJsonCert(
+                        sha=shasum,
+                        serial=SERIAL_NUMBER,
+                        date=currentDate,
+                        duration=days_valid,
+                        state='activ',
+                        certpath=certfile,
+                        createMode=True,
+                        typeCert=typecrt)
                 if success['error']:
-                    res = {"error":True, "message":success['message']}
+                    res = {"error": True, "message": success['message']}
                     return(res)
             else:
-                if not days_valid :
-                    success = self.writeJsonCert(sha = shasum, serial = SERIAL_NUMBER, date = currentDate, duration = self.__VALID_DAYS, state = 'activ', certpath = certfile, typeCert = typecrt)
+                if not days_valid:
+                    success = self.writeJsonCert(
+                        sha=shasum,
+                        serial=SERIAL_NUMBER,
+                        date=currentDate,
+                        duration=self.__VALID_DAYS,
+                        state='activ',
+                        certpath=certfile,
+                        typeCert=typecrt)
                 else:
-                    success = self.writeJsonCert(sha = shasum, serial = SERIAL_NUMBER, date = currentDate, duration = days_valid, state = 'activ', certpath = certfile, typeCert = typecrt)
+                    success = self.writeJsonCert(
+                        sha=shasum,
+                        serial=SERIAL_NUMBER,
+                        date=currentDate,
+                        duration=days_valid,
+                        state='activ',
+                        certpath=certfile,
+                        typeCert=typecrt)
                 if success['error']:
                     return(False, success['message'])
-                    res = {"error":True, "message":success['message']}
+                    res = {"error": True, "message": success['message']}
                     return(res)
 
-        res = {"error":False, "message":"INFO: Certificate created."}
+        res = {"error": False, "message": "INFO: Certificate created."}
         return(res)
 
     def chk_conformity(self, cert):
@@ -3409,35 +4062,46 @@ class PyKI():
         if not pkidb['error']:
             pkidb = pkidb['message']
         else:
-            res = {"error": True, "message":"ERROR: Unable to read Serial database "+self.__DBfile+"."}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to read Serial database " +
+                self.__DBfile +
+                "."}
             return(res)
 
         x509CertObj = self.load_crt(cert)
         if not x509CertObj['error']:
             x509CertObj = x509CertObj['message']
         else:
-            res = {"error":True, "message":x509CertObj['message']}
+            res = {"error": True, "message": x509CertObj['message']}
             return(res)
 
-        dumpedCert = crypto.dump_certificate(crypto.FILETYPE_PEM, x509CertObj).decode('utf-8')
+        dumpedCert = crypto.dump_certificate(
+            crypto.FILETYPE_PEM, x509CertObj).decode('utf-8')
         shaEncert = pkidb[rcertname]['shaenc']
 
-        if shaEncert == 'sha1' :
+        if shaEncert == 'sha1':
             shasumF = hashlib.sha1(dumpedCert.encode('utf-8')).hexdigest()
-        elif shaEncert == '224' :
+        elif shaEncert == '224':
             shasumF = hashlib.sha224(dumpedCert.encode('utf-8')).hexdigest()
-        elif shaEncert == '256' :
+        elif shaEncert == '256':
             shasumF = hashlib.sha256(dumpedCert.encode('utf-8')).hexdigest()
-        elif shaEncert == '384' :
+        elif shaEncert == '384':
             shasumF = hashlib.sha384(dumpedCert.encode('utf-8')).hexdigest()
-        elif shaEncert == '512' :
+        elif shaEncert == '512':
             shasumF = hashlib.sha512(dumpedCert.encode('utf-8')).hexdigest()
 
-        if shasumF == pkidb[rcertname]['shasum'] :
-            res = {"error":False, "message":"INFO: The certificate "+rcertbname+" is conform and has been generated by this pki"}
+        if shasumF == pkidb[rcertname]['shasum']:
+            res = {"error": False, "message": "INFO: The certificate " +
+                   rcertbname + " is conform and has been generated by" +
+                   " this pki"}
             return(res)
         else:
-            res = {"error":False, "message":"WARN: The certificate "+rcertbname+" has not been generated by this pki"}
+            res = {
+                "error": False,
+                "message": "WARN: The certificate " +
+                rcertbname +
+                " has not been generated by this pki"}
             return(res)
 
     def chk_validity(self, certname):
@@ -3455,7 +4119,12 @@ class PyKI():
         if not typeCert['error']:
             typeCert = typeCert['message']
         else:
-            res = {"error":True, "message":"ERROR: Unable to find certificate type for "+certname+" --> "+typeCert['message']}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to find certificate type for " +
+                certname +
+                " --> " +
+                typeCert['message']}
             return(res)
 
         if typeCert == 'SRV':
@@ -3463,14 +4132,13 @@ class PyKI():
         elif typeCert == 'CLT':
             CRTdir = self.__cltCRTdir
         else:
-            usage = False
             CRTdir = self.__srvCRTdir
 
-        filespath = CRTdir+'/'+certname+'/'+certname
-        cert = filespath+'.crt'
+        filespath = CRTdir + '/' + certname + '/' + certname
+        cert = filespath + '.crt'
         # if we do not find cert, trying to find it in signed dir
         if not ospath.isfile(cert):
-            cert = self.__signeDir+'/'+certname+'/'+certname+'.crt'
+            cert = self.__signeDir + '/' + certname + '/' + certname + '.crt'
         oriname = certname
         certname = self.cleanStr(certname)
 
@@ -3478,25 +4146,45 @@ class PyKI():
         if not pkidb['error']:
             pkidb = pkidb['message']
         else:
-            res = {"error": True, "message":"ERROR: Unable to read Serial database "+self.__DBfile+"."}
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to read Serial database " +
+                self.__DBfile +
+                "."}
             return(res)
 
         x509CertObj = self.load_crt(cert)
         if not x509CertObj['error']:
             x509CertObj = x509CertObj['message']
         else:
-            res = {"error":True, "message":x509CertObj['message']}
+            res = {"error": True, "message": x509CertObj['message']}
             return(res)
 
         if pkidb[certname]['state'] == 'revoked':
-            res = {"error":False, "message":"WARN: This certificate has been revoked with the reason: "+pkidb[certname]['reason']}
+            res = {
+                "error": False,
+                "message": "WARN: This certificate has been revoked with the reason: " +
+                pkidb[certname]['reason']}
             return(res)
         else:
             if x509CertObj.has_expired():
-                res = {"error":False, "message":"WARN: The certificate "+oriname+" is not revoked but has expired"}
+                res = {
+                    "error": False,
+                    "message": "WARN: The certificate " +
+                    oriname +
+                    " is not revoked but has expired"}
                 return(res)
             else:
-                res = {"error":False, "message":"INFO: The certificate "+oriname+" is valid from "+self.gt_to_dt(x509CertObj.get_notBefore())+" to "+self.gt_to_dt(x509CertObj.get_notAfter())}
+                res = {
+                    "error": False,
+                    "message": "INFO: The certificate " +
+                    oriname +
+                    " is valid from " +
+                    self.gt_to_dt(
+                        x509CertObj.get_notBefore()) +
+                    " to " +
+                    self.gt_to_dt(
+                        x509CertObj.get_notAfter())}
                 return(res)
 
     def get_srvCRTdir(self):
@@ -3563,7 +4251,7 @@ class PyKI():
 
         if self.__lockfile and self.__lockfile != "":
             if self.__Ilocked and self.__locked:
-                if ospath.exists(self.__lockfile) :
+                if ospath.exists(self.__lockfile):
                     try:
                         remove(self.__lockfile)
                     except:
@@ -3572,31 +4260,71 @@ class PyKI():
                         # retourne le nom de la classe
                         #class_name = self.__class__.__name__
                         self.__alreadyUnlocked = True
-                        if self.__verbose :
+                        if self.__verbose:
                             print(message)
 
     def set_verbosity(self, val):
         self.__verbose = val
+
     def set_pkeysize(self, val):
         self.__KEY_SIZE = val
+
     def set_crtenc(self, val):
         self.__SIGN_ALGO = val
+
     def set_keycipher(self, val):
         self.__KEY_CIPHER = val
+
     def set_crlenc(self, val):
         self.__CRL_ALGO = val
 
-    srvCRTdir = property(get_srvCRTdir, None, None, "Get the directory path for server certificates")
-    cltCRTdir = property(get_cltCRTdir, None, None, "Get the directory path for client certificates")
-    crtsDir = property(get_crtsDir, None, None, "Get the directory path for the pki certificates")
-    csrDir = property(get_csrDir, None, None, "Get the directory path for the pki request")
-    initPkey = property(get_initPkey, None, None, "Retrieve authentication private key only at first init")
+    srvCRTdir = property(
+        get_srvCRTdir,
+        None,
+        None,
+        "Get the directory path for server certificates")
+    cltCRTdir = property(
+        get_cltCRTdir,
+        None,
+        None,
+        "Get the directory path for client certificates")
+    crtsDir = property(
+        get_crtsDir,
+        None,
+        None,
+        "Get the directory path for the pki certificates")
+    csrDir = property(
+        get_csrDir,
+        None,
+        None,
+        "Get the directory path for the pki request")
+    initPkey = property(
+        get_initPkey,
+        None,
+        None,
+        "Retrieve authentication private key only at first init")
     pkidbDict = property(read_pkidb, None, None, "Get pki db in a dict")
-    nameList = property(get_namelist, None, None, "Retrieve list of certificates names")
+    nameList = property(
+        get_namelist,
+        None,
+        None,
+        "Retrieve list of certificates names")
     pkeysize = property(None, set_pkeysize, None, "Define private key size")
-    crtenc = property(None, set_crtenc, None, "Define certificate encryption algorithm")
-    keycipher = property(None, set_keycipher, None, "Define private key passphrase cipher encyption")
-    crlenc = property(None, set_crlenc, None, "Define crl encryption algorithm")
+    crtenc = property(
+        None,
+        set_crtenc,
+        None,
+        "Define certificate encryption algorithm")
+    keycipher = property(
+        None,
+        set_keycipher,
+        None,
+        "Define private key passphrase cipher encyption")
+    crlenc = property(
+        None,
+        set_crlenc,
+        None,
+        "Define crl encryption algorithm")
 
     def __del__(self):
         '''
@@ -3611,7 +4339,7 @@ class PyKI():
         locked = False
         verbose = False
 
-        #if not self.__init:
+        # if not self.__init:
         if hasattr(self, '_PyKI__endinit'):
             endinit = True
         if hasattr(self, '_PyKI__alreadyUnlocked'):
@@ -3628,37 +4356,41 @@ class PyKI():
         if endinit and alreadyUnlocked:
             if self.__endinit and not self.__alreadyUnlocked:
                 if lockfile:
-                    if self.__lockfile and self.__lockfile != "" and not self.__lockfile is None:
+                    if self.__lockfile and self.__lockfile != "" and self.__lockfile is not None:
                         if Ilocked and locked:
                             try:
-                                if ospath.exists(self.__lockfile) :
+                                if ospath.exists(self.__lockfile):
                                     if self.__Ilocked and self.__locked:
                                         try:
                                             remove(self.__lockfile)
                                         except:
-                                            print("WARNING: Unable to unlock the PKI...")
+                                            print(
+                                                "WARNING: Unable to unlock the PKI...")
                                         else:
                                             # retourne le nom de la classe
                                             #class_name = self.__class__.__name__
                                             if verbose:
-                                                if self.__verbose :
-                                                    print("INFO: PKI unlocked.")
-                                elif not self.__Ilocked and self.__locked :
+                                                if self.__verbose:
+                                                    print(
+                                                        "INFO: PKI unlocked.")
+                                elif not self.__Ilocked and self.__locked:
                                     pass
                                 else:
-                                    print("WARNING: Unable to unlock the PKI, lock file not found.")
+                                    print(
+                                        "WARNING: Unable to unlock the PKI, lock file not found.")
                             except:
                                 # to avoid premature exits with os.path.exists
                                 if self.__Ilocked and self.__locked:
                                     try:
                                         remove(self.__lockfile)
                                     except:
-                                        print("WARNING: Unable to unlock the PKI...")
+                                        print(
+                                            "WARNING: Unable to unlock the PKI...")
                                     else:
                                         # retourne le nom de la classe
                                         #class_name = self.__class__.__name__
                                         if verbose:
-                                            if self.__verbose :
+                                            if self.__verbose:
                                                 print("INFO: PKI unlocked.")
                     else:
                         pass
