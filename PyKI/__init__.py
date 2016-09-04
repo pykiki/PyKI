@@ -525,7 +525,7 @@ class PyKI():
                 self.__init = True
             if self.__verbose:
                 print("INFO: Generating CRL...")
-            crlres = self.extend_crl_date()
+            crlres = self.renew_crl_date()
             if crlres['error']:
                 print(crlres['message'])
                 # remove lock file
@@ -816,40 +816,19 @@ class PyKI():
             res = {"error":False, "message":"INFO: Directory "+pathDir+" already exists"}
             return(res)
 
-    def get_csrinfo(self, csrname):
+    def get_csrinfo(self, filepath):
         '''
         Print formatted informations stored in the certificate request.
 
-        :param csrname: CSR name in the PKI.
-        :type csrname: String.
+        :param filepath: CSR file path.
+        :type filepath: String.
 
         :returns: Informational result dict {'error': Boolean, 'message': Formatted string containing all csr text infos}
         :rtype: Dict.
         '''
 
-        typeCert = self.reqType(csrname)
-        if not typeCert['error']:
-            typeCert = typeCert['message']
-        else:
-            res = {"error":True, "message":"ERROR: Unable to find certificate type for "+csrname+" --> "+typeCert['message']}
-            return(res)
-
-        if typeCert == 'SRV':
-            CRTdir = self.__srvCRTdir
-        elif typeCert == 'CLT':
-            CRTdir = self.__cltCRTdir
-        else:
-            usage = False
-            CRTdir = self.__srvCRTdir
-
-        filespath = CRTdir+'/'+csrname+'/'+csrname
-        csrfilepath = filespath+'.csr'
-        # if we do not find key, trying to find it in requested dir
-        if not ospath.exists(csrfilepath):
-            csrfilepath = self.__csrDir+'/'+csrname+'/'+csrname+'.csr'
-
         try:
-            reqObj = crypto.load_certificate_request(crypto.FILETYPE_PEM, open(csrfilepath).read())
+            reqObj = crypto.load_certificate_request(crypto.FILETYPE_PEM, open(filepath).read())
         except crypto.Error as e:
             res = {"error":True, "message":"ERROR: Unable to read CSR for "+csrname+" --> "+e.args[0][0][2]}
             return(res)
@@ -956,14 +935,22 @@ class PyKI():
         # print info of extensions which you are looking for
         if 'extendedKeyUsage' in extensions:
             formatted_res += '\tExtended key usage: '+extensions['extendedKeyUsage']['data']+'\n'
+            extensions.pop('extendedKeyUsage', None)
 
         if 'basicConstraints' in extensions:
             formatted_res += '\tBasic constraints: '+extensions['basicConstraints']['data']+'\n'
+            extensions.pop('basicConstraints', None)
 
         if 'subjectAltName' in extensions:
             formatted_res += 'Subject alt-names:\n'
             for altname in extensions['subjectAltName']['data'].split(', '):
                 formatted_res += "\t"+altname.split(':')[1]+'\n'
+            extensions.pop('subjectAltName', None)
+
+        # for all unhandled extensions
+        for key, value in extensions.items():
+            formatted_res += '\t'+key+': '+value+'\n'
+
         formatted_res += "\n"
 
         res = {'error':False, 'message':formatted_res}
@@ -2496,8 +2483,11 @@ class PyKI():
             KeyUsage = "serverAuth, clientAuth"
         elif KeyUsage == "clientAuth":
             typecrt = "CLT"
-        else:
+        elif KeyUsage == "serverAuth":
             typecrt = "SRV"
+        else:
+            res = {"error":True, "message":"ERROR: Wrong Key Usage type "+KeyUsage+", it must be serverAuth or clientAuth !"}
+            return(res)
         CRTdir = self.__signeDir
 
         certbname = ospath.basename(csr)
@@ -2601,6 +2591,7 @@ class PyKI():
         certObj.add_extensions([
                                 crypto.X509Extension(b"basicConstraints", False, b"CA:FALSE")
                               ])
+
         if KeyUsage == "serverAuth, clientAuth":
             certObj.add_extensions([
                                     crypto.X509Extension(b"keyUsage", True, b"dataEncipherment, digitalSignature, nonRepudiation"),
@@ -2608,6 +2599,7 @@ class PyKI():
                                   ])
         else:
             certObj.add_extensions([
+                                    crypto.X509Extension(b"keyUsage", True, b"dataEncipherment, digitalSignature, nonRepudiation"),
                                     crypto.X509Extension(b"extendedKeyUsage", True, KeyUsage.encode('utf-8') )
                                   ])
 
@@ -2852,7 +2844,7 @@ class PyKI():
         finally:
             return(res)
 
-    def extend_crl_date(self, next_crl_days = 183):
+    def renew_crl_date(self, next_crl_days = 183):
         '''
         Extend crl expiry date and/or renwew crl
 
@@ -3516,6 +3508,9 @@ class PyKI():
     def get_crtsDir(self):
         return(self.__crtsDir)
 
+    def get_csrDir(self):
+        return(self.__csrDir)
+
     def get_initPkey(self):
         if self.__initPkey:
             return(self.__initPkey)
@@ -3594,6 +3589,7 @@ class PyKI():
     srvCRTdir = property(get_srvCRTdir, None, None, "Get the directory path for server certificates")
     cltCRTdir = property(get_cltCRTdir, None, None, "Get the directory path for client certificates")
     crtsDir = property(get_crtsDir, None, None, "Get the directory path for the pki certificates")
+    csrDir = property(get_csrDir, None, None, "Get the directory path for the pki request")
     initPkey = property(get_initPkey, None, None, "Retrieve authentication private key only at first init")
     pkidbDict = property(read_pkidb, None, None, "Get pki db in a dict")
     nameList = property(get_namelist, None, None, "Retrieve list of certificates names")

@@ -907,7 +907,7 @@ Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationCh
 <blockquote>
 <ul>
 <li>
-<strong>csrname (<em>string</em>)</strong>: CSR name in the PKI.</li>
+<strong>filepath (<em>string</em>)</strong>: CSR file path.</li>
 </ul>
 </blockquote>
 
@@ -921,7 +921,7 @@ Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationCh
 
 <blockquote>
 <pre><code>    # Init pki using 'Usual PKI init' (section 1) example and then
-    csr_info = pki.get_csrinfo('test_gencsr')
+    csr_info = pki.get_csrinfo('./test_gencsr.csr')
     if csr_info['error']:
         print(csr_info['message'])
     else:
@@ -1004,11 +1004,11 @@ Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationCh
 <blockquote>
 <pre><code>    # Init pki using 'Usual PKI init' (section 1) example and then
     # Updating crl expiry to 360 days
-    extend = pki.extend_crl_date(next_crl_days = 360)
-    if extend['error']:
-        print(extend['message'])
+    renew = pki.renew_crl_date(next_crl_days = 360)
+    if renew['error']:
+        print(renew['message'])
     else:
-        print('Success '+extend['message'])
+        print('Success '+renew['message'])
 </code></pre>
 </blockquote>
 </blockquote>
@@ -1240,7 +1240,7 @@ The certificate is generated from the existing private key (<em>which you <stron
 ./test/test-get_inforeq.py
 ./test/test-get_validity.py
 
-./test/test-extend_crl.py
+./test/test-renew_crl.py
 ./test/test-get_passphrases.py
 ./test/test-read_pki_db.py
 

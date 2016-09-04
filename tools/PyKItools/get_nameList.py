@@ -21,29 +21,38 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from socket import gethostname
-from os import path as ospath, sys
-from getpass import getpass
+import argparse
 from PyKI import PyKI
 
+from sys import path as syspath, argv
+from os import path as ospath
+curScriptDir = ospath.dirname(ospath.abspath(__file__))
+initPath = curScriptDir + "/PyKInit/"
+syspath.append(initPath)
+from PyKInit import pkinit
+
+def argCommandline(argv):
+    """
+    Manage cli script args
+    """
+    parser = argparse.ArgumentParser(description='List all certificates name present in the PKI')
+    parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
+    args = parser.parse_args()
+
+    result=vars(args)
+    return(result)
+
 if __name__ == '__main__':
-    mainVerbosity = False
-    # passphrase of the private key requested for pki authentication
-    privateKeyPassphrase = getpass('PKI Authentication private key password: ')
-    # pki authentication private key path
-    pkeyPath = "./pki_auth_cert.pem"
+    args=argCommandline(argv)
 
-    # Init with privkey loaded from file
-    pkey = open(pkeyPath ,'rt')
-    pkeyStr = pkey.read()
-    pkey.close()
-    pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
-    
-    # Set pki verbosity after init
-    pki.set_verbosity(mainVerbosity)
+    pki=pkinit()
+    if not pki:
+        print("ERROR: Errors found during init")
+        exit(1)
+    pki.set_verbosity(args['mainVerbosity'])
 
-    # Check if the certificate is still valid (not revoked and not expired)
-    name = 'MBP.local'
-    print("INFO: Checking certificate status for "+name)
-    valid = pki.chk_validity(name)
-    print(valid['message'])
+    print("List of PKI certificate names:")
+    for name in pki.nameList:
+        print("\t" + str(name))
+
+    exit(0)

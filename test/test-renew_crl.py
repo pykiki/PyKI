@@ -24,14 +24,45 @@
 from socket import gethostname
 from os import path as ospath, sys
 from getpass import getpass
+curScriptDir = ospath.dirname(ospath.abspath(__file__))
+PyKImodPath = curScriptDir + "/../"
+sys.path.append(PyKImodPath)
 from PyKI import PyKI
 
 if __name__ == '__main__':
-    mainVerbosity = False
+    mainVerbosity = True
     # passphrase of the private key requested for pki authentication
-    privateKeyPassphrase = getpass('PKI Authentication private key password: ')
+    #privateKeyPassphrase = getpass('PKI Auth key password: ')
+    privateKeyPassphrase = 'a'
     # pki authentication private key path
     pkeyPath = "./pki_auth_cert.pem"
+
+    # first init, creating private key
+    if not ospath.exists(pkeyPath):
+        print("\n!!!!! INFO: The auth private key will be saved in "+pkeyPath+" !!!!!\n")
+        pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+        #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase)
+
+        # get private key for authentication after first init
+        authprivkey = pki.initPkey
+        # writing key to file
+        try:
+            wfile = open(pkeyPath, "wt")
+        except IOError:
+            print('ERROR: unable to open file '+pkeyPath)
+            exit(1)
+        else:
+            try:
+                wfile.write(authprivkey)
+            except IOError:
+                print('ERROR: Unable to write to file '+pkeyPath)
+                exit(1)
+            else:
+                if mainVerbosity:
+                    print('INFO: File ' + pkeyPath + ' written')
+        finally:
+            wfile.close()
+            authprivkey = None
 
     # Init with privkey loaded from file
     pkey = open(pkeyPath ,'rt')
@@ -42,8 +73,12 @@ if __name__ == '__main__':
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)
 
-    # extend crl validity
+    # Renew crl validity
     if mainVerbosity:
         print("INFO: Updating crl expiry to 360j from now (same as if we would renew it before it expires)")
-    extend = pki.extend_crl_date(next_crl_days = 360)
-    print(extend['message'])
+    renew = pki.renew_crl_date(next_crl_days = 360)
+    if renew['error']:
+        print(renew['message'])
+    elif mainVerbosity:
+        print(renew['message'])
+

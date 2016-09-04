@@ -74,7 +74,7 @@ if __name__ == '__main__':
     pki.set_verbosity(mainVerbosity)
 
     print("\nCertificate request informations for test_gencsr")
-    csr_info = pki.get_csrinfo('test_gencsr')
+    csr_info = pki.get_csrinfo(pki.csrDir+'/test_gencsr/test_gencsr.csr')
     if csr_info['error']:
         print(csr_info['message'])
     else:

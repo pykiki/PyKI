@@ -19,6 +19,6 @@
 ./test-get_inforeq.py
 ./test-get_validity.py
 #
-./test-extend_crl.py
+./test-renew_crl.py
 ./test-get_passphrases.py
 ./test-read_pki_db.py

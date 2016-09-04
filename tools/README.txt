@@ -53,3 +53,19 @@ You will be returning True if all goes well.
 ```
 ./gen_cert.py -n vpn3-mp.ritano.fr -p client -r -d 180 --key-size 2048 --city Paris
 ```
+
+## generate csr:
+```
+./gen_csr.py -n www.ritano.fr -c AU -st california -l "los angeles" -o "test corpo" -ou IT -e dodoo@gg.fr --altnames IP:192.168.10.1 DNS:ldap.ritano.fr -v
+```
+
+## get csr info
+# specifying csr full path
+```
+./PyKItools/get_inforeq.py -f /opt/PyKI_data/CERTS/requests/www.ritano.fr/www.ritano.fr.csr
+```
+# using PKI name (in case that you have generated the csr with the PKI)
+```
+./PyKItools/get_inforeq.py -n www.ritano.fr
+```
+

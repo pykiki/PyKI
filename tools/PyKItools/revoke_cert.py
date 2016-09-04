@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+__author__ = "Alain Maibach"
+__status__ = "Beta tests"
+
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -35,14 +38,13 @@ def argCommandline(argv):
     """
     Manage cli script args
     """
-    parser=argparse.ArgumentParser(description='Read certificate informations')
+    parser = argparse.ArgumentParser(description='Revoke a certificate by its name in the PKI.')
     parser.add_argument("-n", "--cn", action="store", dest="cn", type=str, help=u"Certificate common name", metavar='Common Name', required=True)
+    parser.add_argument("-r", "--reason", action='store', dest="reason", type=str, default='cessationOfOperation', metavar='unspecified|keyCompromise|CACompromise|affiliationChanged|superseded|cessationOfOperation|certificateHold', choices=['unspecified', 'keyCompromise', 'CACompromise', 'affiliationChanged', 'superseded', 'cessationOfOperation', 'certificateHold'], help=u"Select which type of use is required for the certificate", required=True)
     parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
-
     args = parser.parse_args()
 
-    # print help if no arguments given
-    if len(argv) < 1:
+    if len(argv) <= 1:
         parser.print_help()
         exit(1)
 
@@ -62,6 +64,13 @@ if __name__ == '__main__':
         print('ERROR: Certificate '+args['cn']+" doesn't exist.")
         exit(1)
 
-    print("Certificate informations for "+args['cn'])
-    cert_info = pki.get_certinfo(args['cn'])
-    print("\n"+cert_info['message'])
+    if args['mainVerbosity']:
+        print("INFO: Revoking certificate "+args['cn']+" for "+args['reason'])
+    # keyCompromise
+    crl = pki.revoke_cert(certname=args['cn'], reason=args['reason'])
+    if crl['error']:
+        print(crl['message'])
+    elif args['mainVerbosity']:
+        print(crl['message'])
+
+    exit(0)

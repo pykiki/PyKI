@@ -20,29 +20,35 @@
 
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
-
-from socket import gethostname
-from os import path as ospath, sys
-from getpass import getpass
+import argparse
 from PyKI import PyKI
 
+from sys import path as syspath, argv
+from os import path as ospath
+curScriptDir = ospath.dirname(ospath.abspath(__file__))
+initPath = curScriptDir + "/PyKInit/"
+syspath.append(initPath)
+from PyKInit import pkinit
+
+def argCommandline(argv):
+    """
+    Manage cli script args
+    """
+    parser = argparse.ArgumentParser(description='Get PKI database informations in Human Readable format.')
+    parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
+    args = parser.parse_args()
+
+    result=vars(args)
+    return(result)
+
 if __name__ == '__main__':
-    mainVerbosity = False
+    args=argCommandline(argv)
 
-    # passphrase of the private key requested for pki authentication
-    privateKeyPassphrase = getpass('PKI Authentication private key password: ')
-    
-    # pki authentication private key path
-    pkeyPath = "./pki_auth_cert.pem"
-
-    # Init with privkey loaded from file
-    pkey = open(pkeyPath ,'rt')
-    pkeyStr = pkey.read()
-    pkey.close()
-    pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
-    
-    # Set pki verbosity after init
-    pki.set_verbosity(mainVerbosity)
+    pki=pkinit()
+    if not pki:
+        print("ERROR: Errors found during init")
+        exit(1)
+    pki.set_verbosity(args['mainVerbosity'])
 
     pkidb = pki.pkidbDict
 
@@ -64,7 +70,7 @@ if __name__ == '__main__':
             cert_usage = 'client authentication'
         elif cert_usage == "SRV":
             cert_usage = 'server authentication'
-        cert_encrytion = pkidb[name]['shaenc']
+        hash_encrytion = pkidb[name]['shaenc']
         creation_date = pkidb[name]['created']
 
         print(
@@ -73,7 +79,9 @@ if __name__ == '__main__':
               '\tCertificate serial number: ', serial, '\n',
               '\tCertificate creation date: ' +creation_date+ '\n',
               '\tDays of validity after creation: ', validity_time, '\n',
-              '\tCertificate sha sum: ' +cert_shasum+ '\n',
               '\tCertificate usage type: ' +cert_usage+ '\n',
-              '\tCertificate encrytpion level: ' +cert_encrytion
+              '\tCertificate shasum: ' +cert_shasum+ '\n',
+              '\tCertificate shasum encryption: ' +hash_encrytion
         )
+
+    exit(0)

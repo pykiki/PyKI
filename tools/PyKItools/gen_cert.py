@@ -57,7 +57,7 @@ def argCommandline(argv):
     args = parser.parse_args()
 
     # print help if no arguments given
-    if len(argv) < 1:
+    if len(argv) <= 1:
         parser.print_help()
         exit(1)
 
@@ -76,7 +76,7 @@ def codegenerator(pwlen = 25, alphabet = False):
     for i in range(pw_length):
         next_index = random.randrange(len(alphabet))
         mypw = mypw + alphabet[next_index]
-    return mypw
+    return(mypw)
 
 def genCert(name, pki, passphrase, usage, altnames = False,
             size = False, certenc = False, days = False, renew=False,
@@ -130,7 +130,7 @@ if __name__ == '__main__':
     pki.set_verbosity(args['mainVerbosity'])
 
     if args['subjectAltName'] and not 'DNS:'+args['cn'] in args['subjectAltName']:
-        args['subjectAltName'].insert(0,['DNS:'+args['cn']])
+        args['subjectAltName'].insert(0,'DNS:'+args['cn'])
 
     if args['cn'] not in pki.nameList:
         args['renewing']=False
@@ -144,6 +144,6 @@ if __name__ == '__main__':
         args['purpose']='clientAuth'
 
     genCert(name=args['cn'], pki=pki, passphrase=args['passwd'], altnames=args['subjectAltName'], size=args['size'], usage=args['purpose'], days=args['duration'],
-            renew=args['renewing'], country=args['c'] , state=args['st'] , city=args['l'] , org=args['o'] , ou=args['ou'] , email=args['email']
+            renew=args['renewing'], country=args['c'], state=args['st'], city=args['l'], org=args['o'], ou=args['ou'], email=args['email']
            )
     exit(0)

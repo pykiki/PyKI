@@ -307,14 +307,14 @@ if __name__ == '__main__':
     elif mainVerbosity:
         print(crl['message'])
 
-    # extend crl validity
+    # Renew crl validity
     if mainVerbosity:
         print("INFO: Updating crl expiry to 360j from now (same as if we would renew it before it expires)")
-    extend = pki.extend_crl_date(next_crl_days = 360)
-    if extend['error']:
-        print(extend['message'])
+    renew = pki.renew_crl_date(next_crl_days = 360)
+    if renew['error']:
+        print(renew['message'])
     elif mainVerbosity:
-        print(extend['message'])
+        print(renew['message'])
 
     ##############
     # Manage CSR #
@@ -462,7 +462,7 @@ if __name__ == '__main__':
 
     commoname = "test_newcsr"
     print("\nCertificate request informations for "+commoname)
-    csr_info = pki.get_csrinfo(commoname)
+    csr_info = pki.get_csrinfo(pki.csrDir+"/"+commoname+"/"+commoname+".csr")
     if csr_info['error']:
         print(csr_info['message'])
     else:

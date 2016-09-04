@@ -20,7 +20,7 @@
 
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
-
+import random, string
 import argparse
 from PyKI import PyKI
 
@@ -35,10 +35,9 @@ def argCommandline(argv):
     """
     Manage cli script args
     """
-
-    parser = argparse.ArgumentParser(description='Generate PKI certificates')
+    parser = argparse.ArgumentParser(description='Generate Certificate Signing Request')
     parser.add_argument("-n", "--cn", action="store", dest="cn", type=str, help=u"Certificate common name", metavar='Common Name', required=True)
-    parser.add_argument("-r", "--renew", action='store_true', dest="renewing", help=u"Indicates that we want to renew the certificate and not create a new one with a new private key", required=False)
+    parser.add_argument("-s", "--passphrase", action='store', dest="passwd", type=str, default=False, help=u"Private key passphrase", metavar='mypassphrase', required=False)
     parser.add_argument("-c", "--country", action='store', dest="c", type=str, default='', help=u"Country Name (2 letter code) eg. US", metavar='XX', required=False)
     parser.add_argument("-st", "--state", action='store', dest="st", type=str, default='', help=u"State or Province Name (full name)", metavar='state', required=False)
     parser.add_argument("-l", "--city", action='store', dest="l", type=str, default='', help=u"Locality Name (eg, city)", metavar='city', required=False)
@@ -46,21 +45,29 @@ def argCommandline(argv):
     parser.add_argument("-ou", "--org-unit", action='store', dest="ou", type=str, default='', help=u"Organizational Unit Name (eg, section)", metavar='org unit', required=False)
     parser.add_argument("-e", "--email", action='store', dest="email", type=str, default='', help=u"Email Address", metavar='nobody@domain.com', required=False)
     parser.add_argument("-a", "--altnames", action='store', dest="subjectAltName", nargs='*', type=str, metavar='type:value', default=False, help=u"X509 extension Subject Alternative-names (eg, IP:1.2.3.4 DNS:www.toto.net URI: www.toto.net)", required=False)
-    parser.add_argument("-p", "--purpose", action='store', dest="purpose", type=str, default='server', metavar='client|server', choices=['server','client'], help=u"Select which type of use is required for the certificate", required=True)
-    parser.add_argument("-s", "--passphrase", action='store', dest="passwd", type=str, default=False, help=u"Private key passphrase", metavar='mypassphrase', required=False)
     parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
     parser.add_argument("-t", "--key-size", action='store', dest="size", type=int, default=False, help=u"Private key size int value", metavar='XXXX', choices=[1024,2048,4096,8192], required=False)
-    parser.add_argument("-d", "--duration", action='store', dest="duration", type=int, default=360, help=u"Number of days for certificate validity period", metavar='X', required=False)
 
     args = parser.parse_args()
-
-    # print help if no arguments given
-    if len(argv) < 1:
+    if len(argv) <= 1:
         parser.print_help()
         exit(1)
 
     result=vars(args)
     return(result)
+
+def codegenerator(pwlen = 25, alphabet = False):
+    if not alphabet:
+        #alphabet = string.printable
+        alphabet = string.digits + string.ascii_letters + string.punctuation
+
+    pw_length = pwlen
+    mypw = ""
+
+    for i in range(pw_length):
+        next_index = random.randrange(len(alphabet))
+        mypw = mypw + alphabet[next_index]
+    return(mypw)
 
 if __name__ == '__main__':
     args=argCommandline(argv)
@@ -71,8 +78,27 @@ if __name__ == '__main__':
         exit(1)
     pki.set_verbosity(args['mainVerbosity'])
 
-    if args['cn'] not in pki.nameList:
-        print('ERROR: Certificate '+args['cn']+" doesn't exist.")
+    if args['cn'] in pki.nameList:
+        print('ERROR: Certificate '+args['cn']+" already exists.")
         exit(1)
+
+    if args['subjectAltName'] and not 'DNS:'+args['cn'] in args['subjectAltName']:
+        args['subjectAltName'].insert(0,'DNS:'+args['cn'])
+
+    if not args['passwd']:
+        args['passwd']=codegenerator(pwlen = 26)
+
+    print("INFO: Generate a client csr with it's private key")
+    # create csr with a private key size of 1024
+    csr = pki.create_csr(
+                     country=args['c'], state=args['st'], city=args['l'],
+                     org=args['o'], ou=args['ou'],
+                     email=args['email'],
+                     passphrase=args['passwd'],
+                     cn=args['cn'],
+                     keysize=args['size'],
+                     subjectAltName=args['subjectAltName']
+                    )
+    print(csr['message'])
 
     exit(0)

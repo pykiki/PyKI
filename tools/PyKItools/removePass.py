@@ -24,15 +24,19 @@ __status__ = "Beta tests"
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-from socket import gethostname
-from os import path as ospath, sys
-from getpass import getpass
+import argparse
 from PyKI import PyKI
+
+from sys import path as syspath, argv
+from os import path as ospath
+curScriptDir = ospath.dirname(ospath.abspath(__file__))
+initPath = curScriptDir + "/PyKInit/"
+syspath.append(initPath)
+from PyKInit import pkinit
 
 def getPass(name, pki):
     passphrases = pki.loadpassDB()
     if not passphrases['error']:
-        # we are calling pki func cleanStr() to match the correct certname in database
         database_certname = passphrases['message'][pki.cleanStr(name)]
     else:
         database_certname = False
@@ -43,7 +47,6 @@ def rmPass(name, pki, passphrase):
     '''
     Remove passphrase from key
     '''
-    # define type in pkicert.db /get path in crt dir
     print("INFO: Removing passphrase from "+name)
 
     unprotectres = pki.unprotect_key(keyname = name, privKeypass = passphrase)
@@ -54,29 +57,38 @@ def rmPass(name, pki, passphrase):
     print(unprotectres['message'])
     return(True)
 
+def argCommandline(argv):
+    """
+    Manage cli script args
+    """
+    parser = argparse.ArgumentParser(description='Generate an unprotected copy of private key')
+    parser.add_argument("-n", "--cn", action="store", dest="cn", type=str, help=u"Certificate common name", metavar='Common Name', required=True)
+    parser.add_argument("-v", "--verbose", action='store_true', dest='mainVerbosity', help=u"Add output verbosity", required=False)
+    args = parser.parse_args()
+    if len(argv) <= 1:
+        parser.print_help()
+        exit(1)
+
+    result=vars(args)
+    return(result)
+
 if __name__ == '__main__':
-    mainVerbosity = True
+    args=argCommandline(argv)
 
-    # passphrase of the private key requested for pki authentication
-    privateKeyPassphrase = getpass('PKI Authentication private key password: ')
-    
-    # pki authentication private key path
-    pkeyPath = "./pki_auth_cert.pem"
+    pki=pkinit()
+    if not pki:
+        print("ERROR: Errors found during init")
+        exit(1)
+    pki.set_verbosity(args['mainVerbosity'])
 
-    # Init with privkey loaded from file
-    pkey = open(pkeyPath ,'rt')
-    pkeyStr = pkey.read()
-    pkey.close()
-    pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
-    
-    # Set pki verbosity after init
-    pki.set_verbosity(mainVerbosity)
+    if args['cn'] not in pki.nameList:
+        print('ERROR: Certificate '+args['cn']+" doesn't exist.")
+        exit(1)
 
-    cn = 'PyKIflask'
-    passwd = getPass(name=cn, pki=pki)
+    passwd = getPass(name=args['cn'], pki=pki)
     if not passwd:
-        print("Unable to find certificate private key passphrase for "+cn)
+        print("Unable to find certificate private key passphrase for "+args['cn'])
         exit(1)
 
     # Remove passphrase from cert
-    rmPass(name = cn, pki = pki, passphrase = passwd)
+    rmPass(name=args['cn'], pki=pki, passphrase=passwd)
