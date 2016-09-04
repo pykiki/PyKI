@@ -98,7 +98,7 @@ if __name__ == '__main__':
               '\tCertificate serial number: ', serial, '\n',
               '\tCertificate creation date: ' +creation_date+ '\n',
               '\tDays of validity after creation: ', validity_time, '\n',
-              '\tCertificate sha sum: ' +cert_shasum+ '\n',
               '\tCertificate usage type: ' +cert_usage+ '\n',
-              '\tCertificate encrytpion level: ' +cert_encrytion
+              '\tCertificate shasum: ' +cert_shasum+ '\n',
+              '\tCertificate shasum encryption: ' +cert_encrytion
         )
