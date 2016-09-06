@@ -43,11 +43,11 @@ pki=pkinit('path/to/file/config.ini')
 
 You will be returning True if all goes well.
 
-## generate a certificate with specific information:
+## generate a certificate with specific information. The current certificate will be revoked immediately (no -b option specified).
 ```
 ./gen_cert.py -n www.ritano.fr -p server -c AU -st california -l "los angeles" -o "test corpo" -ou IT -e dodoo@gg.fr --altnames IP:192.168.10.1 DNS:ldap.ritano.fr -v
 ```
-* renew a certificate specifying key size and duration but using globales information for C, ST... (set in config.ini)
+* renew a certificate specifying key size and duration but using globales information for C, ST... (set in config.ini). The current certificate will be revoked immediately (no -b option specified).
 ```
 ./gen_cert.py -n vpn3-mp.ritano.fr -p client -d 180 --key-size 2048 -r
 ```
@@ -55,9 +55,9 @@ You will be returning True if all goes well.
 ```
 ./gen_cert.py -n vpn3-mp.ritano.fr -p client -r -d 180 --key-size 2048 --city Paris
 ```
-* renewing certificate choosing a date for the renewal to start on. This will revocate the current certificate on 09/09/2016 at 23:59:59 and begin the new cert at 09/09/2016 with your current time (generating certificate time(hour:min:sec))
+* renewing certificate choosing a number of days, from your current date, for the current certificate to expire. This will revocate the current certificate in 4 days and begin the new cert immediately
 ```
-./gen_cert.py --cn vpn3-mp.ritano.fr -p server -r -b "09/09/2016"
+./gen_cert.py --cn vpn3-mp.ritano.fr -p server -r -b 4
 ```
 
 ## generate csr:

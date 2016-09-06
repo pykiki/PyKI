@@ -24,7 +24,7 @@
 import random
 import string
 import argparse
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Part for integrating init directory as a library
 from sys import path as syspath, argv
@@ -185,13 +185,13 @@ def argCommandline(argv):
         required=False)
     parser.add_argument(
         "-b",
-        "--begin-date",
+        "--end-date",
         action='store',
-        dest="begindate",
-        type=str,
+        dest="endays",
+        type=int,
         default=False,
-        metavar='"%d/%m/%Y"',
-        help=u"Define a specific date for the renewal to take place.",
+        metavar='X',
+        help=u"Define a number of days before the current certificate will be revoked.",
         required=False)
 
     args = parser.parse_args()
@@ -223,7 +223,7 @@ def codegenerator(pwlen=25, alphabet=False):
 def genCert(name, pki, passphrase, usage, altnames=False,
             size=False, certenc=False, days=False, renew=False,
             country=False, state=False, city=False, org=False,
-            ou=False, email=False, begindate=False
+            ou=False, email=False, endays=False
             ):
     '''
     tools Generatin key and certificate
@@ -234,26 +234,30 @@ def genCert(name, pki, passphrase, usage, altnames=False,
             print('ERROR: Certificate ' + name + " doesn't exist, unable to renew it.")
             return(1)
 
-        if begindate:
+        if endays:
             currentDate = datetime.utcnow()
-            try:
-                createDateTime = datetime.strptime(begindate, "%d/%m/%Y")
-            except ValueError as err:
-                print("ERROR:" + str(err))
-                return(1)
+            #try:
+            #    createDateTime = datetime.strptime(endays, "%d/%m/%Y")
+            #except ValueError as err:
+            #    print("ERROR:" + str(err))
+            #    return(1)
 
-            # get timedelta object
-            timeDelta = createDateTime - currentDate
-            # get timedelta in days
-            deltadays = timeDelta.days + 1
+            ## get timedelta object
+            #timeDelta = createDateTime - currentDate
+            ## get timedelta in days
+            #deltadays = timeDelta.days + 1
+            deltadate = currentDate + timedelta(days=endays)
+            deltadate = deltadate.strftime("%d/%m/%Y")
 
-            crl = pki.revoke_cert(certname=name, reason='superseded', date=begindate, renewal=True)
+            crl = pki.revoke_cert(certname=name, reason='superseded', date=deltadate, renewal=True)
         else:
             crl = pki.revoke_cert(certname=name, reason='superseded', renewal=True)
 
         print(crl['message'])
         if crl['error']:
             return(1)
+        else:
+            print("INFO: You current certificate for " + name + " will be revoked in "+ str(endays) + " days.")
 
         print("INFO: Generating certificate whith alt-names...")
         cert = pki.create_cert(
@@ -264,7 +268,7 @@ def genCert(name, pki, passphrase, usage, altnames=False,
             subjectAltName=altnames,
             cn=name,
             encryption=certenc,
-            valid_before=deltadays,
+            #valid_before=deltadays,
             days_valid=days,
             toRenew=renew
         )
@@ -273,6 +277,7 @@ def genCert(name, pki, passphrase, usage, altnames=False,
             res = False
         else:
             print(cert['message'])
+            print("INFO: Please remember to install your new certificate for " + name + " before the current one expires.")
             res = True
     else:
         print("INFO: Generating server private key for " + name + "...")
@@ -336,6 +341,9 @@ if __name__ == '__main__':
     else:
         args['purpose'] = 'clientAuth'
 
+    if args['endays'] and not args['renewing']:
+        args['endays'] = False
+
     genCert(
         name=args['cn'],
         pki=pki,
@@ -351,5 +359,5 @@ if __name__ == '__main__':
         org=args['o'],
         ou=args['ou'],
         email=args['email'],
-        begindate=args['begindate'])
+        endays=args['endays'])
     exit(0)
