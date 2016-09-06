@@ -68,6 +68,16 @@ def argCommandline(argv):
         help=u"Select which type of use is required for the certificate",
         required=True)
     parser.add_argument(
+        "-d",
+        "--date",
+        action='store',
+        dest="revokdate",
+        type=str,
+        default=False,
+        metavar='"%d/%m/%Y"',
+        help=u"Define a specific date for the revocation to take place.",
+        required=False)
+    parser.add_argument(
         "-v",
         "--verbose",
         action='store_true',
@@ -102,8 +112,11 @@ if __name__ == '__main__':
             args['cn'] +
             " for " +
             args['reason'])
-    # keyCompromise
-    crl = pki.revoke_cert(certname=args['cn'], reason=args['reason'])
+
+    if args['revokdate']:
+        crl = pki.revoke_cert(certname=args['cn'], reason=args['reason'], date=args['revokdate'])
+    else:
+        crl = pki.revoke_cert(certname=args['cn'], reason=args['reason'])
     if crl['error']:
         print(crl['message'])
     elif args['mainVerbosity']:

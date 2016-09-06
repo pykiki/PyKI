@@ -3404,7 +3404,7 @@ class PyKI():
         res = {"error": False, "message": "INFO: CRL date updated successfuly."}
         return(res)
 
-    def revoke_cert(self, certname, next_crl_days=183, reason='unspecified'):
+    def revoke_cert(self, certname, next_crl_days=183, reason='unspecified', date=False, renewal=False):
         '''
         Revoking certificat in the PKI by it's name: removing files,
         regenerating crl and updating certificat status in pki database.
@@ -3419,6 +3419,12 @@ class PyKI():
             [unspecified, keyCompromise, CACompromise, affiliationChanged,
              superseded, cessationOfOperation, certificateHold].
         :type reason: Bytes.
+
+        :param date: Date to reach for considering the certificate revoked (Format: "%d/%m/%Y"). If not specified, the revocation comes immediately.
+        :type date: String.
+
+        :param renewal: Specify if the revocation is called for a certificate renewal process.
+        :type renewal: bool
 
         :returns: Informational result dict {'error': Boolean, 'message': String}
         :rtype: Dict.
@@ -3502,12 +3508,21 @@ class PyKI():
 
                 serial_number = "%x" % certObj.get_serial_number()
                 now = datetime.utcnow()
-                now_str = now.strftime('%Y%m%d%H%M%SZ')
+                if not date:
+                    revokeDate_str = now.strftime('%Y%m%d%H%M%SZ')
+                else:
+                    date = str(date) + " 23:59:59"
+                    try:
+                        revokeDate_str = datetime.strptime(date, "%d/%m/%Y %H:%M:%S").strftime('%Y%m%d%H%M%SZ')
+                    except ValueError as err:
+                        #res = {"error": True, "message": "ERROR:" + str(err)}
+                        res = {"error": True, "message": "ERROR: Invalid date format. Must be in dd/mm/yyyy."}
+                        return(res)
 
                 revokedObj.set_serial(serial_number.encode('utf-8'))
                 revokedObj.set_reason(reason.encode('utf-8'))
                 revokedObj.set_rev_date(
-                    now_str.encode('utf-8'))   # revoked as of now
+                    revokeDate_str.encode('utf-8'))   # revoked as of now
 
                 crlObj.add_revoked(revokedObj)
                 try:
@@ -3562,21 +3577,21 @@ class PyKI():
                 if self.__verbose:
                     print("INFO: Pki db file updated.")
 
-                # suppression du directory du certif revoked
-                rcertdir = ospath.dirname(revokedcert)
-                if ospath.exists(rcertdir):
-                    for root, dirs, files in oswalk(rcertdir, topdown=False):
-                        for name in files:
-                            remove(ospath.join(root, name))
-                        for name in dirs:
-                            rmdir(ospath.join(root, name))
-                    rmdir(rcertdir)
-                    if self.__verbose:
-                        print(
-                            "INFO: All files from the revoked certificate " +
-                            origrcertname +
-                            " are deleted.")
-
+                if not renewal:
+                    # suppression du directory du certif revoked
+                    rcertdir = ospath.dirname(revokedcert)
+                    if ospath.exists(rcertdir):
+                        for root, dirs, files in oswalk(rcertdir, topdown=False):
+                            for name in files:
+                                remove(ospath.join(root, name))
+                            for name in dirs:
+                                rmdir(ospath.join(root, name))
+                        rmdir(rcertdir)
+                        if self.__verbose:
+                            print(
+                                "INFO: All files from the revoked certificate " +
+                                origrcertname +
+                                " are deleted.")
                 res = {
                     "error": False,
                     "message": "INFO: Certificate " +

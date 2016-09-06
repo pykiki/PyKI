@@ -24,6 +24,7 @@
 import random
 import string
 import argparse
+from datetime import datetime
 
 # Part for integrating init directory as a library
 from sys import path as syspath, argv
@@ -182,6 +183,16 @@ def argCommandline(argv):
         help=u"Number of days for certificate validity period",
         metavar='X',
         required=False)
+    parser.add_argument(
+        "-b",
+        "--begin-date",
+        action='store',
+        dest="begindate",
+        type=str,
+        default=False,
+        metavar='"%d/%m/%Y"',
+        help=u"Define a specific date for the renewal to take place.",
+        required=False)
 
     args = parser.parse_args()
 
@@ -212,42 +223,88 @@ def codegenerator(pwlen=25, alphabet=False):
 def genCert(name, pki, passphrase, usage, altnames=False,
             size=False, certenc=False, days=False, renew=False,
             country=False, state=False, city=False, org=False,
-            ou=False, email=False
+            ou=False, email=False, begindate=False
             ):
     '''
     tools Generatin key and certificate
     '''
 
-    print("INFO: Generating server private key for " + name + "...")
-    key = pki.create_key(
-        passphrase=passphrase,
-        keysize=size,
-        name=name,
-        usage=usage)
-    if key['error']:
-        print(key['message'] + ", aborting...")
-        return(False)
-    else:
-        print("INFO: Key " + name + " done.")
+    if renew:
+        if name not in pki.nameList:
+            print('ERROR: Certificate ' + name + " doesn't exist, unable to renew it.")
+            return(1)
 
-    print("INFO: Generating certificate whith alt-names...")
-    cert = pki.create_cert(
-        country=country, state=state, city=city,
-        org=org, ou=ou,
-        email=email,
-        KeyUsage=usage,
-        subjectAltName=altnames,
-        cn=name,
-        encryption=certenc,
-        days_valid=days,
-        toRenew=renew
-    )
-    if cert['error']:
-        print(cert['message'] + ", aborting...")
-        res = False
+        if begindate:
+            currentDate = datetime.utcnow()
+            try:
+                createDateTime = datetime.strptime(begindate, "%d/%m/%Y")
+            except ValueError as err:
+                print("ERROR:" + str(err))
+                return(1)
+
+            # get timedelta object
+            timeDelta = createDateTime - currentDate
+            # get timedelta in days
+            deltadays = timeDelta.days + 1
+
+            crl = pki.revoke_cert(certname=name, reason='superseded', date=begindate, renewal=True)
+        else:
+            crl = pki.revoke_cert(certname=name, reason='superseded', renewal=True)
+
+        print(crl['message'])
+        if crl['error']:
+            return(1)
+
+        print("INFO: Generating certificate whith alt-names...")
+        cert = pki.create_cert(
+            country=country, state=state, city=city,
+            org=org, ou=ou,
+            email=email,
+            KeyUsage=usage,
+            subjectAltName=altnames,
+            cn=name,
+            encryption=certenc,
+            valid_before=deltadays,
+            days_valid=days,
+            toRenew=renew
+        )
+        if cert['error']:
+            print(cert['message'] + ", aborting...")
+            res = False
+        else:
+            print(cert['message'])
+            res = True
     else:
-        print(cert['message'])
-        res = True
+        print("INFO: Generating server private key for " + name + "...")
+        key = pki.create_key(
+            passphrase=passphrase,
+            keysize=size,
+            name=name,
+            usage=usage)
+        if key['error']:
+            print(key['message'] + ", aborting...")
+            return(False)
+        else:
+            print("INFO: Key " + name + " done.")
+
+        print("INFO: Generating certificate whith alt-names...")
+        cert = pki.create_cert(
+            country=country, state=state, city=city,
+            org=org, ou=ou,
+            email=email,
+            KeyUsage=usage,
+            subjectAltName=altnames,
+            cn=name,
+            encryption=certenc,
+            days_valid=days,
+            toRenew=renew
+        )
+        if cert['error']:
+            print(cert['message'] + ", aborting...")
+            res = False
+        else:
+            print(cert['message'])
+            res = True
 
     return(res)
 
@@ -293,5 +350,6 @@ if __name__ == '__main__':
         city=args['l'],
         org=args['o'],
         ou=args['ou'],
-        email=args['email'])
+        email=args['email'],
+        begindate=args['begindate'])
     exit(0)
