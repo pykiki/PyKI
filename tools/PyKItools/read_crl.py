@@ -75,9 +75,11 @@ if __name__ == '__main__':
         revokedSerial = str(revokedSerial)
         cn = revokedb[revokedSerial]['cn']
         reason = robj.get_reason().decode('utf-8')
-        #unspecified|keyCompromise|CACompromise|affiliationChanged|superseded|cessationOfOperation|certificateHold
-
-        date = robj.get_rev_date().decode('utf-8')
-        #print(datetime.strptime(date, '%Y%m%d%H:%M:%S'))
-        print("Certificate " + cn + " revoked for " + reason + " at " + date + "." )
+        datestring = robj.get_rev_date().decode('utf-8')
+        date = datetime.strptime(datestring, "%Y%m%d%H%M%SZ")
+        dateformat = date.strftime('%d/%m/%Y %H:%M:%S')
+        if date > datetime.utcnow() :
+            print("INFO: Certificate " + cn + " with serial " + revokedSerial + " will be revoked for reason: '" + reason + "' the " + dateformat + "." )
+        else:
+            print("INFO: Certificate " + cn + " with serial " + revokedSerial + " has been revoked for reason: '" + reason + "' the " + dateformat + "." )
     exit(0)
