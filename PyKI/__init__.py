@@ -758,34 +758,35 @@ class PyKI():
         modified = False
         critical = False
         for certname in pkidb:
-            if pkidb[certname]['state'] == "activ":
-                createdate = pkidb[certname]['created']
-                duration = pkidb[certname]['duration']
-                currentDate = datetime.utcnow()
+            if certname != 'revoked':
+                if pkidb[certname]['state'] == "activ":
+                    createdate = pkidb[certname]['created']
+                    duration = pkidb[certname]['duration']
+                    currentDate = datetime.utcnow()
 
-                # parse str date to datetime.datetime object
-                createDateTime = datetime.strptime(
-                    createdate, '%Y/%m/%d %H:%M:%S')
+                    # parse str date to datetime.datetime object
+                    createDateTime = datetime.strptime(
+                        createdate, '%Y/%m/%d %H:%M:%S')
 
-                # get timedelta object
-                timeDelta = currentDate - createDateTime
+                    # get timedelta object
+                    timeDelta = currentDate - createDateTime
 
-                # get timedelta in days
-                deltadays = timeDelta.days - 1
+                    # get timedelta in days
+                    deltadays = timeDelta.days - 1
 
-                if deltadays >= duration:
-                    pkidb[certname]['state'] = "expired"
-                    modified = True
+                    if deltadays >= duration:
+                        pkidb[certname]['state'] = "expired"
+                        modified = True
 
-                    if certname == 'cacert':
-                        critical = True
-                        res = {"error": True,
-                               "message": "ERROR: CA certificate is expired."}
-                    elif certname == 'intermediate_cacert':
-                        critical = True
-                        res = {
-                            "error": True,
-                            "message": "ERROR: Intermediate CA certificate is expired."}
+                        if certname == 'cacert':
+                            critical = True
+                            res = {"error": True,
+                                   "message": "ERROR: CA certificate is expired."}
+                        elif certname == 'intermediate_cacert':
+                            critical = True
+                            res = {
+                                "error": True,
+                                "message": "ERROR: Intermediate CA certificate is expired."}
         if critical:
             return(res)
 
@@ -1475,7 +1476,8 @@ class PyKI():
                 if size > 0:
                     serials = []
                     for val in v:
-                        serials.append(val['serial'])
+                        if 'serial' in val:
+                            serials.append(val['serial'])
                     serials.sort(reverse=True)
                     serialNum = int(serials[0]) + 1
                 else:
@@ -3404,6 +3406,53 @@ class PyKI():
         res = {"error": False, "message": "INFO: CRL date updated successfuly."}
         return(res)
 
+
+    def update_revokeDB(self, serial, name, date, reason):
+        '''
+        Update revoked field in pki database.
+
+        :param serial: Certificate serial number.
+        :type serial: int.
+
+        :param name: Certificate Common Name.
+        :type name: str.
+
+        :param date: Certificate revocation date.
+        :type date: str.
+
+        :param reason: Certificate revocation reason.
+        :type reason: str.
+
+        :returns: Informational result dict {'error': Boolean, 'message': String}
+        :rtype: Dict.
+        '''
+
+        infos = {'cn':name, 'date':date, 'reason':reason}
+
+        jsondict = self.json2dict(self.__DBfile)
+        if not jsondict['error']:
+            jsondict = jsondict['message']
+        else:
+            res = {
+                "error": True,
+                "message": "ERROR: Unable to read pki database " +
+                self.__DBfile +
+                "."}
+            return(res)
+
+        if 'revoked' not in jsondict:
+            jsondict['revoked'] = {}
+
+        jsondict['revoked'][serial] = infos
+        json_out = jsonDump(jsondict, sort_keys=False)
+        wresult = self.writeFile(self.__DBfile, json_out)
+        if not wresult['error']:
+            res = {"error": False, "message": wresult['message']}
+            return(res)
+        else:
+            res = {"error": True, "message": wresult['message']}
+            return(res)
+
     def revoke_cert(self, certname, next_crl_days=183, reason='unspecified', date=False, renewal=False):
         '''
         Revoking certificat in the PKI by it's name: removing files,
@@ -3592,6 +3641,14 @@ class PyKI():
                                 "INFO: All files from the revoked certificate " +
                                 origrcertname +
                                 " are deleted.")
+
+                updateDB = self.update_revokeDB(serial_number, certname, revokeDate_str, reason)
+                if updateDB['error']:
+                    res = {
+                        "error": True,
+                        "message": updateDB['message']}
+                    return(res)
+
                 res = {
                     "error": False,
                     "message": "INFO: Certificate " +
@@ -4214,6 +4271,9 @@ class PyKI():
     def get_csrDir(self):
         return(self.__csrDir)
 
+    def get_crl_path(self):
+        return(self.__crlpath)
+
     def get_initPkey(self):
         if self.__initPkey:
             return(self.__initPkey)
@@ -4232,8 +4292,9 @@ class PyKI():
         names = []
         if not result['error']:
             for key, value in result['message'].items():
-                if value['state'] != 'revoked':
-                    names.append(value['cn'])
+                if key != 'revoked':
+                    if value['state'] != 'revoked':
+                        names.append(value['cn'])
             return(names)
         else:
             return(result['error'])
@@ -4313,6 +4374,11 @@ class PyKI():
         None,
         None,
         "Get the directory path for the pki request")
+    crl_path = property(
+        get_crl_path,
+        None,
+        None,
+        "Get the CRL path of the PKI")
     initPkey = property(
         get_initPkey,
         None,

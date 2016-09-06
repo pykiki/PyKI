@@ -90,21 +90,22 @@ if __name__ == '__main__':
 
     # process name list to print datas
     for name in certsname:
-        status = pkidb[name]['state']
-        serial = pkidb[name]['serial']
-        validity_time = pkidb[name]['duration']
-        cert_shasum = pkidb[name]['shasum']
-        cert_usage = pkidb[name]['type']
-        cert_encrytion = pkidb[name]['shaenc']
-        creation_date = pkidb[name]['created']
+        if name != 'revoked':
+            status = pkidb[name]['state']
+            serial = pkidb[name]['serial']
+            validity_time = pkidb[name]['duration']
+            cert_shasum = pkidb[name]['shasum']
+            cert_usage = pkidb[name]['type']
+            cert_encrytion = pkidb[name]['shaenc']
+            creation_date = pkidb[name]['created']
 
-        print(
-            'Certificate name: ' + name + '\n',
-            '\tCertificate state: ' + status + '\n',
-            '\tCertificate serial number: ', serial, '\n',
-            '\tCertificate creation date: ' + creation_date + '\n',
-            '\tDays of validity after creation: ', validity_time, '\n',
-            '\tCertificate usage type: ' + cert_usage + '\n',
-            '\tCertificate shasum: ' + cert_shasum + '\n',
-            '\tCertificate shasum encryption: ' + cert_encrytion
-        )
+            print(
+                'Certificate name: ' + name + '\n',
+                '\tCertificate state: ' + status + '\n',
+                '\tCertificate serial number: ', serial, '\n',
+                '\tCertificate creation date: ' + creation_date + '\n',
+                '\tDays of validity after creation: ', validity_time, '\n',
+                '\tCertificate usage type: ' + cert_usage + '\n',
+                '\tCertificate shasum: ' + cert_shasum + '\n',
+                '\tCertificate shasum encryption: ' + cert_encrytion
+            )

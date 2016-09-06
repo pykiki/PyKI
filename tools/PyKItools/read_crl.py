@@ -20,7 +20,9 @@
 
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
+
 import argparse
+from datetime import datetime
 
 from sys import path as syspath, argv
 from os import path as ospath
@@ -35,7 +37,7 @@ def argCommandline(argv):
     Manage cli script args
     """
     parser = argparse.ArgumentParser(
-        description='Get PKI database informations in Human Readable format.')
+        description='Retrieve passphrase for a specific certificate name. If not specified, this will return all passphrases')
     parser.add_argument(
         "-v",
         "--verbose",
@@ -43,6 +45,7 @@ def argCommandline(argv):
         dest='mainVerbosity',
         help=u"Add output verbosity",
         required=False)
+
     args = parser.parse_args()
 
     result = vars(args)
@@ -57,39 +60,24 @@ if __name__ == '__main__':
         exit(1)
     pki.set_verbosity(args['mainVerbosity'])
 
-    pkidb = pki.pkidbDict
+    crlObj = pki.load_crl(pki.crl_path)
+    if not crlObj['error']:
+        crlObj = crlObj['message']
+    revoked = crlObj.get_revoked()
 
-    # for sorting names befor printing datas
-    certsname = []
-    for certname in pkidb:
-        certsname.append(certname)
-    # sort list insensitively
-    certsname.sort(key=lambda x: x.lower())
+    revokedb = pki.pkidbDict['revoked']
 
-    # process name list to print datas
-    for name in certsname:
-        if name != 'revoked':
-            status = pkidb[name]['state']
-            serial = pkidb[name]['serial']
-            validity_time = pkidb[name]['duration']
-            cert_shasum = pkidb[name]['shasum']
-            cert_usage = pkidb[name]['type']
-            if cert_usage == 'CLT':
-                cert_usage = 'client authentication'
-            elif cert_usage == "SRV":
-                cert_usage = 'server authentication'
-            hash_encrytion = pkidb[name]['shaenc']
-            creation_date = pkidb[name]['created']
+    print("INFO: Reading PKI CRL content:")
+    for robj in revoked:
+        # to remove leading 0 safely
+        revokedSerial = int(robj.get_serial().decode('utf-8'))
+        # to be able to use it as a dict item name
+        revokedSerial = str(revokedSerial)
+        cn = revokedb[revokedSerial]['cn']
+        reason = robj.get_reason().decode('utf-8')
+        #unspecified|keyCompromise|CACompromise|affiliationChanged|superseded|cessationOfOperation|certificateHold
 
-            print(
-                'Certificate name: ' + pkidb[name]['cn'] + '\n',
-                '\tCertificate state: ' + status + '\n',
-                '\tCertificate serial number: ', serial, '\n',
-                '\tCertificate creation date: ' + creation_date + '\n',
-                '\tDays of validity after creation: ', validity_time, '\n',
-                '\tCertificate usage type: ' + cert_usage + '\n',
-                '\tCertificate shasum: ' + cert_shasum + '\n',
-                '\tCertificate shasum encryption: ' + hash_encrytion
-            )
-
+        date = robj.get_rev_date().decode('utf-8')
+        #print(datetime.strptime(date, '%Y%m%d%H:%M:%S'))
+        print("Certificate " + cn + " revoked for " + reason + " at " + date + "." )
     exit(0)
