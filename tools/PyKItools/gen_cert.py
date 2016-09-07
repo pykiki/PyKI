@@ -27,7 +27,7 @@ import argparse
 from datetime import datetime, timedelta
 
 # Part for integrating init directory as a library
-from sys import path as syspath, argv
+from sys import argv
 import os
 from PyKI import PyKInit
 
@@ -228,33 +228,44 @@ def genCert(name, pki, passphrase, usage, altnames=False,
 
     if renew:
         if name not in pki.nameList:
-            print('ERROR: Certificate ' + name + " doesn't exist, unable to renew it.")
+            print(
+                'ERROR: Certificate ' +
+                name +
+                " doesn't exist, unable to renew it.")
             return(1)
 
         if endays:
             currentDate = datetime.utcnow()
-            #try:
+            # try:
             #    createDateTime = datetime.strptime(endays, "%d/%m/%Y")
-            #except ValueError as err:
+            # except ValueError as err:
             #    print("ERROR:" + str(err))
             #    return(1)
 
-            ## get timedelta object
+            # get timedelta object
             #timeDelta = createDateTime - currentDate
-            ## get timedelta in days
+            # get timedelta in days
             #deltadays = timeDelta.days + 1
             deltadate = currentDate + timedelta(days=endays)
             deltadate = deltadate.strftime("%d/%m/%Y")
 
-            crl = pki.revoke_cert(certname=name, reason='superseded', date=deltadate, renewal=True)
+            crl = pki.revoke_cert(
+                certname=name,
+                reason='superseded',
+                date=deltadate,
+                renewal=True)
         else:
-            crl = pki.revoke_cert(certname=name, reason='superseded', renewal=True)
+            crl = pki.revoke_cert(
+                certname=name,
+                reason='superseded',
+                renewal=True)
 
         print(crl['message'])
         if crl['error']:
             return(1)
         else:
-            print("INFO: You current certificate for " + name + " will be revoked in "+ str(endays) + " days.")
+            print("INFO: You current certificate for " + name +
+                  " will be revoked in " + str(endays) + " days.")
 
         print("INFO: Generating certificate whith alt-names...")
         cert = pki.create_cert(
@@ -265,7 +276,7 @@ def genCert(name, pki, passphrase, usage, altnames=False,
             subjectAltName=altnames,
             cn=name,
             encryption=certenc,
-            #valid_before=deltadays,
+            # valid_before=deltadays,
             days_valid=days,
             toRenew=renew
         )
@@ -274,11 +285,15 @@ def genCert(name, pki, passphrase, usage, altnames=False,
             res = False
         else:
             print(cert['message'])
-            print("INFO: Please remember to install your new certificate for " + name + " before the current one expires.")
+            print(
+                "INFO: Please remember to install your new certificate for " +
+                name +
+                " before the current one expires.")
             res = True
     else:
         if name in pki.nameList:
-            print("WARNING: Certificate already exists. If you want to renew it, please use -r flag")
+            print(
+                "WARNING: Certificate already exists. If you want to renew it, please use -r flag")
             return(False)
         print("INFO: Generating server private key for " + name + "...")
         key = pki.create_key(

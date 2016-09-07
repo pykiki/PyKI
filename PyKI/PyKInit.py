@@ -34,7 +34,7 @@ from PyKI import PyKIcore
 
 class PyKIsetup():
     '''
-        Init module to help using PyKIcore library 
+        Init module to help using PyKIcore library
     '''
 
     cwd = os.getcwd()
@@ -154,7 +154,8 @@ class PyKIsetup():
         OU = config['pki params']['ou'].strip()
 
         email_param = config['pki params']['email']
-        if '@' not in email.utils.parseaddr(email_param)[1] or email.utils.parseaddr(email_param)[1] == '':
+        if '@' not in email.utils.parseaddr(
+                email_param)[1] or email.utils.parseaddr(email_param)[1] == '':
             print('ERROR: Invalid e-mail address format')
             exit(1)
 
@@ -195,7 +196,7 @@ class PyKIsetup():
                 "\n!!!!! INFO: The auth private key will be saved in " +
                 pkiAuthpK +
                 " !!!!!\n")
-            self.__pki = PyKIcore.PyKI (
+            self.__pki = PyKIcore.PyKI(
                 issuerName=issuer,
                 authKeypass=AuthPkPass,
                 C=C,
@@ -237,7 +238,7 @@ class PyKIsetup():
         pkeyStr = pkey.read()
         pkey.close()
 
-        self.__pki = PyKIcore.PyKI (
+        self.__pki = PyKIcore.PyKI(
             issuerName=issuer,
             authKeypass=AuthPkPass,
             C=C,
@@ -273,7 +274,8 @@ class PyKIsetup():
         :rtype: Dict.
         '''
         action = False
-        config = configparser.ConfigParser(delimiters=':', comment_prefixes='#')
+        config = configparser.ConfigParser(
+            delimiters=':', comment_prefixes='#')
 
         # No need to create this section
         # config.add_section('DEFAULT')
@@ -296,7 +298,10 @@ class PyKIsetup():
         else:
             action = True
             config.set('pki params', 'c', 'Country Name (2 letter code)')
-            config.set('pki params', 'st', 'State or Province Name (full name)')
+            config.set(
+                'pki params',
+                'st',
+                'State or Province Name (full name)')
             config.set('pki params', 'l', 'Locality Name (eg, city)')
             config.set('pki params', 'o', 'Organization Name (eg, company)')
             config.set(

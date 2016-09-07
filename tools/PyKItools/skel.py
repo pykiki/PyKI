@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     curScriptDir = os.path.dirname(os.path.abspath(__file__))
     configFilePath = curScriptDir + '/config/config.ini'
-    
+
     pyki = PyKInit.PyKIsetup(configFilePath)
     pki = pyki.pki
 

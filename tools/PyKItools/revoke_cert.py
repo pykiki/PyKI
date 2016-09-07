@@ -26,7 +26,7 @@ __status__ = "Beta tests"
 
 import argparse
 
-from sys import path as syspath, argv
+from sys import argv
 import os
 from PyKI import PyKInit
 
@@ -115,7 +115,10 @@ if __name__ == '__main__':
             args['reason'])
 
     if args['revokdate']:
-        crl = pki.revoke_cert(certname=args['cn'], reason=args['reason'], date=args['revokdate'])
+        crl = pki.revoke_cert(
+            certname=args['cn'],
+            reason=args['reason'],
+            date=args['revokdate'])
     else:
         crl = pki.revoke_cert(certname=args['cn'], reason=args['reason'])
     if crl['error']:

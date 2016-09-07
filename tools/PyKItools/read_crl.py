@@ -24,7 +24,7 @@
 import argparse
 from datetime import datetime
 
-from sys import path as syspath, argv
+from sys import argv
 import os
 from PyKI import PyKInit
 
@@ -81,10 +81,28 @@ if __name__ == '__main__':
         datestring = robj.get_rev_date().decode('utf-8')
         date = datetime.strptime(datestring, "%Y%m%d%H%M%SZ")
         dateformat = date.strftime('%d/%m/%Y %H:%M:%S')
-        if date > datetime.utcnow() :
-            print("INFO: Certificate " + cn + " with serial " + revokedSerial + " will be revoked for reason: '" + reason + "' the " + dateformat + "." )
+        if date > datetime.utcnow():
+            print(
+                "INFO: Certificate " +
+                cn +
+                " with serial " +
+                revokedSerial +
+                " will be revoked for reason: '" +
+                reason +
+                "' the " +
+                dateformat +
+                ".")
         else:
-            print("INFO: Certificate " + cn + " with serial " + revokedSerial + " has been revoked for reason: '" + reason + "' the " + dateformat + "." )
+            print(
+                "INFO: Certificate " +
+                cn +
+                " with serial " +
+                revokedSerial +
+                " has been revoked for reason: '" +
+                reason +
+                "' the " +
+                dateformat +
+                ".")
 
     pki.remove_lockf("INFO: PKI unlocked.")
     del(pki)

@@ -780,8 +780,9 @@ class PyKI():
 
                         if certname == 'cacert':
                             critical = True
-                            res = {"error": True,
-                                   "message": "ERROR: CA certificate is expired."}
+                            res = {
+                                "error": True,
+                                "message": "ERROR: CA certificate is expired."}
                         elif certname == 'intermediate_cacert':
                             critical = True
                             res = {
@@ -3407,7 +3408,6 @@ class PyKI():
         res = {"error": False, "message": "INFO: CRL date updated successfuly."}
         return(res)
 
-
     def update_revokeDB(self, serial, name, date, reason):
         '''
         Update revoked field in pki database.
@@ -3428,7 +3428,7 @@ class PyKI():
         :rtype: Dict.
         '''
 
-        infos = {'cn':name, 'date':date, 'reason':reason}
+        infos = {'cn': name, 'date': date, 'reason': reason}
 
         jsondict = self.json2dict(self.__DBfile)
         if not jsondict['error']:
@@ -3454,7 +3454,13 @@ class PyKI():
             res = {"error": True, "message": wresult['message']}
             return(res)
 
-    def revoke_cert(self, certname, next_crl_days=183, reason='unspecified', date=False, renewal=False):
+    def revoke_cert(
+            self,
+            certname,
+            next_crl_days=183,
+            reason='unspecified',
+            date=False,
+            renewal=False):
         '''
         Revoking certificat in the PKI by it's name: removing files,
         regenerating crl and updating certificat status in pki database.
@@ -3568,10 +3574,13 @@ class PyKI():
                 else:
                     date = str(date) + " 23:59:59"
                     try:
-                        revokeDate_str = datetime.strptime(date, "%d/%m/%Y %H:%M:%S").strftime('%Y%m%d%H%M%SZ')
+                        revokeDate_str = datetime.strptime(
+                            date, "%d/%m/%Y %H:%M:%S").strftime('%Y%m%d%H%M%SZ')
                     except ValueError as err:
                         #res = {"error": True, "message": "ERROR:" + str(err)}
-                        res = {"error": True, "message": "ERROR: Invalid date format. Must be in dd/mm/yyyy."}
+                        res = {
+                            "error": True,
+                            "message": "ERROR: Invalid date format. Must be in dd/mm/yyyy."}
                         return(res)
 
                 revokedObj.set_serial(serial_number.encode('utf-8'))
@@ -3636,7 +3645,8 @@ class PyKI():
                     # suppression du directory du certif revoked
                     rcertdir = ospath.dirname(revokedcert)
                     if ospath.exists(rcertdir):
-                        for root, dirs, files in oswalk(rcertdir, topdown=False):
+                        for root, dirs, files in oswalk(
+                                rcertdir, topdown=False):
                             for name in files:
                                 remove(ospath.join(root, name))
                             for name in dirs:
@@ -3648,7 +3658,8 @@ class PyKI():
                                 origrcertname +
                                 " are deleted.")
 
-                updateDB = self.update_revokeDB(db_sn, certname, revokeDate_str, reason)
+                updateDB = self.update_revokeDB(
+                    db_sn, certname, revokeDate_str, reason)
                 if updateDB['error']:
                     res = {
                         "error": True,
@@ -4337,8 +4348,8 @@ class PyKI():
                     try:
                         remove(self.__lockfile)
                     except OSError as e:
-                        if e.errno != errno.ENOENT: # errno.ENOENT = no such file or directory
-                            raise # re-raise exception if a different error occured
+                        if e.errno != errno.ENOENT:  # errno.ENOENT = no such file or directory
+                            raise  # re-raise exception if a different error occured
                             print("WARNING: Unable to unlock the PKI...")
                     else:
                         # retourne le nom de la classe

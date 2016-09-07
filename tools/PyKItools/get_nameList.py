@@ -25,6 +25,7 @@ import argparse
 import os
 from PyKI import PyKInit
 
+
 def argCommandline():
     """
     Manage cli script args

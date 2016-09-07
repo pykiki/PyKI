@@ -24,7 +24,7 @@ import random
 import string
 import argparse
 
-from sys import path as syspath, argv
+from sys import argv
 import os
 from PyKI import PyKInit
 
