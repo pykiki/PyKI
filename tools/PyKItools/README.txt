@@ -21,27 +21,19 @@ Now that the init is correctly set up, you will be able to use every tools built
 # Just one last TIPS: The field passphrase can be left empty; if you do so, you will have to give the pki authentication password each time you'll call the class.
 
 
-To use the PyKInit, you will have to add it to your syspath like that:
+To use the PyKI, you will have to add it to your syspath like that:
 ```
-from sys import path as syspath
-from os import path as ospath
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-initPath = curScriptDir + "/PyKInit/"
-syspath.append(initPath)
-from PyKInit import pkinit
+from PyKI import PyKInit
 ```
 
 Now init the pki like this:
 ```
-pki=pkinit()
+configFilePath = './config/config.ini'
+pyki = PyKInit.PyKIsetup(configFilePath)
+pyki = pyki.pki
+# and use it as in documentation:
+pyki.set_verbosity(True)
 ```
-
-If you want to specify a file path for config.ini, do it as:
-```
-pki=pkinit('path/to/file/config.ini')
-```
-
-You will be returning True if all goes well.
 
 ## generate a certificate with specific information. The current certificate will be revoked immediately (no -b option specified).
 ```

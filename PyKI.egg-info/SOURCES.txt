@@ -3,6 +3,8 @@ MANIFEST.in
 README
 README.md
 setup.py
+PyKI/PyKIcore.py
+PyKI/PyKInit.py
 PyKI/__init__.py
 PyKI.egg-info/PKG-INFO
 PyKI.egg-info/SOURCES.txt

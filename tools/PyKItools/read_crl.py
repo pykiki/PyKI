@@ -25,11 +25,8 @@ import argparse
 from datetime import datetime
 
 from sys import path as syspath, argv
-from os import path as ospath
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-initPath = curScriptDir + "/PyKInit/"
-syspath.append(initPath)
-from PyKInit import pkinit
+import os
+from PyKI import PyKInit
 
 
 def argCommandline(argv):
@@ -54,7 +51,11 @@ def argCommandline(argv):
 if __name__ == '__main__':
     args = argCommandline(argv)
 
-    pki = pkinit()
+    curScriptDir = os.path.dirname(os.path.abspath(__file__))
+    configFilePath = curScriptDir + '/config/config.ini'
+
+    pyki = PyKInit.PyKIsetup(configFilePath)
+    pki = pyki.pki
     if not pki:
         print("ERROR: Errors found during init")
         exit(1)
@@ -69,8 +70,10 @@ if __name__ == '__main__':
 
     print("INFO: Reading PKI CRL content:")
     for robj in revoked:
+        print(robj)
+        print(robj.get_serial().decode('utf-8'))
         # to remove leading 0 safely
-        revokedSerial = int(robj.get_serial().decode('utf-8'))
+        revokedSerial = int(robj.get_serial().decode('utf-8'), 16)
         # to be able to use it as a dict item name
         revokedSerial = str(revokedSerial)
         cn = revokedb[revokedSerial]['cn']
@@ -82,4 +85,7 @@ if __name__ == '__main__':
             print("INFO: Certificate " + cn + " with serial " + revokedSerial + " will be revoked for reason: '" + reason + "' the " + dateformat + "." )
         else:
             print("INFO: Certificate " + cn + " with serial " + revokedSerial + " has been revoked for reason: '" + reason + "' the " + dateformat + "." )
+
+    pki.remove_lockf("INFO: PKI unlocked.")
+    del(pki)
     exit(0)

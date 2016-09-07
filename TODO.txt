@@ -1,3 +1,4 @@
+# voir pour integrer les outils en appel shell
 # eprouver les faiblesse en testant diverse installation et utilisation en environnement versatile
 # integrer les test auto
 # combiner avec flask pour le mode API

@@ -97,11 +97,18 @@ sudo -EH chown $USER /opt/PyKI_data/
 ## PKI usage
 >_You can see examples for all funcs in "test/test-UseCase.py"._
 
+## Easy setup module PyKInit
+>>```
+    TODO !!
+```
+
+## Core module PyKIcore
+
 > Load PyKI module:
 >>```
 #!/usr/bin/env python3
 # -*- encoding: UTF-8 -*-
-from PyKI import PyKI
+from PyKI import PyKIcore
 
 ### 1. PKI init'
 >
@@ -154,7 +161,7 @@ from PyKI import PyKI
 >>- Init the pki with verbosity and some security custom params.
 >>
 >>>```
-	pki = PyKI(issuerName='PyKI_example', verbose = True, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+	pki = PyKIcore.PyKI(issuerName='PyKI_example', verbose = True, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
 ```
 >>
 >>- Save the pki authentication key.
@@ -200,17 +207,17 @@ from PyKI import PyKI
 >> 
 >>>```
 	# With default values
-		pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
+		pki = PyKIcore.PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
 >>>
 	# Or with custom params
-		pki = PyKI(issuerName='PyKI_example', authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+		pki = PyKIcore.PyKI(issuerName='PyKI_example', authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
 ```
 
 ### 2. Verbosity
 > If you need/want to set verbose mode, you can do it these ways:
 >> \- Any time after having called PyKI class: _**pki.set\_verbosity(True)**_
 >> 
->> \- During PyKI class calling: _**PyKI(verbose = True, ...)**_
+>> \- During PyKI class calling: _**PyKIcore.PyKI(verbose = True, ...)**_
 
 ### 3. Callable vars
 >_You will have to get them like this: **pki.[name]**_ 

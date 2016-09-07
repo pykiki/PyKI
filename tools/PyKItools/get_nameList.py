@@ -22,16 +22,10 @@
 '''
 
 import argparse
+import os
+from PyKI import PyKInit
 
-from sys import path as syspath, argv
-from os import path as ospath
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-initPath = curScriptDir + "/PyKInit/"
-syspath.append(initPath)
-from PyKInit import pkinit
-
-
-def argCommandline(argv):
+def argCommandline():
     """
     Manage cli script args
     """
@@ -50,16 +44,21 @@ def argCommandline(argv):
     return(result)
 
 if __name__ == '__main__':
-    args = argCommandline(argv)
+    args = argCommandline()
 
-    pki = pkinit()
+    curScriptDir = os.path.dirname(os.path.abspath(__file__))
+    pyki = PyKInit.PyKIsetup(curScriptDir + '/config/config.ini')
+    pki = pyki.pki
     if not pki:
         print("ERROR: Errors found during init")
         exit(1)
+
     pki.set_verbosity(args['mainVerbosity'])
 
     print("List of PKI certificate names:")
     for name in pki.nameList:
         print("\t" + str(name))
 
+    pki.remove_lockf("INFO: PKI unlocked.")
+    del(pki)
     exit(0)

@@ -24,11 +24,8 @@
 import argparse
 
 from sys import path as syspath, argv
-from os import path as ospath
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-initPath = curScriptDir + "/PyKInit/"
-syspath.append(initPath)
-from PyKInit import pkinit
+import os
+from PyKI import PyKInit
 
 
 def argCommandline(argv):
@@ -67,7 +64,11 @@ def argCommandline(argv):
 if __name__ == '__main__':
     args = argCommandline(argv)
 
-    pki = pkinit()
+    curScriptDir = os.path.dirname(os.path.abspath(__file__))
+    configFilePath = curScriptDir + '/config/config.ini'
+
+    pyki = PyKInit.PyKIsetup(configFilePath)
+    pki = pyki.pki
     if not pki:
         print("ERROR: Errors found during init")
         exit(1)
@@ -80,3 +81,7 @@ if __name__ == '__main__':
     print("Certificate informations for " + args['cn'])
     cert_info = pki.get_certinfo(args['cn'])
     print("\n" + cert_info['message'])
+
+    pki.remove_lockf("INFO: PKI unlocked.")
+    del(pki)
+    exit(0)

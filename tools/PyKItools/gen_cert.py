@@ -28,11 +28,8 @@ from datetime import datetime, timedelta
 
 # Part for integrating init directory as a library
 from sys import path as syspath, argv
-from os import path as ospath
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-initPath = curScriptDir + "/PyKInit/"
-syspath.append(initPath)
-from PyKInit import pkinit
+import os
+from PyKI import PyKInit
 
 
 def argCommandline(argv):
@@ -280,6 +277,9 @@ def genCert(name, pki, passphrase, usage, altnames=False,
             print("INFO: Please remember to install your new certificate for " + name + " before the current one expires.")
             res = True
     else:
+        if name in pki.nameList:
+            print("WARNING: Certificate already exists. If you want to renew it, please use -r flag")
+            return(False)
         print("INFO: Generating server private key for " + name + "...")
         key = pki.create_key(
             passphrase=passphrase,
@@ -318,7 +318,11 @@ if __name__ == '__main__':
     args = argCommandline(argv)
 
     # init pki
-    pki = pkinit()
+    curScriptDir = os.path.dirname(os.path.abspath(__file__))
+    configFilePath = curScriptDir + '/config/config.ini'
+
+    pyki = PyKInit.PyKIsetup(configFilePath)
+    pki = pyki.pki
     if not pki:
         print("ERROR: Errors found during init")
         exit(1)
@@ -360,4 +364,7 @@ if __name__ == '__main__':
         ou=args['ou'],
         email=args['email'],
         endays=args['endays'])
+
+    pki.remove_lockf("INFO: PKI unlocked.")
+    del(pki)
     exit(0)

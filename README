@@ -174,13 +174,28 @@ sudo -EH chown $USER /opt/PyKI_data/
 
 <blockquote>
 <p><em>You can see examples for all funcs in "test/test-UseCase.py".</em></p>
+</blockquote>
 
+<h2>
+<a id="user-content-easy-setup-module-pykinit" class="anchor" href="#easy-setup-module-pykinit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Easy setup module PyKInit</h2>
+
+<blockquote>
+<blockquote>
+<pre><code>    TODO !!
+</code></pre>
+</blockquote>
+</blockquote>
+
+<h2>
+<a id="user-content-core-module-pykicore" class="anchor" href="#core-module-pykicore" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Core module PyKIcore</h2>
+
+<blockquote>
 <p>Load PyKI module:</p>
 
 <blockquote>
 <pre><code>#!/usr/bin/env python3
 # -*- encoding: UTF-8 -*-
-from PyKI import PyKI
+from PyKI import PyKIcore
 </code></pre>
 </blockquote>
 </blockquote>
@@ -285,7 +300,7 @@ from PyKI import PyKI
 </ul>
 
 <blockquote>
-<pre><code>    pki = PyKI(issuerName='PyKI_example', verbose = True, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+<pre><code>    pki = PyKIcore.PyKI(issuerName='PyKI_example', verbose = True, authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
 </code></pre>
 </blockquote>
 
@@ -347,10 +362,10 @@ from PyKI import PyKI
 
 <blockquote>
 <pre><code>    # With default values
-        pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
+        pki = PyKIcore.PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
 
     # Or with custom params
-        pki = PyKI(issuerName='PyKI_example', authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
+        pki = PyKIcore.PyKI(issuerName='PyKI_example', authKeypass=privateKeyPassphrase, authKeylen = 1024, KEY_SIZE = 1024, SIGN_ALGO = 'SHA1')
 </code></pre>
 </blockquote>
 </blockquote>
@@ -365,7 +380,7 @@ from PyKI import PyKI
 <blockquote>
 <p>- Any time after having called PyKI class: <em><strong>pki.set_verbosity(True)</strong></em></p>
 
-<p>- During PyKI class calling: <em><strong>PyKI(verbose = True, ...)</strong></em></p>
+<p>- During PyKI class calling: <em><strong>PyKIcore.PyKI(verbose = True, ...)</strong></em></p>
 </blockquote>
 </blockquote>
 
@@ -419,16 +434,16 @@ from PyKI import PyKI
 <blockquote>
 <ul>
 <li>
-<strong>passphrase (<em>string</em>)</strong>: Private key encryption passphrase. Can be leave as None to generate an unprotected key (not recommended).<br>
+<strong>passphrase (<em>str</em>)</strong>: Private key encryption passphrase. Can be leave as None to generate an unprotected key (not recommended).<br>
 </li>
 <li>
 <strong>keysize (<em>int</em>)</strong>: Private key encryption length. Must be in [1024,2048,4096,8192].<br>
 </li>
 <li>
-<strong>name (<em>string</em>)</strong>: Private key name which must match the certificate common name.<br>
+<strong>name (<em>str</em>)</strong>: Private key name which must match the certificate common name.<br>
 </li>
 <li>
-<strong>usage (<em>string</em>)</strong>: Set the certificate usage type.<br>
+<strong>usage (<em>str</em>)</strong>: Set the certificate usage type.<br>
 <em>Can be: <strong>serverAuth</strong> or <strong>clientAuth</strong> or <strong>None</strong>. Default: <strong>serverAuth</strong></em>.<br>
 </li>
 <li>
@@ -470,23 +485,23 @@ from PyKI import PyKI
 <blockquote>
 <ul>
 <li>
-<strong>country (<em>string</em>)</strong>: Certificate country information.</li>
+<strong>country (<em>str</em>)</strong>: Certificate country information.</li>
 <li>
-<strong>state (<em>string</em>)</strong>: Certificate state information.</li>
+<strong>state (<em>str</em>)</strong>: Certificate state information.</li>
 <li>
-<strong>city (<em>string</em>)</strong>: Certificate city information.</li>
+<strong>city (<em>str</em>)</strong>: Certificate city information.</li>
 <li>
-<strong>org (<em>string</em>)</strong>: Certificate organization information.</li>
+<strong>org (<em>str</em>)</strong>: Certificate organization information.</li>
 <li>
-<strong>ou (<em>string</em>)</strong>: Certificate organization unit information.</li>
+<strong>ou (<em>str</em>)</strong>: Certificate organization unit information.</li>
 <li>
-<strong>email (<em>string</em>)</strong>: Certificate administrator e-mail information.</li>
+<strong>email (<em>str</em>)</strong>: Certificate administrator e-mail information.</li>
 <li>
 <strong>subjectAltName (<em>list of string</em>)</strong>: Certificate Subject Alt-names extension. Must be in this format <strong><em>[ 'type:value' ]</em></strong> and types are '<strong>email</strong>', '<strong>URI</strong>', '<strong>IP</strong>', '<strong>DNS</strong>'.</li>
 <li>
-<strong>cn (<em>string</em>)</strong>: Certificate Common Name.</li>
+<strong>cn (<em>str</em>)</strong>: Certificate Common Name.</li>
 <li>
-<strong>encryption (<em>string</em>)</strong>: Certificate encryption (SHA1/SHA256/SHA512).</li>
+<strong>encryption (<em>str</em>)</strong>: Certificate encryption (SHA1/SHA256/SHA512).</li>
 <li>
 <strong>ca (<em>boolean</em>)</strong>: Indicate if the key will be use to generate a CA type certificate.</li>
 <li>
@@ -494,7 +509,7 @@ from PyKI import PyKI
 <li>
 <strong>days_valid (<em>int</em>)</strong>: Set the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .</li>
 <li>
-<strong>KeyUsage (<em>string</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
+<strong>KeyUsage (<em>str</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
 <li>
 <strong>toRenew (<em>Boolean.</em>)</strong>: Allow to specify that we want to renew the certificate without revoking but replacing the current one.</li>
 </ul>
@@ -540,9 +555,9 @@ from PyKI import PyKI
 <blockquote>
 <ul>
 <li>
-<strong>keyname (<em>string</em>)</strong>: PKI certificate name associated to the private key.</li>
+<strong>keyname (<em>str</em>)</strong>: PKI certificate name associated to the private key.</li>
 <li>
-<strong>privKeypass (<em>string</em>)</strong>: Private key passphrase.</li>
+<strong>privKeypass (<em>str</em>)</strong>: Private key passphrase.</li>
 </ul>
 </blockquote>
 
@@ -576,7 +591,7 @@ from PyKI import PyKI
 <blockquote>
 <ul>
 <li>
-<strong>certname (<em>string</em>)</strong>: certificate name in the PKI.</li>
+<strong>certname (<em>str</em>)</strong>: certificate name in the PKI.</li>
 </ul>
 </blockquote>
 
@@ -610,7 +625,7 @@ from PyKI import PyKI
 <blockquote>
 <ul>
 <li>
-<strong>cert (<em>string</em>)</strong>: Certificate file path to check.</li>
+<strong>cert (<em>str</em>)</strong>: Certificate file path to check.</li>
 </ul>
 </blockquote>
 
@@ -645,7 +660,7 @@ from PyKI import PyKI
 <blockquote>
 <ul>
 <li>
-<strong>cert (<em>string</em>)</strong>: Certificate file path to check.</li>
+<strong>cert (<em>str</em>)</strong>: Certificate file path to check.</li>
 </ul>
 </blockquote>
 
@@ -679,11 +694,11 @@ from PyKI import PyKI
 <blockquote>
 <ul>
 <li>
-<strong>cert (<em>string</em>)</strong>: Certificate file path.</li>
+<strong>cert (<em>str</em>)</strong>: Certificate file path.</li>
 <li>
-<strong>key (<em>string</em>)</strong>: Private key file path.</li>
+<strong>key (<em>str</em>)</strong>: Private key file path.</li>
 <li>
-<strong>keypass (<em>string</em>)</strong>: Private key passphrase if needed.</li>
+<strong>keypass (<em>str</em>)</strong>: Private key passphrase if needed.</li>
 </ul>
 </blockquote>
 
@@ -724,9 +739,9 @@ from PyKI import PyKI
 <blockquote>
 <ul>
 <li>
-<strong>pkcs12name (<em>string</em>)</strong>: PKI existing certificate name.</li>
+<strong>pkcs12name (<em>str</em>)</strong>: PKI existing certificate name.</li>
 <li>
-<strong>pkcs12pwd (<em>string</em>)</strong>: PKCS12 file password.</li>
+<strong>pkcs12pwd (<em>str</em>)</strong>: PKCS12 file password.</li>
 </ul>
 </blockquote>
 
@@ -760,13 +775,13 @@ from PyKI import PyKI
 <blockquote>
 <ul>
 <li>
-<strong>pkcs12file (<em>string</em>)</strong>: PKCS12 file path to extract.</li>
+<strong>pkcs12file (<em>str</em>)</strong>: PKCS12 file path to extract.</li>
 <li>
-<strong>pkcs12pwd (<em>string</em>)</strong>: PKCS12 file password.</li>
+<strong>pkcs12pwd (<em>str</em>)</strong>: PKCS12 file password.</li>
 <li>
-<strong>destdir (<em>string</em>)</strong>: Extracted files destination directory.</li>
+<strong>destdir (<em>str</em>)</strong>: Extracted files destination directory.</li>
 <li>
-<strong>inPrivKeypass (<em>string</em>)</strong>: private key passphrase if the key is protected.</li>
+<strong>inPrivKeypass (<em>str</em>)</strong>: private key passphrase if the key is protected.</li>
 </ul>
 </blockquote>
 
@@ -804,12 +819,16 @@ from PyKI import PyKI
 <blockquote>
 <ul>
 <li>
-<strong>certname (<em>string</em>)</strong>: Certificaten name in PKI.</li>
+<strong>certname (<em>str</em>)</strong>: Certificaten name in PKI.</li>
 <li>
 <strong>next_crl_days (<em>int</em>)</strong>: Number of days to add for CRL expiry due to the CRL update.</li>
 <li>
 <strong>reason (<em>bytes</em>)</strong>: Certificate revocation reason to set in the CRL.<br>
 Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationChanged,superseded, cessationOfOperation, certificateHold</em></strong> ] .</li>
+<li>
+<strong>date (<em>str</em>)</strong>: Date to reach for considering the certificate as revoked (Format: "%d/%m/%Y"). If not specified, the revocation comes immediately.</li>
+<li>
+<strong>renewal (<em>bool</em>)</strong>: Specify if the revocation is called for a certificate renewal process.</li>
 </ul>
 </blockquote>
 
@@ -843,25 +862,25 @@ Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationCh
 <blockquote>
 <ul>
 <li>
-<strong>passphrase (<em>string</em>)</strong>: Private key passphrase.</li>
+<strong>passphrase (<em>str</em>)</strong>: Private key passphrase.</li>
 <li>
-<strong>country (<em>string</em>)</strong>: Certificate country information.</li>
+<strong>country (<em>str</em>)</strong>: Certificate country information.</li>
 <li>
 <strong>subjectAltName (<em>list of string</em>)</strong>: Certificate Subject Alt-names extension. Must be in this format <strong><em>[ 'type:value' ]</em></strong> and types are '<strong>email</strong>', '<strong>URI</strong>', '<strong>IP</strong>', '<strong>DNS</strong>'.</li>
 <li>
-<strong>state (<em>string</em>)</strong>: Certificate state information.</li>
+<strong>state (<em>str</em>)</strong>: Certificate state information.</li>
 <li>
-<strong>city (<em>string</em>)</strong>: Certificate city information.</li>
+<strong>city (<em>str</em>)</strong>: Certificate city information.</li>
 <li>
-<strong>org (<em>string</em>)</strong>: Certificate organization information.</li>
+<strong>org (<em>str</em>)</strong>: Certificate organization information.</li>
 <li>
-<strong>ou (<em>string</em>)</strong>: Certificate organization unit information.</li>
+<strong>ou (<em>str</em>)</strong>: Certificate organization unit information.</li>
 <li>
-<strong>cn (<em>string</em>)</strong>: Certificate Common Name.</li>
+<strong>cn (<em>str</em>)</strong>: Certificate Common Name.</li>
 <li>
-<strong>email (<em>string</em>)</strong>: Certificate administrator e-mail information.</li>
+<strong>email (<em>str</em>)</strong>: Certificate administrator e-mail information.</li>
 <li>
-<strong>encryption (<em>string</em>)</strong>: Private key encryption (SHA1/SHA256/SHA512).</li>
+<strong>encryption (<em>str</em>)</strong>: Private key encryption (SHA1/SHA256/SHA512).</li>
 <li>
 <strong>keysize (<em>int</em>)</strong>: Private key size must be in [1024-8192].</li>
 </ul>
@@ -907,7 +926,7 @@ Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationCh
 <blockquote>
 <ul>
 <li>
-<strong>filepath (<em>string</em>)</strong>: CSR file path.</li>
+<strong>filepath (<em>str</em>)</strong>: CSR file path.</li>
 </ul>
 </blockquote>
 
@@ -941,15 +960,15 @@ Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationCh
 <blockquote>
 <ul>
 <li>
-<strong>csr (<em>string</em>)</strong>: Certificate Signing Request file path.</li>
+<strong>csr (<em>str</em>)</strong>: Certificate Signing Request file path.</li>
 <li>
-<strong>encryption (<em>string</em>)</strong>: Certificate encryption (SHA1/SHA256/SHA512).</li>
+<strong>encryption (<em>str</em>)</strong>: Certificate encryption (SHA1/SHA256/SHA512).</li>
 <li>
 <strong>valid_before (<em>int</em>)</strong>: Allow to generate a certificate which will be valid (from current time) in number of days in the future.</li>
 <li>
 <strong>days_valid (<em>int</em>)</strong>: Set the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .</li>
 <li>
-<strong>KeyUsage (<em>string</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
+<strong>KeyUsage (<em>str</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
 </ul>
 </blockquote>
 

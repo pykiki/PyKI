@@ -5,7 +5,7 @@ from os import path as ospath, sys
 curScriptDir = ospath.dirname(ospath.abspath(__file__))
 PyKImodPath = curScriptDir + "/../"
 sys.path.append(PyKImodPath)
-from PyKI import PyKI
+from PyKI import PyKIcore
 
 '''
     PyKI - PKI openssl for managing TLS certificates
@@ -57,13 +57,13 @@ if __name__ == '__main__':
             "\n!!!!! INFO: The auth private key will be saved in " +
             pkeyPath +
             " !!!!!\n")
-        pki = PyKI(
+        pki = PyKIcore.PyKI(
             verbose=False,
             authKeypass=privateKeyPassphrase,
             authKeylen=1024,
             KEY_SIZE=1024,
             SIGN_ALGO='SHA1')
-        #pki = PyKI(verbose = False, authKeypass=privateKeyPassphrase)
+        #pki = PyKIcore.PyKI(verbose = False, authKeypass=privateKeyPassphrase)
 
         # get private key for authentication after first init
         authprivkey = pki.initPkey
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     pkey = open(pkeyPath, 'rt')
     pkeyStr = pkey.read()
     pkey.close()
-    pki = PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
+    pki = PyKIcore.PyKI(authKeypass=privateKeyPassphrase, privkeyStr=pkeyStr)
 
     # Set pki verbosity after init
     pki.set_verbosity(mainVerbosity)

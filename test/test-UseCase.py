@@ -8,7 +8,7 @@ from os import path as ospath, sys
 curScriptDir = ospath.dirname(ospath.abspath(__file__))
 PyKImodPath = curScriptDir + "/../"
 sys.path.append(PyKImodPath)
-from PyKI import PyKI
+from PyKI import PyKIcore
 
 '''
     PyKI - PKI openssl for managing TLS certificates
@@ -44,13 +44,13 @@ if __name__ == '__main__':
     pkeyPath = "./pki_auth_cert.pem"
 
     # Init pki with specific infos
-    #pki = PyKI(C = "US", ST = "NewYork", L = "Washington", O = "test", OU = "IT ops", adminEmail = 'al.maib@gmail.com')
+    #pki = PyKIcore.PyKI(C = "US", ST = "NewYork", L = "Washington", O = "test", OU = "IT ops", adminEmail = 'al.maib@gmail.com')
 
     # Init pki with verbosity
-    #pki = PyKI(verbose = mainVerbosity)
+    #pki = PyKIcore.PyKI(verbose = mainVerbosity)
 
     # Basic pki init
-    #pki = PyKI(authKeypass=privateKeyPassphrase)
+    #pki = PyKIcore.PyKI(authKeypass=privateKeyPassphrase)
 
     # first init, creating private key
     if not ospath.exists(pkeyPath):
@@ -58,7 +58,7 @@ if __name__ == '__main__':
             "\n!!!!! INFO: The private key will be saved in " +
             pkeyPath +
             " !!!!!\n")
-        pki = PyKI(
+        pki = PyKIcore.PyKI(
             issuerName='PyKI_auto-tester',
             verbose=True,
             KEY_SIZE=1024,
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     pkeyStr = pkey.read()
     pkey.close()
     # With predefined security params for certificate ca and intermediate gen'
-    pki = PyKI(
+    pki = PyKIcore.PyKI(
         issuerName='PyKI_auto-tester',
         verbose=mainVerbosity,
         KEY_SIZE=1024,

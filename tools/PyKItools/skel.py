@@ -21,83 +21,17 @@
     Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
 '''
 
-import argparse
-
-from sys import path as syspath, argv
-from os import path as ospath
-curScriptDir = ospath.dirname(ospath.abspath(__file__))
-initPath = curScriptDir + "/PyKInit/"
-syspath.append(initPath)
-from PyKInit import pkinit
-
-
-def argCommandline(argv):
-    """
-    Manage cli script args
-    """
-    parser = argparse.ArgumentParser(description='')
-    parser.add_argument(
-        "-n",
-        "--cn",
-        action="store",
-        dest="cn",
-        type=str,
-        help=u"Certificate common name",
-        metavar='Common Name',
-        required=True)
-    parser.add_argument(
-        "-a",
-        "--altnames",
-        action='store',
-        dest="subjectAltName",
-        nargs='*',
-        type=str,
-        metavar='type:value',
-        default=False,
-        help=u"X509 extension Subject Alternative-names (eg, IP:1.2.3.4 DNS:www.toto.net URI: www.toto.net)",
-        required=False)
-    parser.add_argument(
-        "-p",
-        "--purpose",
-        action='store',
-        dest="purpose",
-        type=str,
-        default='server',
-        metavar='client|server',
-        choices=[
-            'server',
-            'client'],
-        help=u"Select which type of use is required for the certificate",
-        required=True)
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action='store_true',
-        dest='mainVerbosity',
-        help=u"Add output verbosity",
-        required=False)
-
-    args = parser.parse_args()
-
-    # print help if no arguments given
-    if len(argv) <= 1:
-        parser.print_help()
-        exit(1)
-
-    result = vars(args)
-    return(result)
+from PyKI import PyKInit
 
 if __name__ == '__main__':
-    args = argCommandline(argv)
+    args = argCommandline()
 
-    pki = pkinit()
-    if not pki:
-        print("ERROR: Errors found during init")
-        exit(1)
-    pki.set_verbosity(args['mainVerbosity'])
+    curScriptDir = os.path.dirname(os.path.abspath(__file__))
+    configFilePath = curScriptDir + '/config/config.ini'
+    
+    pyki = PyKInit.PyKIsetup(configFilePath)
+    pki = pyki.pki
 
-    if args['cn'] not in pki.nameList:
-        print('ERROR: Certificate ' + args['cn'] + " doesn't exist.")
-        exit(1)
-
+    pki.remove_lockf("INFO: PKI unlocked.")
+    del(pki)
     exit(0)
