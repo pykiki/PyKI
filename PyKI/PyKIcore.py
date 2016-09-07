@@ -561,7 +561,7 @@ class PyKI():
             if self.__verbose:
                 print("INFO: Building ca certificates chain file...")
 
-            certs4chain = [self.__rootCAcrtfile, self.__intermediateCAcrtfile]
+            certs4chain = [self.__intermediateCAcrtfile, self.__rootCAcrtfile]
             built = self.build_chain(certs4chain, self.__ca_chain)
 
             if not built['error']:
