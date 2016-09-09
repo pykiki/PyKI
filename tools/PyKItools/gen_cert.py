@@ -126,6 +126,28 @@ def argCommandline(argv):
         help=u"X509 extension Subject Alternative-names (eg, IP:1.2.3.4 DNS:www.toto.net URI: www.toto.net)",
         required=False)
     parser.add_argument(
+        "-cdp",
+        "--crl-dp",
+        action='store',
+        dest="CRLdp",
+        nargs='*',
+        type=str,
+        metavar='type:value',
+        default=False,
+        help=u"X509 extension crlDistributionPoints (eg, URI:http://my.com/my.crl URI:http://oth.com/my.crl)",
+        required=False)
+    parser.add_argument(
+        "-ocsp",
+        "--ocsp-uri",
+        action='store',
+        dest="ocspURI",
+        nargs='*',
+        type=str,
+        metavar='type:value',
+        default=False,
+        help=u"X509 extension authorityInfoAccess (eg, OCSP;URI:http://ocsp.my.host/ caIssuers;URI:http://my.ca/ca.crt)",
+        required=False)
+    parser.add_argument(
         "-p",
         "--purpose",
         action='store',
@@ -220,7 +242,8 @@ def codegenerator(pwlen=25, alphabet=False):
 def genCert(name, pki, passphrase, usage, altnames=False,
             size=False, certenc=False, days=False, renew=False,
             country=False, state=False, city=False, org=False,
-            ou=False, email=False, endays=False
+            ou=False, email=False, endays=False, ocsp=False,
+            crlu=False
             ):
     '''
     tools Generatin key and certificate
@@ -278,6 +301,7 @@ def genCert(name, pki, passphrase, usage, altnames=False,
             encryption=certenc,
             # valid_before=deltadays,
             days_valid=days,
+            ocspURI=ocsp, CRLdp=crlu,
             toRenew=renew
         )
         if cert['error']:
@@ -317,6 +341,7 @@ def genCert(name, pki, passphrase, usage, altnames=False,
             cn=name,
             encryption=certenc,
             days_valid=days,
+            ocspURI=ocsp, CRLdp=crlu,
             toRenew=renew
         )
         if cert['error']:
@@ -378,7 +403,9 @@ if __name__ == '__main__':
         org=args['o'],
         ou=args['ou'],
         email=args['email'],
-        endays=args['endays'])
+        endays=args['endays'],
+        ocsp=args['ocspURI'],
+        crlu=args['CRLdp'])
 
     pki.remove_lockf("INFO: PKI unlocked.")
     del(pki)

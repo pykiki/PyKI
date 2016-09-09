@@ -51,6 +51,14 @@ pyki.set_verbosity(True)
 ```
 ./gen_cert.py --cn vpn3-mp.ritano.fr -p server -r -b 4
 ```
+* generating cert with ocsp
+```
+./gen_cert.py -n "test.ocsp.fr" -p server -ocsp "OCSP;URI:https://wiki.maibach.fr caIssuers;URI:https://wiki.maibach.fr/cacert.pem"
+```
+* generating cert with Crl distribution points
+```
+./gen_cert.py -n "test.cdp.fr" -p server -cdp URI:https://wiki.maibach.fr/cacert.pem
+```
 
 ## generate csr:
 ```

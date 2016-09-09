@@ -511,6 +511,10 @@ from PyKI import PyKIcore
 <li>
 <strong>KeyUsage (<em>str</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
 <li>
+<strong>ocspURI (<em>list of str</em>)</strong>: Certificate authorityInfoAccess(OCSP) extension. Must be in this format [ 'val;type:value' ] where val can be (caIssuers|OCSP) and types are 'URI', 'IP' or 'DNS'.</li>
+<li>
+<strong>CRLdp (<em>list of str</em>)</strong>: Certificate crlDistributionPoints extension. Must be in this format [ 'type:value' ] and types are 'URI', 'IP' or 'DNS'.</li>
+<li>
 <strong>toRenew (<em>Boolean.</em>)</strong>: Allow to specify that we want to renew the certificate without revoking but replacing the current one.</li>
 </ul>
 </blockquote>
@@ -544,41 +548,41 @@ from PyKI import PyKIcore
 </blockquote>
 </blockquote>
 
-<h3>
-<a id="user-content-6-remove-passphrase" class="anchor" href="#6-remove-passphrase" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>6. Remove passphrase</h3>
+<pre><code># create cert with ocsp and crl distribution point
+cert = pki.create_cert(
+                   country = 'FR', state = 'PACA', city = 'Antibes',
+                   org = 'Maibach.fr', ou = 'IT',
+                   email = 'alain@maibach.fr',
+                   KeyUsage = 'serverAuth',
+                   subjectAltName = ['DNS:www.ritano.fr', 'DNS:wiki.maibach.fr', 'IP:10.0.0.1'],
+                   cn = 'www.ritano.fr',
+                   encryption = 'sha1',
+                   days_valid = '180',
+                   CRLdp='URI:https://wiki.maibach.fr/cacert.pem',
+                   ocspURI='OCSP;URI:https://wiki.maibach.fr caIssuers;URI:https://wiki.maibach.fr/cacert.pem'
+                  )
+</code></pre>
 
-<blockquote>
-<p>Removing passphrase from certificate.</p>
-
-<p><strong>Parameters</strong>:</p>
-
-<blockquote>
-<ul>
-<li>
-<strong>keyname (<em>str</em>)</strong>: PKI certificate name associated to the private key.</li>
-<li>
-<strong>privKeypass (<em>str</em>)</strong>: Private key passphrase.</li>
-</ul>
-</blockquote>
-
-<p><strong>Return</strong>:</p>
-
-<blockquote>
-<p>Informational result dict: <em>{'error': Boolean, 'message': String}</em></p>
-</blockquote>
-
-<p><strong>Example</strong>:</p>
-
-<blockquote>
-<pre><code>    # Init pki using 'Usual PKI init' (section 1) example and then
+<pre><code>
+### 6. Remove passphrase
+&gt; Removing passphrase from certificate.
+&gt;
+**Parameters**:
+&gt;&gt;* **keyname (_str_)**: PKI certificate name associated to the private key.
+* **privKeypass (_str_)**: Private key passphrase.
+&gt;
+**Return**:
+&gt;&gt;Informational result dict: _{'error': Boolean, 'message': String}_
+&gt;
+**Example**:
+&gt;&gt;```
+    # Init pki using 'Usual PKI init' (section 1) example and then
     pki.unprotect_key(keyname = 'www.ritano.fr', privKeypass = 'azerty')
     if unprotectres['error']:
         print(unprotectres['message'])
         return(False)
     print(unprotectres['message'])
 </code></pre>
-</blockquote>
-</blockquote>
 
 <h3>
 <a id="user-content-7-get-certificate-informations" class="anchor" href="#7-get-certificate-informations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>7. Get certificate informations</h3>

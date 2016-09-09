@@ -1349,9 +1349,12 @@ class PyKI():
 
         # for all unhandled extensions
         for key, value in extensions.items():
-            formatted_res += '\t' + key + ': ' + value + '\n'
-
-        formatted_res += "\n"
+            if key == 'crlDistributionPoints':
+                formatted_res += '\t' + key + ': \n\t\t' + \
+                    value['data'].strip('\nFull Name:\n') + '\n'
+            else:
+                formatted_res += '\t' + key + ': \n\t\t' + \
+                    value['data'].strip() + '\n'
 
         res = {'error': False, 'message': formatted_res}
         return(res)
@@ -3711,6 +3714,8 @@ class PyKI():
             subjectAltName=None,
             KeyUsage=False,
             encryption=False,
+            ocspURI=False,
+            CRLdp=False,
             toRenew=False):
         '''
         Create a X509 signed certificate.
@@ -3734,7 +3739,7 @@ class PyKI():
         :type email: String.
 
         :param subjectAltName: Certificate Subject Alt-names extension. Must be in this format [ 'type:value' ] and types are 'email', 'URI', 'IP', 'DNS'.
-        :type subjectAltName: List of string.
+        :type subjectAltName: List of str.
 
         :param cn: Certificate Common Name.
         :type cn: String.
@@ -3754,6 +3759,12 @@ class PyKI():
 
         :param KeyUsage: Define the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
         :type KeyUsage: String.
+
+        :param ocspURI: Certificate authorityInfoAccess(OCSP) extension. Must be in this format [ 'val;type:value' ] where val can be (caIssuers|OCSP) and types are 'URI', 'IP' or 'DNS'.
+        :type ocspURI: List of str.
+
+        :param CRLdp: Certificate crlDistributionPoints extension. Must be in this format [ 'type:value' ] and types are 'URI', 'IP' or 'DNS'.
+        :type CRLdp: List of str.
 
         :param toRenew: Allow to specify that we want to renew the certificate without revoking but replacing the current one.
         :type toRenew: Boolean.
@@ -4004,6 +4015,12 @@ class PyKI():
                 # find subjectKeyIdentifier when setting authorityKeyIdentifier
                 cert.add_extensions([crypto.X509Extension(
                     b"authorityKeyIdentifier", False, b"keyid:always,issuer", issuer=issuerCertObj)])
+
+            # OCSP support addon
+            cert.add_extensions([crypto.X509Extension(
+                b"extendedKeyUsage",
+                False,
+                b"OCSPSigning")])
         else:
             cert.add_extensions([crypto.X509Extension(
                 b"basicConstraints", False, b"CA:FALSE")])
@@ -4045,6 +4062,31 @@ class PyKI():
                                 b"extendedKeyUsage",
                                 True,
                                 KeyUsage.encode('utf-8'))])
+        # OCSP support addon
+        if ocspURI:
+            try:
+                uris = b", ".join(u.encode('utf-8')
+                                          for u in ocspURI)
+            except:
+                res = {
+                    "error": True,
+                    "message": 'ERROR: Error parsing ocsp'}
+                return(res)
+            cert.add_extensions([crypto.X509Extension(
+                b"authorityInfoAccess", False, uris)])
+
+        # CRL distribution points addon
+        if CRLdp:
+            try:
+                crlu = b", ".join(c.encode('utf-8')
+                                          for c in CRLdp)
+            except:
+                res = {
+                    "error": True,
+                    "message": 'ERROR: Error parsing CRL distribution point URIs'}
+                return(res)
+            cert.add_extensions([crypto.X509Extension(
+                b"crlDistributionPoints", False, crlu)])
 
         if subjectAltName:
             critical = True if not cn else False

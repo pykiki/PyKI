@@ -280,6 +280,8 @@ from PyKI import PyKIcore
 * **valid\_before (_int_)**: Allow to generate a certificate which will be valid (from now) in number of days in the futur.
 * **days\_valid (_int_)**: Set the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .
 * **KeyUsage (_str_)**: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
+* **ocspURI (_list of str_)**: Certificate authorityInfoAccess(OCSP) extension. Must be in this format [ 'val;type:value' ] where val can be (caIssuers|OCSP) and types are 'URI', 'IP' or 'DNS'.
+* **CRLdp (_list of str_)**: Certificate crlDistributionPoints extension. Must be in this format [ 'type:value' ] and types are 'URI', 'IP' or 'DNS'.
 * **toRenew (_Boolean._)**: Allow to specify that we want to renew the certificate without revoking but replacing the current one.
 >
 **Return**:
@@ -303,6 +305,20 @@ from PyKI import PyKIcore
 		return(False)
 	else:
 		print(cert['message'])
+
+    # create cert with ocsp and crl distribution point
+	cert = pki.create_cert(
+                       country = 'FR', state = 'PACA', city = 'Antibes',
+                       org = 'Maibach.fr', ou = 'IT',
+                       email = 'alain@maibach.fr',
+                       KeyUsage = 'serverAuth',
+                       subjectAltName = ['DNS:www.ritano.fr', 'DNS:wiki.maibach.fr', 'IP:10.0.0.1'],
+                       cn = 'www.ritano.fr',
+                       encryption = 'sha1',
+                       days_valid = '180',
+                       CRLdp='URI:https://wiki.maibach.fr/cacert.pem',
+                       ocspURI='OCSP;URI:https://wiki.maibach.fr caIssuers;URI:https://wiki.maibach.fr/cacert.pem'
+                      )
 ```
 
 ### 6. Remove passphrase
