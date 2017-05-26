@@ -1,5 +1,9 @@
 # voir pour integrer les outils en appel shell
 # eprouver les faiblesse en testant diverse installation et utilisation en environnement versatile
+    # git diff 0533a4ac7fb96a14975a59ca0b6a8f5807f13bbc
+        # Probleme avec l'oscp dans le CA, a refaire des tests, mais il ne pe etre present
+        # que lorsque le CA en question est dédié a ca.
+        # Voir donc pour l'affecter que sur les intermediate et que sur demande spécifique...?
 # integrer les test auto
 # combiner avec flask pour le mode API
 # integrer un logger vers syslog et vers un fichier de log

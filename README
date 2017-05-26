@@ -74,6 +74,8 @@
 <a id="user-content-prerequisites" class="anchor" href="#prerequisites" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prerequisites</h3>
 
 <ul>
+<li>libffi and devel sources</li>
+<li>openssl and devel sources</li>
 <li><a href="https://pypi.python.org/pypi/cffi/1.7.0">cffi &gt;= 1.7.0</a></li>
 <li><a href="https://pypi.python.org/pypi/cryptography/1.4">cryptography &gt;= 1.4</a></li>
 <li><a href="https://pypi.python.org/pypi/idna/2.1">idna &gt;= 2.1</a></li>
