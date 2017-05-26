@@ -287,8 +287,12 @@ def genCert(name, pki, passphrase, usage, altnames=False,
         if crl['error']:
             return(1)
         else:
-            print("INFO: You current certificate for " + name +
-                  " will be revoked in " + str(endays) + " days.")
+            if endays:
+                print("INFO: You current certificate for " + name +
+                      " will be revoked in " + str(endays) + " days.")
+            else:
+                print("INFO: You current certificate for " + name +
+                      " will be revoked.")
 
         print("INFO: Generating certificate whith alt-names...")
         cert = pki.create_cert(

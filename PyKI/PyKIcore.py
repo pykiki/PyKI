@@ -3056,7 +3056,8 @@ class PyKI():
                     crypto.X509Extension(
                         b"keyUsage",
                         True,
-                        b"dataEncipherment, digitalSignature, nonRepudiation"),
+                        #b"dataEncipherment, digitalSignature, nonRepudiation"),
+                        b"keyEncipherment, dataEncipherment"),
                     crypto.X509Extension(
                         b"extendedKeyUsage",
                         True,
@@ -3067,7 +3068,8 @@ class PyKI():
                     crypto.X509Extension(
                         b"keyUsage",
                         True,
-                        b"dataEncipherment, digitalSignature, nonRepudiation"),
+                        #b"dataEncipherment, digitalSignature, nonRepudiation"),
+                        b"keyEncipherment, dataEncipherment"),
                     crypto.X509Extension(
                         b"extendedKeyUsage",
                         True,
@@ -4032,7 +4034,8 @@ class PyKI():
                         crypto.X509Extension(
                             b"keyUsage",
                             True,
-                            b"dataEncipherment, digitalSignature, nonRepudiation"),
+                            #b"dataEncipherment, digitalSignature, nonRepudiation"),
+                            b"keyEncipherment, dataEncipherment"),
                         crypto.X509Extension(
                             b"extendedKeyUsage",
                             True,
@@ -4045,7 +4048,8 @@ class PyKI():
                             crypto.X509Extension(
                                 b"keyUsage",
                                 True,
-                                b"dataEncipherment, digitalSignature, nonRepudiation"),
+                                #b"dataEncipherment, digitalSignature, nonRepudiation"),
+                                b"keyEncipherment, dataEncipherment"),
                             crypto.X509Extension(
                                 b"extendedKeyUsage",
                                 True,
@@ -4057,7 +4061,8 @@ class PyKI():
                             crypto.X509Extension(
                                 b"keyUsage",
                                 True,
-                                b"dataEncipherment, digitalSignature, nonRepudiation"),
+                                #b"dataEncipherment, digitalSignature, nonRepudiation"),
+                                b"keyEncipherment, dataEncipherment"),
                             crypto.X509Extension(
                                 b"extendedKeyUsage",
                                 True,
