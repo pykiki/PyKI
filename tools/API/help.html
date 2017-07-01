@@ -494,7 +494,7 @@ from PyKI import PyKI
 <li>
 <strong>days_valid (<em>int</em>)</strong>: Set the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .</li>
 <li>
-<strong>KeyUsage (<em>string</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
+<strong>KeyPurpose (<em>string</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
 <li>
 <strong>toRenew (<em>Boolean.</em>)</strong>: Allow to specify that we want to renew the certificate without revoking but replacing the current one.</li>
 </ul>
@@ -514,7 +514,7 @@ from PyKI import PyKI
                        country = 'FR', state = 'PACA', city = 'Antibes',
                        org = 'Maibach.fr', ou = 'IT',
                        email = 'alain@maibach.fr',
-                       KeyUsage = 'serverAuth',
+                       KeyPurpose = 'serverAuth',
                        subjectAltName = ['DNS:www.ritano.fr', 'DNS:wiki.maibach.fr', 'IP:10.0.0.1'],
                        cn = 'www.ritano.fr',
                        encryption = 'sha1',
@@ -949,7 +949,7 @@ Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationCh
 <li>
 <strong>days_valid (<em>int</em>)</strong>: Set the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .</li>
 <li>
-<strong>KeyUsage (<em>string</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
+<strong>KeyPurpose (<em>string</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
 </ul>
 </blockquote>
 
@@ -966,7 +966,7 @@ Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationCh
     # Signing Certificate Request for 90 days of validity
     signRes = pki.sign_csr(
         csr="/opt/PyKI_data/CERTS/requests/test_gencsr/test_gencsr.csr",
-        KeyUsage = "clientAuth",
+        KeyPurpose = "clientAuth",
         days_valid = 90,
         encryption = "SHA1"
     )

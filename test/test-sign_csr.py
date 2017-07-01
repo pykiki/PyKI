@@ -85,7 +85,7 @@ if __name__ == '__main__':
               csrpath + " for 90 days of validity...")
     signRes = pki.sign_csr(
         csr=csrpath,
-        KeyUsage="clientAuth",
+        KeyPurpose="clientAuth",
         days_valid=90,
         encryption="SHA1")
     if signRes['error']:

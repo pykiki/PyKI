@@ -2892,7 +2892,7 @@ class PyKI():
             self,
             csr,
             valid_before=0,
-            KeyUsage=False,
+            KeyPurpose=False,
             days_valid=None,
             encryption=False):
         '''
@@ -2911,25 +2911,25 @@ class PyKI():
         :param days_valid: Define the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .
         :type days_valid: Int.
 
-        :param KeyUsage: Define the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
-        :type KeyUsage: String.
+        :param KeyPurpose: Define the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
+        :type KeyPurpose: String.
 
         :returns: Informational result dict {'error': Boolean, 'message': String}
         :rtype: Dict.
         '''
 
-        if not KeyUsage:  # define key usage
+        if not KeyPurpose:  # define key usage
             typecrt = "SRV"
-            KeyUsage = "serverAuth, clientAuth"
-        elif KeyUsage == "clientAuth":
+            KeyPurpose = "serverAuth, clientAuth"
+        elif KeyPurpose == "clientAuth":
             typecrt = "CLT"
-        elif KeyUsage == "serverAuth":
+        elif KeyPurpose == "serverAuth":
             typecrt = "SRV"
         else:
             res = {
                 "error": True,
                 "message": "ERROR: Wrong Key Usage type " +
-                KeyUsage +
+                KeyPurpose +
                 ", it must be serverAuth or clientAuth !"}
             return(res)
         CRTdir = self.__signeDir
@@ -3050,7 +3050,7 @@ class PyKI():
             crypto.X509Extension(b"basicConstraints", False, b"CA:FALSE")
         ])
 
-        if KeyUsage == "serverAuth, clientAuth":
+        if KeyPurpose == "serverAuth, clientAuth":
             certObj.add_extensions(
                 [
                     crypto.X509Extension(
@@ -3073,7 +3073,7 @@ class PyKI():
                     crypto.X509Extension(
                         b"extendedKeyUsage",
                         True,
-                        KeyUsage.encode('utf-8'))])
+                        KeyPurpose.encode('utf-8'))])
 
         san = False
         # look for san x509 extension
@@ -3714,7 +3714,7 @@ class PyKI():
             valid_before=0,
             days_valid=False,
             subjectAltName=None,
-            KeyUsage=False,
+            KeyPurpose=False,
             encryption=False,
             ocspURI=False,
             CRLdp=False,
@@ -3759,8 +3759,8 @@ class PyKI():
         :param days_valid: Define the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .
         :type days_valid: Int.
 
-        :param KeyUsage: Define the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
-        :type KeyUsage: String.
+        :param KeyPurpose: Define the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
+        :type KeyPurpose: String.
 
         :param ocspURI: Certificate authorityInfoAccess(OCSP) extension. Must be in this format [ 'val;type:value' ] where val can be (caIssuers|OCSP) and types are 'URI', 'IP' or 'DNS'.
         :type ocspURI: List of str.
@@ -3839,11 +3839,11 @@ class PyKI():
                 passname = cn
                 filename = cn
 
-            if not KeyUsage:  # define key usage
+            if not KeyPurpose:  # define key usage
                 typecrt = "SRV"
-                KeyUsage = "serverAuth, clientAuth"
+                KeyPurpose = "serverAuth, clientAuth"
                 keydir = self.__srvCRTdir + "/" + filename
-            elif KeyUsage == "clientAuth":
+            elif KeyPurpose == "clientAuth":
                 typecrt = "CLT"
                 keydir = self.__cltCRTdir + "/" + filename
             else:
@@ -4026,7 +4026,7 @@ class PyKI():
         else:
             cert.add_extensions([crypto.X509Extension(
                 b"basicConstraints", False, b"CA:FALSE")])
-            if not KeyUsage:
+            if not KeyPurpose:
                 typecrt = "SRV"
                 # define key usage
                 cert.add_extensions(
@@ -4041,7 +4041,7 @@ class PyKI():
                             True,
                             b"serverAuth, clientAuth")])
             else:
-                if KeyUsage == "clientAuth":
+                if KeyPurpose == "clientAuth":
                     typecrt = "CLT"
                     cert.add_extensions(
                         [
@@ -4053,7 +4053,7 @@ class PyKI():
                             crypto.X509Extension(
                                 b"extendedKeyUsage",
                                 True,
-                                KeyUsage.encode('utf-8'))])
+                                KeyPurpose.encode('utf-8'))])
                 else:
                     typecrt = "SRV"
                     cert.add_extensions(
@@ -4066,7 +4066,7 @@ class PyKI():
                             crypto.X509Extension(
                                 b"extendedKeyUsage",
                                 True,
-                                KeyUsage.encode('utf-8'))])
+                                KeyPurpose.encode('utf-8'))])
         # OCSP support addon
         if ocspURI:
             try:

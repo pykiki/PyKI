@@ -136,7 +136,7 @@ if __name__ == '__main__':
 
     signRes = pki.sign_csr(
         csr=filepath,
-        KeyUsage=args['purpose'],
+        KeyPurpose=args['purpose'],
         days_valid=args['duration'],
         encryption=args['encryption'])
     if signRes['error']:

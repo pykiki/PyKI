@@ -279,7 +279,7 @@ from PyKI import PyKIcore
 * **ca (_boolean_)**: Indicate if the key will be use to generate a CA type certificate.
 * **valid\_before (_int_)**: Allow to generate a certificate which will be valid (from now) in number of days in the futur.
 * **days\_valid (_int_)**: Set the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .
-* **KeyUsage (_str_)**: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
+* **KeyPurpose (_str_)**: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
 * **ocspURI (_list of str_)**: Certificate authorityInfoAccess(OCSP) extension. Must be in this format [ 'val;type:value' ] where val can be (caIssuers|OCSP) and types are 'URI', 'IP' or 'DNS'.
 * **CRLdp (_list of str_)**: Certificate crlDistributionPoints extension. Must be in this format [ 'type:value' ] and types are 'URI', 'IP' or 'DNS'.
 * **toRenew (_Boolean._)**: Allow to specify that we want to renew the certificate without revoking but replacing the current one.
@@ -294,7 +294,7 @@ from PyKI import PyKIcore
                        country = 'FR', state = 'PACA', city = 'Antibes',
                        org = 'Maibach.fr', ou = 'IT',
                        email = 'alain@maibach.fr',
-                       KeyUsage = 'serverAuth',
+                       KeyPurpose = 'serverAuth',
                        subjectAltName = ['DNS:www.ritano.fr', 'DNS:wiki.maibach.fr', 'IP:10.0.0.1'],
                        cn = 'www.ritano.fr',
                        encryption = 'sha1',
@@ -311,7 +311,7 @@ from PyKI import PyKIcore
                        country = 'FR', state = 'PACA', city = 'Antibes',
                        org = 'Maibach.fr', ou = 'IT',
                        email = 'alain@maibach.fr',
-                       KeyUsage = 'serverAuth',
+                       KeyPurpose = 'serverAuth',
                        subjectAltName = ['DNS:www.ritano.fr', 'DNS:wiki.maibach.fr', 'IP:10.0.0.1'],
                        cn = 'www.ritano.fr',
                        encryption = 'sha1',
@@ -563,7 +563,7 @@ Must be in [ ***unspecified, keyCompromise, CACompromise, affiliationChanged,sup
 * **encryption (_str_)**: Certificate encryption (SHA1/SHA256/SHA512).
 * **valid\_before (_int_)**: Allow to generate a certificate which will be valid (from current time) in number of days in the future.
 * **days\_valid (_int_)**: Set the periode, in days, during which the certfiicate will be valid. If valid\_before is specified the validity will start at valid_before time .
-* **KeyUsage (_str_)**: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
+* **KeyPurpose (_str_)**: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
 >
 **Return**:
 >>Informational result dict: _{'error': Boolean, 'message': String}_
@@ -574,7 +574,7 @@ Must be in [ ***unspecified, keyCompromise, CACompromise, affiliationChanged,sup
 	# Signing Certificate Request for 90 days of validity
 	signRes = pki.sign_csr(
 		csr="/opt/PyKI_data/CERTS/requests/test_gencsr/test_gencsr.csr",
-    	KeyUsage = "clientAuth",
+    	KeyPurpose = "clientAuth",
     	days_valid = 90,
     	encryption = "SHA1"
 	)

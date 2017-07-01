@@ -145,7 +145,7 @@ if __name__ == '__main__':
         country='BE', state='Antwerp', city='Mechelen',
         org='In Serf we trust, Inc.', ou='Test Suite Server',
         email='serfserver@example.com',
-        KeyUsage="serverAuth",
+        KeyPurpose="serverAuth",
         cn=commoname,
         subjectAltName=['DNS:' + commoname],
         # Options are 'email', 'URI', 'IP', 'DNS'
@@ -191,7 +191,7 @@ if __name__ == '__main__':
         org='In Serf we trust, Inc.', ou='Test Suite Server',
         email='serfserver@example.com',
         cn=commoname,
-        KeyUsage="serverAuth",
+        KeyPurpose="serverAuth",
     )
     if expiredcert['error']:
         print(
@@ -230,7 +230,7 @@ if __name__ == '__main__':
         org='In Serf we trust, Inc.', ou='Test Suite Server',
         email='serfserver@example.com',
         cn=commoname,
-        KeyUsage="serverAuth",
+        KeyPurpose="serverAuth",
         valid_before=10 * 365,
         days_valid=13 * 365)
     if expiredcert['error']:
@@ -268,7 +268,7 @@ if __name__ == '__main__':
         days_valid=13 * 365,
         cn=None,
         subjectAltName=['DNS:' + commoname],
-        KeyUsage="serverAuth",
+        KeyPurpose="serverAuth",
     )
     if san_nocncert['error']:
         print(
@@ -309,7 +309,7 @@ if __name__ == '__main__':
         country='BE', state='Antwerp', city='Mechelen',
         org='In Serf we trust, Inc.', ou='Test Suite Server',
         email='serfclient@example.com',
-        KeyUsage="clientAuth",
+        KeyPurpose="clientAuth",
         cn=commoname,
         # Options are 'email', 'URI', 'IP', 'DNS'
         subjectAltName=['DNS:' + commoname, 'IP:10.0.0.1'],
@@ -436,7 +436,7 @@ if __name__ == '__main__':
               csrfile + " for 90 days of validity...")
     signRes = pki.sign_csr(
         csr=csrfile,
-        KeyUsage="clientAuth",
+        KeyPurpose="clientAuth",
         days_valid=90,
         encryption="SHA1")
     if signRes['error']:

@@ -63,7 +63,7 @@ def genCert(
         country='FR', state='PACA', city='Antibes',
         org='Maibach.fr', ou='IT',
         email='alain@maibach.fr',
-        KeyUsage=usage,
+        KeyPurpose=usage,
         subjectAltName=altnames,
         cn=name,
         encryption=certenc,
