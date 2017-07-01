@@ -2893,6 +2893,7 @@ class PyKI():
             csr,
             valid_before=0,
             KeyPurpose=False,
+            KeyUsage=False,
             days_valid=None,
             encryption=False):
         '''
@@ -2911,8 +2912,12 @@ class PyKI():
         :param days_valid: Define the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .
         :type days_valid: Int.
 
-        :param KeyPurpose: Define the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
+        :param KeyPurpose: Define the certificate purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
         :type KeyPurpose: String.
+
+        :param KeyUsage: Define the certificate usage. Could be [digitalSignature, nonRepudiation, contentCommitment, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign, encipherOnly, decipherOnly
+], if not specified, the certificate will bear keyEncipherment and dataEncipherment.
+        :type KeyUsage: String.
 
         :returns: Informational result dict {'error': Boolean, 'message': String}
         :rtype: Dict.
@@ -3054,14 +3059,33 @@ class PyKI():
             certObj.add_extensions(
                 [
                     crypto.X509Extension(
-                        b"keyUsage",
+                        b"extendedKeyUsage",
                         True,
-                        #b"dataEncipherment, digitalSignature, nonRepudiation"),
-                        b"keyEncipherment, dataEncipherment"),
+                        b"serverAuth, clientAuth"
+                    )
+                ]
+            )
+        else:
+            certObj.add_extensions(
+                [
                     crypto.X509Extension(
                         b"extendedKeyUsage",
                         True,
-                        b"serverAuth, clientAuth")])
+                        KeyPurpose.encode('utf-8')
+                    )
+                ]
+            )
+
+        if KeyUsage:
+            certObj.add_extensions(
+                [
+                    crypto.X509Extension(
+                        b"keyUsage",
+                        True,
+                        KeyUsage.encode('utf-8')
+                    )
+                ]
+            )
         else:
             certObj.add_extensions(
                 [
@@ -3069,11 +3093,10 @@ class PyKI():
                         b"keyUsage",
                         True,
                         #b"dataEncipherment, digitalSignature, nonRepudiation"),
-                        b"keyEncipherment, dataEncipherment"),
-                    crypto.X509Extension(
-                        b"extendedKeyUsage",
-                        True,
-                        KeyPurpose.encode('utf-8'))])
+                        b"keyEncipherment, dataEncipherment"
+                    )
+                ]
+            )
 
         san = False
         # look for san x509 extension
@@ -3715,6 +3738,7 @@ class PyKI():
             days_valid=False,
             subjectAltName=None,
             KeyPurpose=False,
+            KeyUsage=False,
             encryption=False,
             ocspURI=False,
             CRLdp=False,
@@ -3761,6 +3785,10 @@ class PyKI():
 
         :param KeyPurpose: Define the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.
         :type KeyPurpose: String.
+
+        :param KeyUsage: Define the certificate usage. Could be [digitalSignature, nonRepudiation, contentCommitment, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign, encipherOnly, decipherOnly
+], if not specified, the certificate will bear keyEncipherment and dataEncipherment.
+        :type KeyUsage: String.
 
         :param ocspURI: Certificate authorityInfoAccess(OCSP) extension. Must be in this format [ 'val;type:value' ] where val can be (caIssuers|OCSP) and types are 'URI', 'IP' or 'DNS'.
         :type ocspURI: List of str.
@@ -4026,47 +4054,64 @@ class PyKI():
         else:
             cert.add_extensions([crypto.X509Extension(
                 b"basicConstraints", False, b"CA:FALSE")])
-            if not KeyPurpose:
-                typecrt = "SRV"
-                # define key usage
+
+            if KeyUsage:
+                cert.add_extensions(
+                    [
+                        crypto.X509Extension(
+                            b"keyUsage",
+                            True,
+                            KeyUsage.encode('utf-8')
+                        )
+                    ]
+                )
+            else:
                 cert.add_extensions(
                     [
                         crypto.X509Extension(
                             b"keyUsage",
                             True,
                             #b"dataEncipherment, digitalSignature, nonRepudiation"),
-                            b"keyEncipherment, dataEncipherment"),
+                            b"keyEncipherment, dataEncipherment"
+                        )
+                    ]
+                )
+
+            if not KeyPurpose:
+                typecrt = "SRV"
+                # define key usage
+                cert.add_extensions(
+                    [
                         crypto.X509Extension(
                             b"extendedKeyUsage",
                             True,
-                            b"serverAuth, clientAuth")])
+                            b"serverAuth, clientAuth"
+                        )
+                    ]
+                )
             else:
                 if KeyPurpose == "clientAuth":
                     typecrt = "CLT"
                     cert.add_extensions(
                         [
                             crypto.X509Extension(
-                                b"keyUsage",
-                                True,
-                                #b"dataEncipherment, digitalSignature, nonRepudiation"),
-                                b"keyEncipherment, dataEncipherment"),
-                            crypto.X509Extension(
                                 b"extendedKeyUsage",
                                 True,
-                                KeyPurpose.encode('utf-8'))])
+                                KeyPurpose.encode('utf-8')
+                            )
+                        ]
+                    )
                 else:
                     typecrt = "SRV"
                     cert.add_extensions(
                         [
                             crypto.X509Extension(
-                                b"keyUsage",
-                                True,
-                                #b"dataEncipherment, digitalSignature, nonRepudiation"),
-                                b"keyEncipherment, dataEncipherment"),
-                            crypto.X509Extension(
                                 b"extendedKeyUsage",
                                 True,
-                                KeyPurpose.encode('utf-8'))])
+                                KeyPurpose.encode('utf-8')
+                            )
+                        ]
+                    )
         # OCSP support addon
         if ocspURI:
             try:

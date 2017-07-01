@@ -62,6 +62,16 @@ def argCommandline(argv):
         metavar='X',
         required=False)
     parser.add_argument(
+        "-k",
+        "--key-usage",
+        action='store',
+        dest="usage",
+        type=str,
+        default=False,
+        metavar='digitalSignature, nonRepudiation, contentCommitment, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign, encipherOnly, decipherOnly',
+        help=u"Select which type of use is required for the certificate",
+        required=False)
+    parser.add_argument(
         "-p",
         "--purpose",
         action='store',
@@ -137,6 +147,7 @@ if __name__ == '__main__':
     signRes = pki.sign_csr(
         csr=filepath,
         KeyPurpose=args['purpose'],
+        KeyUsage=args['usage'],
         days_valid=args['duration'],
         encryption=args['encryption'])
     if signRes['error']:

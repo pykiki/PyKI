@@ -86,6 +86,7 @@ if __name__ == '__main__':
     signRes = pki.sign_csr(
         csr=csrpath,
         KeyPurpose="clientAuth",
+        KeyUsage = 'keyEncipherment, dataEncipherment, digitalSignature',
         days_valid=90,
         encryption="SHA1")
     if signRes['error']:

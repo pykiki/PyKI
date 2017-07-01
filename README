@@ -511,7 +511,9 @@ from PyKI import PyKIcore
 <li>
 <strong>days_valid (<em>int</em>)</strong>: Set the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .</li>
 <li>
-<strong>KeyPurpose (<em>str</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
+<strong>KeyPurpose (<em>str</em>)</strong>: Set the certificate purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
+<li>
+<strong>KeyUsage (<em>str</em>)</strong>: Define the certificate usage. Could be [digitalSignature, nonRepudiation, contentCommitment, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign, encipherOnly, decipherOnly], if not specified, the certificate will bear keyEncipherment and dataEncipherment.</li>
 <li>
 <strong>ocspURI (<em>list of str</em>)</strong>: Certificate authorityInfoAccess(OCSP) extension. Must be in this format [ 'val;type:value' ] where val can be (caIssuers|OCSP) and types are 'URI', 'IP' or 'DNS'.</li>
 <li>
@@ -536,6 +538,7 @@ from PyKI import PyKIcore
                        org = 'Maibach.fr', ou = 'IT',
                        email = 'alain@maibach.fr',
                        KeyPurpose = 'serverAuth',
+                       KeyUsage = 'keyEncipherment, dataEncipherment,digitalSignature',
                        subjectAltName = ['DNS:www.ritano.fr', 'DNS:wiki.maibach.fr', 'IP:10.0.0.1'],
                        cn = 'www.ritano.fr',
                        encryption = 'sha1',
@@ -556,6 +559,7 @@ cert = pki.create_cert(
                    org = 'Maibach.fr', ou = 'IT',
                    email = 'alain@maibach.fr',
                    KeyPurpose = 'serverAuth',
+                   KeyUsage = 'keyEncipherment, dataEncipherment, digitalSignature',
                    subjectAltName = ['DNS:www.ritano.fr', 'DNS:wiki.maibach.fr', 'IP:10.0.0.1'],
                    cn = 'www.ritano.fr',
                    encryption = 'sha1',
@@ -975,6 +979,8 @@ Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationCh
 <strong>days_valid (<em>int</em>)</strong>: Set the periode, in days, during which the certfiicate will be valid. If valid_before is specified the validity will start at valid_before time .</li>
 <li>
 <strong>KeyPurpose (<em>str</em>)</strong>: Set the certificate usage purpose. Could be for server (serverAuth) or client authentication(clientAuth), if not specified, the certificate will support both.</li>
+<li>
+<strong>KeyUsage (<em>str</em>)</strong>: Define the certificate usage. Could be [digitalSignature, nonRepudiation, contentCommitment, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign, encipherOnly, decipherOnly], if not specified, the certificate will bear keyEncipherment and dataEncipherment.</li>
 </ul>
 </blockquote>
 
@@ -992,6 +998,7 @@ Must be in [ <strong><em>unspecified, keyCompromise, CACompromise, affiliationCh
     signRes = pki.sign_csr(
         csr="/opt/PyKI_data/CERTS/requests/test_gencsr/test_gencsr.csr",
         KeyPurpose = "clientAuth",
+        KeyUsage = 'keyEncipherment, dataEncipherment, digitalSignature',
         days_valid = 90,
         encryption = "SHA1"
     )

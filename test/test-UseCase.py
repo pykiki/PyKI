@@ -231,6 +231,7 @@ if __name__ == '__main__':
         email='serfserver@example.com',
         cn=commoname,
         KeyPurpose="serverAuth",
+        KeyUsage = 'keyEncipherment, dataEncipherment, digitalSignature',
         valid_before=10 * 365,
         days_valid=13 * 365)
     if expiredcert['error']:
