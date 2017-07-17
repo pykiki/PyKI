@@ -339,7 +339,7 @@ def genCert(name, pki, passphrase, usage, purpose, altnames=False,
             passphrase=passphrase,
             keysize=size,
             name=name,
-            usage=usage)
+            KeyPurpose=purpose)
         if key['error']:
             print(key['message'] + ", aborting...")
             return(False)

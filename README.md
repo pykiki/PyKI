@@ -9,6 +9,8 @@ Please be easy with my code, I assume that all is not optimized, pythonic and as
 
 ## Requirements and installation
 
+- **Understand and read the X509 RFC https://tools.ietf.org/html/rfc5280 **
+
 ### Compatibilities
 - **_Python 3.X_**
 
@@ -253,7 +255,7 @@ from PyKI import PyKIcore
 **Example**:
 >>```
 	# Init pki using 'Usual PKI init' (section 1) example and then
-	key = pki.create_key(passphrase='azerty', keysize=1024, name="www.ritano.fr", usage="serverAuth")
+	key = pki.create_key(passphrase='azerty', keysize=1024, name="www.ritano.fr", KeyPurpose="serverAuth")
 	if key['error'] :
 		print(key['message'])
 		print("ERROR: Unable to generate key "+name+" properly, aborting...")

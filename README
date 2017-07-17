@@ -464,7 +464,7 @@ from PyKI import PyKIcore
 
 <blockquote>
 <pre><code>    # Init pki using 'Usual PKI init' (section 1) example and then
-    key = pki.create_key(passphrase='azerty', keysize=1024, name="www.ritano.fr", usage="serverAuth")
+    key = pki.create_key(passphrase='azerty', keysize=1024, name="www.ritano.fr", KeyPurpose="serverAuth")
     if key['error'] :
         print(key['message'])
         print("ERROR: Unable to generate key "+name+" properly, aborting...")

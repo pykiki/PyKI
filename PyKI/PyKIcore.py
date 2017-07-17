@@ -2186,7 +2186,7 @@ class PyKI():
             passphrase='None',
             keysize=False,
             name=None,
-            usage=None,
+            KeyPurpose=None,
             ca=False):
         '''
         This module will generate a private key for certificate gen. At the end, the private key will be returned in utf-8 String format.
@@ -2200,7 +2200,7 @@ class PyKI():
         :param name: key name which must match the certificate common name.
         :type name: String.
 
-        :param usage: Define the certificate usage type: serverAuth/clientAuth. By default: serverAuth
+        :param KeyPurpose: Define the certificate usage type: serverAuth/clientAuth. By default: serverAuth
         :type usage: String.
 
         :param ca: Indicate if the key will be use to generate a CA type certificate.
@@ -2216,12 +2216,12 @@ class PyKI():
                 "message": 'ERROR: Missing certificate common name.'}
             return(res)
 
-        if usage == 'serverAuth':
+        if KeyPurpose == 'serverAuth':
             CRTdir = self.__srvCRTdir
-        elif usage == 'clientAuth':
+        elif KeyPurpose == 'clientAuth':
             CRTdir = self.__cltCRTdir
         else:
-            usage = False
+            KeyPurpose = False
             CRTdir = self.__srvCRTdir
 
         if not ca:
