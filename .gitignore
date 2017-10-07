@@ -1,4 +1,7 @@
-tools/PyKItools/config/config.ini
-tools/PyKItools/config/config.ini.old
-build/
-dist/PyKI-1.0-py3.6.egg
+/tools/PyKItools/config/config.ini
+/tools/PyKItools/config/config.ini.old
+/config/config.ini
+
+/PyKI.egg-info/
+/build/
+/dist/
