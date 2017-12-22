@@ -42,7 +42,7 @@ pip3 install cffi cryptography idna pyasn1 pycparser pyOpenSSL pytz six xkcdpass
 ```
 tar -xvzf PyKI-1.0.tar.gz
 cd PyKI-1.0/
-python3 setup.py install --record installation.txt
+python3 setup.py install --record installation.log
 ```
 
 >To uninstall it:
@@ -99,9 +99,59 @@ sudo -EH chown $USER /opt/PyKI_data/
 ## PKI usage
 >_You can see examples for all funcs in "test/test-UseCase.py"._
 
-## Easy setup module PyKInit
+## Quick start
 >>```
-    TODO !!
+
+pacman -S git python3 python-setuptools make gcc
+
+git clone https://github.com/pykiki/PyKI.git
+cd PyKI/
+python3 setup.py install --record installation.log
+cd
+
+sudo -EH install -vd -o $USER -m 0750 /opt/PyKI_data/
+cat > "/etc/pyki-config.ini" << EOF
+[DEFAULT]
+verbose : False
+
+[pki auth]
+private key : ${HOME}/PyKI_authKey.pem
+key length : 8192
+passphrase :
+
+[pki params]
+c : FR
+st : BDR
+l : Calas
+o : $USER Corp.
+ou : IT Department
+email : ${USER}@gmail.com
+issuer : PyKI_${USER}
+private key size : 8192
+certificate encryption : sha512
+private key cipher : des3
+crl encryption : sha256
+EOF
+
+# init main pki key to keep private
+pyki-gen_cert -n alain.maibach.fr -a DNS:alain.maibach.fr -p server --duration 360
+# choose your main password here and keep it secret.
+
+# remove server passphrase certificate
+pyki-removePass -n alain.maibach.fr
+
+# ${HOME}/PyKI_authKey.pem is to keep private
+# Servers cert:
+#/opt/PyKI_data/CERTS/chain_cacert.pem
+#/opt/PyKI_data/CERTS/servers/alain.maibach.fr/alin.maibach.fr.crt
+#/opt/PyKI_data/CERTS/servers/alain.maibach.fr/alin.maibach.fr_unprotected.key
+
+
+# generate client certificate
+pyki-gen_cert -n $USER -p client --duration 360
+pyki-create_pkcs12 -n $USER -s yourpassword
+
+/opt/PyKI_data/CERTS/clients/${USER/${USER}.p12
 ```
 
 ## Core module PyKIcore

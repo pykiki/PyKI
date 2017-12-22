@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-__author__ = "Alain Maibach"
-__status__ = "Beta tests"
-
 '''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
@@ -21,9 +18,8 @@ __status__ = "Beta tests"
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
+    Contact: alain.maibach@gmail.com / 34 rue appienne 13480 - FRANCE.
 '''
-
 import argparse
 
 from sys import argv
@@ -36,7 +32,7 @@ def argCommandline(argv):
     Manage cli script args
     """
     parser = argparse.ArgumentParser(
-        description='Revoke a certificate by its name in the PKI.')
+        description='Create PKCS12 file from certificate files matchin name in the PKI')
     parser.add_argument(
         "-n",
         "--cn",
@@ -47,33 +43,15 @@ def argCommandline(argv):
         metavar='Common Name',
         required=True)
     parser.add_argument(
-        "-r",
-        "--reason",
+        "-s",
+        "--pkcs12-pwd",
         action='store',
-        dest="reason",
-        type=str,
-        default='cessationOfOperation',
-        metavar='unspecified|keyCompromise|CACompromise|affiliationChanged|superseded|cessationOfOperation|certificateHold',
-        choices=[
-            'unspecified',
-            'keyCompromise',
-            'CACompromise',
-            'affiliationChanged',
-            'superseded',
-            'cessationOfOperation',
-            'certificateHold'],
-        help=u"Select which type of use is required for the certificate",
-        required=True)
-    parser.add_argument(
-        "-d",
-        "--date",
-        action='store',
-        dest="revokdate",
+        dest="pkcspw",
         type=str,
         default=False,
-        metavar='"%d/%m/%Y"',
-        help=u"Define a specific date for the revocation to take place.",
-        required=False)
+        help=u"PKCS12 file password",
+        metavar='mypkcs12passwd',
+        required=True)
     parser.add_argument(
         "-v",
         "--verbose",
@@ -81,8 +59,8 @@ def argCommandline(argv):
         dest='mainVerbosity',
         help=u"Add output verbosity",
         required=False)
-    args = parser.parse_args()
 
+    args = parser.parse_args()
     if len(argv) <= 1:
         parser.print_help()
         exit(1)
@@ -90,11 +68,27 @@ def argCommandline(argv):
     result = vars(args)
     return(result)
 
+
+def createpkcs(name, pki, pkcspass):
+    '''
+    Manage pkcs12
+    '''
+    print("INFO: Generating pkcs12 for " + name + "...")
+
+    clientpkcs12 = pki.create_pkcs12(pkcs12pwd=pkcspass, pkcs12name=name)
+    if clientpkcs12['error']:
+        print(clientpkcs12['message'])
+        return(False)
+    else:
+        print(clientpkcs12['message'])
+
+    return(True)
+
 if __name__ == '__main__':
     args = argCommandline(argv)
 
     curScriptDir = os.path.dirname(os.path.abspath(__file__))
-    configFilePath = curScriptDir + '/config/config.ini'
+    configFilePath = '/etc/pyki-config.ini'
 
     pyki = PyKInit.PyKIsetup(configFilePath)
     pki = pyki.pki
@@ -107,24 +101,8 @@ if __name__ == '__main__':
         print('ERROR: Certificate ' + args['cn'] + " doesn't exist.")
         exit(1)
 
-    if args['mainVerbosity']:
-        print(
-            "INFO: Revoking certificate " +
-            args['cn'] +
-            " for " +
-            args['reason'])
-
-    if args['revokdate']:
-        crl = pki.revoke_cert(
-            certname=args['cn'],
-            reason=args['reason'],
-            date=args['revokdate'])
-    else:
-        crl = pki.revoke_cert(certname=args['cn'], reason=args['reason'])
-    if crl['error']:
-        print(crl['message'])
-    elif args['mainVerbosity']:
-        print(crl['message'])
+    # create pkcs12
+    createpkcs(name=args['cn'], pki=pki, pkcspass=args['pkcspw'])
 
     pki.remove_lockf("INFO: PKI unlocked.")
     del(pki)

@@ -1,7 +1,8 @@
-/tools/PyKItools/config/config.ini
-/tools/PyKItools/config/config.ini.old
-/config/config.ini
-
+/tools/config/config.ini
+/tools/config/config.ini.old
+/tools/config/PyKI.ini
+/installation.log
 /PyKI.egg-info/
 /build/
 /dist/
+

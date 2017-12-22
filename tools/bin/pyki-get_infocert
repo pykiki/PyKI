@@ -18,7 +18,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
+    Contact: alain.maibach@gmail.com / 34 rue appienne 13480 - FRANCE.
 '''
 
 import argparse
@@ -33,14 +33,7 @@ def argCommandline(argv):
     Manage cli script args
     """
     parser = argparse.ArgumentParser(
-        description='Retrieve passphrase for a specific certificate name. If not specified, this will return all passphrases')
-    parser.add_argument(
-        "-a",
-        "--all",
-        action="store_true",
-        dest="all",
-        help=u"Show all passphrases",
-        required=False)
+        description='Read certificate informations')
     parser.add_argument(
         "-n",
         "--cn",
@@ -49,8 +42,7 @@ def argCommandline(argv):
         type=str,
         help=u"Certificate common name",
         metavar='Common Name',
-        required=False,
-        default=False)
+        required=True)
     parser.add_argument(
         "-v",
         "--verbose",
@@ -60,6 +52,8 @@ def argCommandline(argv):
         required=False)
 
     args = parser.parse_args()
+
+    # print help if no arguments given
     if len(argv) <= 1:
         parser.print_help()
         exit(1)
@@ -71,7 +65,7 @@ if __name__ == '__main__':
     args = argCommandline(argv)
 
     curScriptDir = os.path.dirname(os.path.abspath(__file__))
-    configFilePath = curScriptDir + '/config/config.ini'
+    configFilePath = '/etc/pyki-config.ini'
 
     pyki = PyKInit.PyKIsetup(configFilePath)
     pki = pyki.pki
@@ -80,25 +74,13 @@ if __name__ == '__main__':
         exit(1)
     pki.set_verbosity(args['mainVerbosity'])
 
-    if args['cn'] and args['cn'] not in pki.nameList:
+    if args['cn'] not in pki.nameList:
         print('ERROR: Certificate ' + args['cn'] + " doesn't exist.")
         exit(1)
 
-    passphrases = pki.loadpassDB()
-    if not passphrases['error']:
-        if args['all']:
-            print("\nList of passphrases stored:")
-            for passphrase in passphrases['message']:
-                print('Certificate Name: ' +
-                      str(passphrase) +
-                      ' / passphrase: ' +
-                      str(passphrases['message'][passphrase]))
-        else:
-            # we are calling pki func cleanStr() to match name in database
-            database_certname = passphrases[
-                'message'][pki.cleanStr(args['cn'])]
-            print("Passphrase for " + args['cn'] + ": " + database_certname)
-    passphrases.clear()
+    print("Certificate informations for " + args['cn'])
+    cert_info = pki.get_certinfo(args['cn'])
+    print("\n" + cert_info['message'])
 
     pki.remove_lockf("INFO: PKI unlocked.")
     del(pki)

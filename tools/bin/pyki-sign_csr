@@ -18,7 +18,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
+    Contact: alain.maibach@gmail.com / 34 rue appienne 13480 - FRANCE.
 '''
 import argparse
 
@@ -32,7 +32,7 @@ def argCommandline(argv):
     Manage cli script args
     """
     parser = argparse.ArgumentParser(
-        description='Get informations from Certificate Signing Request')
+        description='Sign Certificate request and store them in the PKI signed directory')
     parser.add_argument(
         "-f",
         "--file-path",
@@ -52,6 +52,53 @@ def argCommandline(argv):
         metavar='csrname',
         required=False)
     parser.add_argument(
+        "-d",
+        "--duration",
+        action='store',
+        dest="duration",
+        type=int,
+        default=360,
+        help=u"Number of days for certificate validity period",
+        metavar='X',
+        required=False)
+    parser.add_argument(
+        "-k",
+        "--key-usage",
+        action='store',
+        dest="usage",
+        type=str,
+        default=False,
+        metavar='digitalSignature, nonRepudiation, contentCommitment, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign, cRLSign, encipherOnly, decipherOnly',
+        help=u"Select which type of use is required for the certificate",
+        required=False)
+    parser.add_argument(
+        "-p",
+        "--purpose",
+        action='store',
+        dest="purpose",
+        type=str,
+        default='server',
+        metavar='client|server',
+        choices=[
+            'server',
+            'client'],
+        help=u"Select which type of use is required for the certificate",
+        required=True)
+    parser.add_argument(
+        "-e",
+        "--encryption",
+        action='store',
+        dest="encryption",
+        type=str,
+        default=False,
+        help=u"Certificate encryption level",
+        metavar="SHA1|SHA256|SHA512",
+        choices=[
+            'SHA1',
+            'SHA256',
+            'SHA512'],
+        required=False)
+    parser.add_argument(
         "-v",
         "--verbose",
         action='store_true',
@@ -67,7 +114,7 @@ if __name__ == '__main__':
     args = argCommandline(argv)
 
     curScriptDir = os.path.dirname(os.path.abspath(__file__))
-    configFilePath = curScriptDir + '/config/config.ini'
+    configFilePath = '/etc/pyki-config.ini'
 
     pyki = PyKInit.PyKIsetup(configFilePath)
     pki = pyki.pki
@@ -89,9 +136,31 @@ if __name__ == '__main__':
         filepath = pki.csrDir + '/' + \
             args['filename'] + '/' + args['filename'] + '.csr'
 
-    print("\nCertificate request informations for " + filepath)
-    csr_info = pki.get_csrinfo(filepath)
-    print("\n" + csr_info['message'])
+    if args['purpose'] == 'server':
+        args['purpose'] = 'serverAuth'
+    elif args['purpose'] == 'client':
+        args['purpose'] = 'clientAuth'
+
+    print("INFO: Signing Certificate Request " + filepath +
+          " for " + str(args['duration']) + " days of validity...")
+
+    signRes = pki.sign_csr(
+        csr=filepath,
+        KeyPurpose=args['purpose'],
+        KeyUsage=args['usage'],
+        days_valid=args['duration'],
+        encryption=args['encryption'])
+    if signRes['error']:
+        print(
+            "ERROR: Unable to generate certificate for csr " +
+            filepath +
+            " properly --> " +
+            signRes['message'] +
+            ", aborting...")
+        exit(1)
+    else:
+        print(signRes['message'])
+        print('INFO: The certificate is available in: /opt/PyKI_data/CERTS/signed/')
 
     pki.remove_lockf("INFO: PKI unlocked.")
     del(pki)

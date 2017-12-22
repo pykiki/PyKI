@@ -22,7 +22,7 @@ from Crypto.Cipher import AES
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
+    Contact: alain.maibach@gmail.com / 34 rue appienne 13480 - FRANCE.
 '''
 
 

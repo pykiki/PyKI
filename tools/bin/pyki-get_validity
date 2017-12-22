@@ -18,9 +18,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
+    Contact: alain.maibach@gmail.com / 34 rue appienne 13480 - FRANCE.
 '''
-
 import argparse
 
 from sys import argv
@@ -33,7 +32,7 @@ def argCommandline(argv):
     Manage cli script args
     """
     parser = argparse.ArgumentParser(
-        description='Read certificate informations')
+        description='Check PKI certificate status (not revoked and not expired).')
     parser.add_argument(
         "-n",
         "--cn",
@@ -52,8 +51,6 @@ def argCommandline(argv):
         required=False)
 
     args = parser.parse_args()
-
-    # print help if no arguments given
     if len(argv) <= 1:
         parser.print_help()
         exit(1)
@@ -65,7 +62,7 @@ if __name__ == '__main__':
     args = argCommandline(argv)
 
     curScriptDir = os.path.dirname(os.path.abspath(__file__))
-    configFilePath = curScriptDir + '/config/config.ini'
+    configFilePath = '/etc/pyki-config.ini'
 
     pyki = PyKInit.PyKIsetup(configFilePath)
     pki = pyki.pki
@@ -78,9 +75,9 @@ if __name__ == '__main__':
         print('ERROR: Certificate ' + args['cn'] + " doesn't exist.")
         exit(1)
 
-    print("Certificate informations for " + args['cn'])
-    cert_info = pki.get_certinfo(args['cn'])
-    print("\n" + cert_info['message'])
+    print("INFO: Checking certificate status for " + args['cn'])
+    valid = pki.chk_validity(args['cn'])
+    print(valid['message'])
 
     pki.remove_lockf("INFO: PKI unlocked.")
     del(pki)

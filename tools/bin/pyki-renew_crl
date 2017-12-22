@@ -18,8 +18,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    Contact: alain.maibach@gmail.com / 1133 route de Saint Jean 06600 Antibes - FRANCE.
+    Contact: alain.maibach@gmail.com / 34 rue appienne 13480 - FRANCE.
 '''
+
 import argparse
 
 from sys import argv
@@ -32,26 +33,17 @@ def argCommandline(argv):
     Manage cli script args
     """
     parser = argparse.ArgumentParser(
-        description='Create PKCS12 file from certificate files matchin name in the PKI')
+        description='Extend and renew CRL period.')
     parser.add_argument(
-        "-n",
-        "--cn",
-        action="store",
-        dest="cn",
-        type=str,
-        help=u"Certificate common name",
-        metavar='Common Name',
-        required=True)
-    parser.add_argument(
-        "-s",
-        "--pkcs12-pwd",
+        "-d",
+        "--days",
         action='store',
-        dest="pkcspw",
-        type=str,
-        default=False,
-        help=u"PKCS12 file password",
-        metavar='mypkcs12passwd',
-        required=True)
+        dest="days",
+        type=int,
+        default=360,
+        help=u"Number of days for renew CRL validity period",
+        metavar='X',
+        required=False)
     parser.add_argument(
         "-v",
         "--verbose",
@@ -59,36 +51,15 @@ def argCommandline(argv):
         dest='mainVerbosity',
         help=u"Add output verbosity",
         required=False)
-
     args = parser.parse_args()
-    if len(argv) <= 1:
-        parser.print_help()
-        exit(1)
-
     result = vars(args)
     return(result)
-
-
-def createpkcs(name, pki, pkcspass):
-    '''
-    Manage pkcs12
-    '''
-    print("INFO: Generating pkcs12 for " + name + "...")
-
-    clientpkcs12 = pki.create_pkcs12(pkcs12pwd=pkcspass, pkcs12name=name)
-    if clientpkcs12['error']:
-        print(clientpkcs12['message'])
-        return(False)
-    else:
-        print(clientpkcs12['message'])
-
-    return(True)
 
 if __name__ == '__main__':
     args = argCommandline(argv)
 
     curScriptDir = os.path.dirname(os.path.abspath(__file__))
-    configFilePath = curScriptDir + '/config/config.ini'
+    configFilePath = '/etc/pyki-config.ini'
 
     pyki = PyKInit.PyKIsetup(configFilePath)
     pki = pyki.pki
@@ -97,12 +68,13 @@ if __name__ == '__main__':
         exit(1)
     pki.set_verbosity(args['mainVerbosity'])
 
-    if args['cn'] not in pki.nameList:
-        print('ERROR: Certificate ' + args['cn'] + " doesn't exist.")
-        exit(1)
-
-    # create pkcs12
-    createpkcs(name=args['cn'], pki=pki, pkcspass=args['pkcspw'])
+    # Renew crl validity
+    if args['mainVerbosity']:
+        print("INFO: Updating crl expiry to " +
+              str(args['days']) +
+              "j from now (same as if we would renew it before it expires)")
+    renew = pki.renew_crl_date(next_crl_days=args['days'])
+    print(renew['message'])
 
     pki.remove_lockf("INFO: PKI unlocked.")
     del(pki)
