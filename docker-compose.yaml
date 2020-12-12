@@ -1,0 +1,36 @@
+version: '3.7'
+
+networks:
+  dk-pyki:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.89.21.0/30
+    driver_opts:
+      com.docker.network.bridge.name: dkpyki0
+
+services:
+  pyki:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: pyki
+      args:
+        TIMEZONE: Europe/Paris
+    image: pyki:1.3
+    container_name: pyki
+    hostname: pyki
+    tty: true
+    networks:
+      dk-pyki:
+        ipv4_address: 10.89.21.2
+    volumes:
+      - "./pyki_data/pyki-config.ini:/etc/pyki-config.ini:ro"
+      - "./pyki_data/certs_stuff/:/opt/PyKI_data:rw"
+      - "/etc/localtime:/etc/localtime:ro"
+    entrypoint: [
+      'bash'
+    ]
+    environment:
+      - TZ=Europe/Paris

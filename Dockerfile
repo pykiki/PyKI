@@ -106,7 +106,7 @@ RUN set -ex ;\
 ## Final stage ##
 #################
 
-FROM python_build
+FROM python_build as pyki
 
 # ENV MYVER="XXXX"
 
@@ -132,6 +132,6 @@ WORKDIR /data
 RUN python ./setup.py install
 # to fix before enable it !
 # RUN pytest
-RUN python ./setup.py clean
+RUN python ./setup.py clean && rm -rf *
 
 ENTRYPOINT ["pyki-init"]

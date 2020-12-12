@@ -5,5 +5,5 @@
 /PyKI.egg-info/
 /build/
 /dist/
-
+pyki_data
 __pycache__
