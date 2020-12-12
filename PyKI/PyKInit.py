@@ -214,11 +214,17 @@ class PyKIsetup():
 
             # get private key for authentication after first init
             authprivkey = self.__pki.initPkey
+            print(authprivkey)
             # writing key to file
+            wfile = None
+            self.__pki.create_dir(os.path.dirname(pkiAuthpK), 0o750)
             try:
                 wfile = open(pkiAuthpK, "wt")
+            except FileNotFoundError:
+                print("File %s is missing .. WTH !!!" % pkiAuthpK)
+                exit(1)
             except IOError:
-                print('ERROR: unable to open file ' + pkiAuthpK)
+                print('ERROR: unable to open file %s' % pkiAuthpK)
                 exit(1)
             else:
                 try:
@@ -230,8 +236,9 @@ class PyKIsetup():
                     if mainVerbosity:
                         print('INFO: File ' + pkiAuthpK + ' written')
             finally:
-                wfile.close()
-                authprivkey = None
+                if wfile:
+                    wfile.close()
+                    authprivkey = None
 
         # Init with privkey loaded from file
         pkey = open(pkiAuthpK, 'rt')

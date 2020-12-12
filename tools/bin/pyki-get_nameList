@@ -47,8 +47,7 @@ def argCommandline():
 if __name__ == '__main__':
     args = argCommandline()
 
-    curScriptDir = os.path.dirname(os.path.abspath(__file__))
-    pyki = PyKInit.PyKIsetup(curScriptDir + '/config/config.ini')
+    pyki = PyKInit.PyKIsetup('/etc/pyki-config.ini')
     pki = pyki.pki
     if not pki:
         print("ERROR: Errors found during init")

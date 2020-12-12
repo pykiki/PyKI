@@ -21,17 +21,10 @@
     Contact: alain.maibach@gmail.com / 34 rue appienne 13480 - FRANCE.
 '''
 
+import sys
 from PyKI import PyKInit
 
+
 if __name__ == '__main__':
-    args = argCommandline()
-
-    #  curScriptDir = os.path.dirname(os.path.abspath(__file__))
-    configFilePath = '/etc/pyki-config.ini'
-
-    pyki = PyKInit.PyKIsetup(configFilePath)
-    pki = pyki.pki
-
-    pki.remove_lockf("INFO: PKI unlocked.")
-    del(pki)
-    exit(0)
+    pyki = PyKInit.PyKIsetup('/etc/pyki-config.ini')
+    sys.exit(0)

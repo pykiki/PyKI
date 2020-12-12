@@ -58,7 +58,6 @@ def argCommandline(argv):
 if __name__ == '__main__':
     args = argCommandline(argv)
 
-    curScriptDir = os.path.dirname(os.path.abspath(__file__))
     configFilePath = '/etc/pyki-config.ini'
 
     pyki = PyKInit.PyKIsetup(configFilePath)

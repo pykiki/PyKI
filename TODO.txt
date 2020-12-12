@@ -4,5 +4,8 @@
         # que lorsque le CA en question est dédié a ca.
         # Voir donc pour l'affecter que sur les intermediate et que sur demande spécifique...?
 # integrer les test auto
+  Fix l'exec du pytest et l'activer dans docker
 # combiner avec flask pour le mode API
 # integrer un logger vers syslog et vers un fichier de log
+
+Passer en python 3.8 avec cryptodomex a la place de pycrypto. (il faudra modifier le code pour regler les pb d'encryption leve par crypto domex)

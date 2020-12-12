@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-
-__author__ = "Alain Maibach"
-__status__ = "Beta tests"
-
-'''
+# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
+r'''
     PyKI - PKI openssl for managing TLS certificates
     Copyright (C) 2016 MAIBACH ALAIN
 
@@ -24,62 +21,91 @@ __status__ = "Beta tests"
     Contact: alain.maibach@gmail.com / 34 rue appienne 13480 - FRANCE.
 '''
 
-try:
-  from setuptools import setup
-except ImportError:
-  from distutils.core import setup
+__author__ = "Alain Maibach"
+__status__ = "Beta tests"
 
-import sys
-from setuptools.command.test import test as TestCommand
+try:
+    from setuptools import setup, find_packages
+except ImportError:
+    from distutils.core import setup
+from distutils.command.clean import clean
+
+import os
+import shutil
+from glob import glob
 from setuptools.command.install import install as InstallCommand
 
-version = "1.3"
-requirements = "libxml2-dev libxslt-dev python-dev libcurl-openssl-dev"
+SOFTWARE_VERSION = "1.3"
+SOFTWARE_REQUIREMENTS = "libxml2-dev libxslt-dev python-dev libcurl-openssl-dev pytest"
+
 
 class Install(InstallCommand):
-  '''
-  '''
-  def run(self):
     '''
-    params = "{install_params} {requirements}".format(
-      install_params="install", requirements=requirements)
-    cmd = "{command} {params}".format(command="apt-get", params=params)
-    proc = subprocess.Popen(cmd, shell=True)
-    proc.wait()
+        This must help us to install OS specific packages.
+        Unused from now on.
     '''
-    InstallCommand.run(self)
+    def run(self):
+        '''
+        params = "{install_params} {requirements}".format(
+          install_params="install", requirements=requirements)
+        cmd = "{command} {params}".format(command="apt-get", params=params)
+        proc = subprocess.Popen(cmd, shell=True)
+        proc.wait()
+        '''
+        InstallCommand.run(self)
 
-class Test(TestCommand):
-  '''
-  '''
-  user_options = [('pytest-args=', 'a', "")]
 
-  def initialize_options(self):
-    TestCommand.initialize_options(self)
-    self.pytest_args = []
+class MyClean(clean):
+    """
+        Custom clean command to tidy up the project root.
+    """
+    CLEAN_FILES = './build ./dist ./*.pyc ./*.tgz ./*.egg-info'.split(' ')
 
-  def finalize_options(self):
-    TestCommand.finalize_options(self)
-    self.test_args = []
-    self.test_suite = True
+    user_options = []
 
-  def run_tests(self):
+    def initialize_options(self):
+        '''
+            Nothing to init'
+        '''
+        # pass
 
-    import pytest
-    errno = pytest.main(self.pytest_args)
-    sys.exit(errno)
+    def finalize_options(self):
+        '''
+            Nothing to finalize
+        '''
+        # pass
+
+    def run(self):
+        '''
+          Main part which clean what we need.
+        '''
+        cur_script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        for path_spec in self.CLEAN_FILES:
+            # Make paths absolute and relative to this path
+            abs_paths = glob(os.path.normpath(
+                                os.path.join(cur_script_dir,
+                                             path_spec)))
+            for path in [str(p) for p in abs_paths]:
+                if not path.startswith(cur_script_dir):
+                    raise ValueError("%s is not part of %s" % (path,
+                                                               cur_script_dir))
+                print('removing %s' % os.path.relpath(path))
+                shutil.rmtree(path)
+
 
 config = {
     'name': 'PyKI',
-    'version': str(version),
+    'version': str(SOFTWARE_VERSION),
     'description': 'TLS PKI manager',
     'author': 'Maibach Alain',
     'author_email': 'alain.maibach@gmail.com',
     'maintainer': 'Maibach Alain',
     'url': 'https://github.com/pykiki',
     'download_url': 'https://github.com/pykiki/PyKI',
-    'packages': ['PyKI'],
+    'packages':find_packages(exclude=['tests']),
     'scripts': [
+      'tools/bin/pyki-init',
       'tools/bin/pyki-check_key_vs_cert',
       'tools/bin/pyki-create_pkcs12',
       'tools/bin/pyki-extract_pkcs12',
@@ -104,17 +130,28 @@ config = {
     )
     ],
     'license': 'GNU GPLv3',
+    'tests_require': [
+            'mock',
+            'pytest',
+            'pytz',
+    ],
     'install_requires': [
         'cffi',
         'cryptography',
         'idna',
         'pyasn1',
         'pycparser',
+        #  'PyCryptodome',
         'pycrypto',
         'pyOpenSSL',
         'pytz',
+        'pytest',
         'six',
+        'wheel',
         'xkcdpass'],
+    #  'cmdclass': {
+    #      'test': pytest
+    #  },
     'platforms': [
         'Linux',
         'OSX'],
@@ -133,4 +170,5 @@ config = {
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Utilities']}
 
-setup(**config)
+if __name__ == '__main__':
+    setup(**config)
