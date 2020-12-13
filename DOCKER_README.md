@@ -59,6 +59,26 @@ docker exec -it pyki pyki-init
 
  - Generate a new cert with: `docker exec -it pyki pyki-gen_cert`
 
+     For a web server:
+     ```bash
+     docker exec -it pyki bash -c 'pyki-gen_cert -n global.local.net -p web -k keyEncipherment,dataEncipherment -a DNS:*.local.net'
+     docker exec -it pyki bash -c 'pyki-removePass -n global.local.net'
+
+     docker exec -it pyki bash -c '
+     pyki-get_validity -n global.local.net
+     '
+     ```
+
+     For an OPENVPN server:
+     ```bash
+     docker exec -it pyki bash -c 'pyki-gen_cert -n global.local.net -p server -k keyEncipherment,dataEncipherment -a DNS:*.local.net'
+     docker exec -it pyki bash -c 'pyki-gen_cert -n global.local.net -p client -k keyEncipherment,dataEncipherment -a DNS:*.local.net'
+     docker exec -it pyki bash -c 'pyki-gen_cert -n global.local.net -p both -k keyEncipherment,dataEncipherment -a DNS:*.local.net'
+     docker exec -it pyki bash -c 'pyki-removePass -n global.local.net'
+     ```
+
+ Add the flag -r to renew the certificate.
+
 
 ## Commands:
 
@@ -71,7 +91,8 @@ docker exec -it pyki pyki-init
 - pyki-get_infocert
 - pyki-get_inforeq
 - pyki-get_nameList
-- pyki-get_passphrases
+- pyki-get_passphrases -->
+    If you do not use removePass command, you will need these to figure out which passphrae encrypt your certificate.
 - pyki-get_validity
 - pyki-is_conform
 - pyki-read_crl

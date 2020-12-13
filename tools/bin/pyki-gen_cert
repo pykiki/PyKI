@@ -164,10 +164,13 @@ def argCommandline(argv):
         dest="purpose",
         type=str,
         default='server',
-        metavar='client|server',
+        metavar='client|server|both|web',
         choices=[
-            'server',
-            'client'],
+          'server',
+          'client',
+          'both',
+          'web'
+        ],
         help=u"Select which type of use is required for the certificate",
         required=True)
     parser.add_argument(
@@ -249,7 +252,7 @@ def codegenerator(pwlen=25, alphabet=False):
     return(mypw)
 
 
-def genCert(name, pki, passphrase, usage, purpose, altnames=False,
+def genCert(name, pki, passphrase, usage, purpose=False, altnames=False,
             size=False, certenc=False, days=False, renew=False,
             country=False, state=False, city=False, org=False,
             ou=False, email=False, endays=False, ocsp=False,
@@ -397,8 +400,10 @@ if __name__ == '__main__':
 
     if args['purpose'] == "server":
         args['purpose'] = 'serverAuth'
-    else:
+    elif args['purpose'] == "client":
         args['purpose'] = 'clientAuth'
+    elif args['purpose'] == "web":
+        args['purpose'] = 'False'
 
     if args['endays'] and not args['renewing']:
         args['endays'] = False

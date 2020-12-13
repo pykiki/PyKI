@@ -3339,8 +3339,10 @@ class PyKI():
             except SSL.WantX509LookupError as x:
                 res = {"error": True, "message": x.strerror + " " + x.filename}
             except Exception as ex:
-                res = {"error": True, "message": "ERROR: Unable to load private key " +
-                       key + ' ---> '.join(ex.args[0])}
+                print(ex)
+                res = {"error": True,
+                       "message": "ERROR: Unable to load private key {}".format(str(key))
+                       }
             except:
                 res = {"error": True, "message": "Unexpected error"}
             else:
@@ -3867,7 +3869,8 @@ class PyKI():
                 passname = cn
                 filename = cn
 
-            if not KeyPurpose:  # define key usage
+            # define key usage
+            if KeyPurpose == "both" :
                 typecrt = "SRV"
                 KeyPurpose = "serverAuth, clientAuth"
                 keydir = self.__srvCRTdir + "/" + filename
@@ -4077,41 +4080,22 @@ class PyKI():
                     ]
                 )
 
-            if not KeyPurpose:
+            if not KeyPurpose or KeyPurpose == "False":
                 typecrt = "SRV"
-                # define key usage
+            else:
+                if KeyPurpose == "clientAuth":
+                    typecrt = "CLT"
+                elif KeyPurpose in ["serverAuth", "both"]:
+                    typecrt = "SRV"
                 cert.add_extensions(
                     [
                         crypto.X509Extension(
                             b"extendedKeyUsage",
                             True,
-                            b"serverAuth, clientAuth"
+                            KeyPurpose.encode('utf-8')
                         )
                     ]
                 )
-            else:
-                if KeyPurpose == "clientAuth":
-                    typecrt = "CLT"
-                    cert.add_extensions(
-                        [
-                            crypto.X509Extension(
-                                b"extendedKeyUsage",
-                                True,
-                                KeyPurpose.encode('utf-8')
-                            )
-                        ]
-                    )
-                else:
-                    typecrt = "SRV"
-                    cert.add_extensions(
-                        [
-                            crypto.X509Extension(
-                                b"extendedKeyUsage",
-                                True,
-                                KeyPurpose.encode('utf-8')
-                            )
-                        ]
-                    )
         # OCSP support addon
         if ocspURI:
             try:
